@@ -1,5 +1,6 @@
-// Controlla che "dati" abbia la forma prodotta dal convertitore (convertitore-test.html)
-// e usata dalla scheda (modello-scheda.html). Controlla solo ciò che la scheda usa davvero:
+// Controlla che "dati" abbia la forma prodotta dal convertitore (web/convertitore.js)
+// e usata dalla scheda (web/scheda.js). Gira sia nel browser (prima di inviare) sia sul server (prima di salvare):
+// è una sola copia, quindi i due controlli non possono mai essere diversi. Controlla solo ciò che la scheda usa davvero:
 // se manca, la pagina del cliente si romperebbe. Restituisce un messaggio di errore oppure null.
 //
 // Forma attesa (in breve):
@@ -13,8 +14,14 @@
 //                        | { tipo: "circuito", formato, rec, esercizi: [ { nome, rip, video } ] } ] } ]
 // }
 
+(function (radice, fabbrica) {
+  if (typeof module === "object" && module.exports) module.exports = fabbrica();
+  else radice.LenaValidaScheda = fabbrica();
+})(typeof self !== "undefined" ? self : this, function () {
 const èOggetto = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 const testoOpzionale = (v) => v === undefined || v === null || typeof v === "string";
+// Un indirizzo (video) deve essere http o https: niente "javascript:" o altro
+const indirizzoOk = (v) => v === undefined || v === null || v === "" || (typeof v === "string" && /^https?:\/\/\S+$/i.test(v) && v.length <= 2000);
 
 function dataVera(testo) {
   if (typeof testo !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(testo)) return false;
@@ -34,6 +41,11 @@ function erroreScheda(dati) {
   if (!èOggetto(dati.riscaldamento) || !Array.isArray(dati.riscaldamento.esercizi))
     return "manca «riscaldamento» con la lista «esercizi»";
 
+  for (const voce of dati.riscaldamento.esercizi) {
+    if (!Array.isArray(voce) || typeof voce[0] !== "string") return "una voce del riscaldamento non è valida";
+    if (!indirizzoOk(voce[1])) return "un video del riscaldamento non ha un indirizzo http o https valido";
+  }
+
   if (!Array.isArray(dati.giorni) || dati.giorni.length === 0) return "nessun giorno di allenamento";
   if (dati.giorni.length > 14) return "troppi giorni (massimo 14)";
   const visti = new Set();
@@ -51,9 +63,12 @@ function erroreScheda(dati) {
       if (!èOggetto(b) || !["esercizio", "circuito"].includes(b.tipo))
         return `giorno ${id}: ogni blocco deve essere un «esercizio» o un «circuito»`;
       if (b.tipo === "circuito" && !Array.isArray(b.esercizi)) return `giorno ${id}: un circuito senza «esercizi»`;
+      if (!indirizzoOk(b.video)) return `giorno ${id}: un video non ha un indirizzo http o https valido`;
+      for (const e of b.esercizi || []) if (!èOggetto(e) || !indirizzoOk(e.video)) return `giorno ${id}: un esercizio del circuito non è valido (video)`;
     }
   }
   return null;
 }
 
-module.exports = { erroreScheda };
+return { erroreScheda };
+});

@@ -202,3 +202,48 @@ test("la scheda del sito non ha più dati incollati: li prende dal server", () =
   assert.doesNotMatch(html, /const DATI|__DATI__/);
   assert.match(leggi("scheda-server.js"), /\/api\/me\/scheda/);
 });
+
+// ---------- convertitore dentro il sito ----------
+
+test("file del convertitore e dell'anteprima: si servono e la libreria Excel è quella dichiarata (versione e impronta SHA-256)", async () => {
+  for (const [url, tipo] of [["/anteprima.html", "text/html"], ["/anteprima.js", "javascript"], ["/convertitore.js", "javascript"],
+    ["/valida-scheda.js", "javascript"], ["/vendor/xlsx.full.min.js", "javascript"], ["/vendor/LEGGIMI.txt", "text/plain"], ["/vendor/xlsx-LICENSE.txt", "text/plain"]]) {
+    const r = await fetch(BASE + url);
+    assert.equal(r.status, 200, url);
+    assert.ok(r.headers.get("content-type").includes(tipo), `${url}: ${r.headers.get("content-type")}`);
+    await r.arrayBuffer();
+  }
+  const note = fs.readFileSync(path.join(WEB, "vendor", "LEGGIMI.txt"), "utf8");
+  const impronta = require("node:crypto").createHash("sha256").update(fs.readFileSync(path.join(WEB, "vendor", "xlsx.full.min.js"))).digest("hex");
+  assert.ok(note.includes(impronta), "l'impronta scritta in vendor/LEGGIMI.txt non coincide con il file: la libreria è stata cambiata senza aggiornare le note");
+  assert.match(note, /Versione:\s+0\.20\.3/);
+  assert.match(note, /Apache-2\.0/);
+  assert.match(fs.readFileSync(path.join(WEB, "vendor", "xlsx.full.min.js"), "utf8"), /version="0\.20\.3"/, "il file è davvero la versione dichiarata");
+});
+
+test("nessuna pagina (nuova o vecchia) carica script o stili da siti esterni", () => {
+  for (const f of [path.join(RADICE, "convertitore-test.html"), path.join(RADICE, "modello-scheda.html"), ...paginePubbliche.map((p) => path.join(WEB, p))]) {
+    const html = fs.readFileSync(f, "utf8");
+    for (const m of html.matchAll(/<(?:script|link|img|iframe)\b[^>]*\b(?:src|href)="([^"]+)"/gi)) {
+      assert.doesNotMatch(m[1], /^(?:https?:)?\/\//i, `${path.basename(f)} carica ${m[1]} da fuori`);
+    }
+  }
+});
+
+test("l'anteprima accetta messaggi solo dalla stessa origine E solo dalla pagina che la contiene, e non usa srcdoc", () => {
+  const js = leggi("anteprima.js");
+  const codice = js.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");   // senza i commenti: contano solo le istruzioni
+  assert.match(js, /ev\.origin !== ORIGINE/);
+  assert.match(js, /ev\.source !== window\.parent/);
+  assert.match(js, /postMessage\(messaggio, ORIGINE\)/, "le risposte vanno solo alla nostra origine, mai a \"*\"");
+  assert.doesNotMatch(js, /postMessage\([^)]*["']\*["']\)/);
+  assert.doesNotMatch(codice, /srcdoc|innerHTML|eval\(|new Function/);
+  assert.match(js, /erroreScheda\(m\.dati\)/, "i dati ricevuti passano lo stesso controllo del server");
+});
+
+test("scheda.js: niente innerHTML con dati, indirizzi solo http/https/blob, colori solo esadecimali", () => {
+  const js = leggi("scheda.js");
+  assert.equal((js.match(/innerHTML/g) || []).length, 1, "innerHTML solo dentro el(), per le icone fisse");
+  assert.match(js, /\^\(https\?:\|blob:\)/);
+  assert.match(js, /\^\[0-9A-Fa-f\]\{6\}\$/);
+});

@@ -69,6 +69,13 @@ function settimanaDiOggi(){ const o = new Date(); o.setHours(0,0,0,0); return Ma
 //  - scheda del sito: la pagina definisce LENA_ARCHIVIO (vedi scheda-server.js) e i dati vanno nel database.
 // Nell'anteprima del convertitore non si salva niente.
 const ARCHIVIO = typeof LENA_ARCHIVIO !== "undefined" ? LENA_ARCHIVIO : null;
+// Modalità "sola lettura" (la vista dei progressi per il PT): si vede tutto ma non si può cambiare niente
+const LETTURA = typeof SOLA_LETTURA !== "undefined" && SOLA_LETTURA === true;
+if (LETTURA) document.body.classList.add("sola-lettura");
+function bloccaModifiche(){
+  for (const i of document.querySelectorAll("#contenuto input, #f-corpo input")) i.readOnly = true;
+  for (const b of document.querySelectorAll("#contenuto button, #f-corpo button")) b.disabled = true;
+}
 const CHIAVE = `scheda-${DATI.info.nome}-${DATI.info.cognome}-${DATI.inizio}`;
 let mem = { kg:{}, rip:{}, fatti:{}, serie:{}, dal:null, ultimo:null };
 let salvaOk = true;
@@ -95,6 +102,8 @@ const stato = { giorno: 0, settimana: Math.min(Math.max(nOggi,1), DATI.settimane
 const chiave = (...p) => p.join("|");          // es. "3|A|2|0" = settimana 3, giorno A, blocco 2, esercizio 0
 const fatto = k => !!mem.fatti[chiave(stato.settimana, k)];
 
+// Un colore dei dati entra in un attributo di stile: deve essere esattamente 6 cifre esadecimali, altrimenti grigio
+const esa = c => /^[0-9A-Fa-f]{6}$/.test(String(c)) ? String(c) : "888888";
 function el(tag, attrs = {}, ...figli){
   const e = document.createElement(tag);
   for (const [k,v] of Object.entries(attrs)){
@@ -103,6 +112,8 @@ function el(tag, attrs = {}, ...figli){
     else if (k === "html") e.innerHTML = v;   // solo icone SVG fisse
     else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
     else if (k === "value") e.value = v;
+    // un indirizzo viene accettato solo se è web (http/https) o un file creato dal browser (blob): niente "javascript:" o "data:"
+    else if (k === "href") { if (/^(https?:|blob:)/i.test(String(v))) e.setAttribute("href", v); }
     else e.setAttribute(k, v);
   }
   for (const f of figli.flat()) if (f != null) e.append(f.nodeType ? f : document.createTextNode(String(f)));
@@ -127,7 +138,7 @@ function testata(){
 function barra(){
   const g = document.getElementById("giorni"); g.replaceChildren();
   DATI.giorni.forEach((d,i) => g.append(el("button",{type:"button", class:"giorno-btn", "aria-pressed": String(i===stato.giorno),
-    style:`--bc:#${d.colore}`, onclick:()=>{ stato.giorno=i; disegna(); window.scrollTo({top:0}); }},
+    style:`--bc:#${esa(d.colore)}`, onclick:()=>{ stato.giorno=i; disegna(); window.scrollTo({top:0}); }},
     el("b",{}, d.titolo), el("span",{}, d.focus))));
   const s = document.getElementById("sett"); s.replaceChildren();
   for (let n=1; n<=DATI.settimane; n++){
@@ -284,7 +295,7 @@ function passi(g){
 function disegna(){
   const g = DATI.giorni[stato.giorno];
   const r = document.documentElement.style;
-  r.setProperty("--c", "#"+g.colore); r.setProperty("--c-chiaro", "#"+g.chiaro); r.setProperty("--c-scuro", "#"+g.scuro);
+  r.setProperty("--c", "#"+esa(g.colore)); r.setProperty("--c-chiaro", "#"+esa(g.chiaro)); r.setProperty("--c-scuro", "#"+esa(g.scuro));
   barra();
   const m = document.getElementById("contenuto"); m.replaceChildren();
   const n = stato.settimana;
@@ -296,6 +307,7 @@ function disegna(){
   m.append(el("h3",{class:"sezione"}, "Allenamento", el("span",{}, `${g.blocchi.length} blocchi`)));
   g.blocchi.forEach((b,i) => m.append(b.tipo === "esercizio" ? cardEsercizio(g, i+1, b) : cardCircuito(g, i+1, b)));
   m.append(...cardStretching(g));
+  if (LETTURA) bloccaModifiche();
   if (document.body.classList.contains("in-allenamento")) disegnaFocus();
 }
 

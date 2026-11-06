@@ -176,3 +176,8 @@ body.in-allenamento .timer{bottom:calc(86px + env(safe-area-inset-bottom))}
 .stato-salv.attenzione{color:var(--colore-avviso-testo);background:var(--colore-avviso-sfondo);border:1px solid var(--colore-avviso-bordo);
   border-radius:999px;padding:2px 10px}
 .focus-testa .stato-salv{flex:0 0 auto}
+
+/* modalità sola lettura (il PT guarda i progressi): niente pulsanti d'azione, restano i valori e le spunte */
+body.sola-lettura .inizia, body.sola-lettura .serie-riga button, body.sola-lettura .card .azioni{display:none}
+body.sola-lettura .campo input, body.sola-lettura .circ .lista input{pointer-events:none}
+body.sola-lettura button:disabled{cursor:default}

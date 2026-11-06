@@ -1,0 +1,17 @@
+Librerie di terzi usate dal sito (ospitate qui: il sito non scarica nulla da internet)
+
+SheetJS Community Edition ("xlsx")
+  File:       xlsx.full.min.js   (la licenza è in xlsx-LICENSE.txt)
+  Versione:   0.20.3
+  Licenza:    Apache-2.0
+  Origine:    https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz  (file dist/xlsx.full.min.js)
+  SHA-256:    cc015130aa8521e7f088f88898eba949ccdcbfb38df0bd129b44b7273c3a6f41
+  A cosa serve: legge i file Excel (.xlsx) DENTRO il browser del PT; il file Excel non viene mai mandato al server.
+
+Perché la 0.20.3 e non la 0.18.5 (l'ultima pubblicata su npm):
+  la 0.18.5 ha due vulnerabilità note, corrette dalla 0.19.3 e dalla 0.20.2:
+  inquinamento dei prototipi (CVE-2023-30533) e blocco con file costruiti ad arte (CVE-2024-22363).
+  Il convertitore usava già la 0.20.3.
+
+Per aggiornarla: scarica il nuovo .tgz da https://cdn.sheetjs.com, copia dist/xlsx.full.min.js qui,
+aggiorna questo file (versione e SHA-256, con: sha256sum xlsx.full.min.js) e rilancia npm test.

@@ -3,7 +3,7 @@
 const crypto = require("crypto");
 const db = require("./db");
 const { hashCodice } = require("./aiuti");
-const { erroreScheda } = require("./valida-scheda");
+const { erroreScheda } = require("../web/valida-scheda");
 
 const DURATA_INVITO_GIORNI = 7;
 
