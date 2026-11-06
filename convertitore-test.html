@@ -285,11 +285,30 @@ function convertiExcel(righe, merges) {
 let ultimiDati = null;       // i dati dell'ultimo Excel letto
 let paginaCompleta = null;   // la scheda finita (modello + dati): serve all'anteprima e al download
 
-// il modello della scheda si legge una volta sola, all'apertura della pagina
-const modelloPronto = fetch("modello-scheda.html").then(r => {
-  if (!r.ok) throw new Error("modello non trovato");
+// Il modello della scheda rimanda a file esterni (lo stile e il programma della scheda: sono gli stessi
+// che usa il sito). La scheda scaricata però deve essere UN file solo e autonomo, quindi qui li
+// incorporiamo dentro la pagina al posto dei riferimenti.
+async function leggiTesto(percorso) {
+  const r = await fetch(percorso);
+  if (!r.ok) throw new Error(percorso + " non trovato");
   return r.text();
-});
+}
+async function leggiModello() {
+  let html = await leggiTesto("modello-scheda.html");
+  const riferimenti = [...html.matchAll(/<link rel="stylesheet" href="([^"]+)">|<script src="([^"]+)"><\/script>/g)];
+  for (const m of riferimenti) {
+    const testo = await leggiTesto(m[1] || m[2]);
+    // se il programma contenesse la sequenza che chiude un tag script, la pagina si romperebbe: la rendiamo innocua
+    const blocco = m[1]
+      ? "<style>\n" + testo + "\n</style>"
+      : "<script>\n" + testo.replace(/<\/script/gi, "<\\/script") + "\n<\/script>";
+    html = html.replace(m[0], () => blocco);   // la funzione evita che i simboli $ nel testo vengano interpretati
+  }
+  return html;
+}
+
+// il modello (già completo di stile e programma) si legge una volta sola, all'apertura della pagina
+const modelloPronto = leggiModello();
 modelloPronto.catch(() => {});   // l'errore lo gestiamo più avanti, quando serve
 
 // mette i dati al posto del segnaposto
