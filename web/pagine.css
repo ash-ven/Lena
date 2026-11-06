@@ -1,18 +1,22 @@
-/* Stile delle pagine semplici (login, registrazione, area PT, 404).
-   Non contiene nessun colore o font scritto a mano: legge tutto da tema.css. */
+/* Stile delle pagine semplici (login, registrazione, area PT, 404) e dei messaggi di stato della scheda.
+   Non contiene nessun colore o font scritto a mano: legge tutto da tema.css.
+   Le regole sul <body> valgono solo con class="semplice", così non toccano la pagina della scheda. */
 
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--colore-sfondo);color:var(--colore-testo);font-family:var(--font-testo);
+/* l'attributo "hidden" deve vincere sempre, anche su elementi che hanno un display loro (flex...) */
+[hidden]{display:none!important}
+body.semplice{margin:0;background:var(--colore-sfondo);color:var(--colore-testo);font-family:var(--font-testo);
   font-size:16px;line-height:1.45;min-height:100vh}
 
+.pagina.compatta{min-height:70vh}
 .pagina{min-height:100vh;display:flex;align-items:center;justify-content:center;
   padding:max(20px,env(safe-area-inset-top)) 16px max(20px,env(safe-area-inset-bottom))}
 .riquadro{width:100%;max-width:420px;background:var(--colore-carta);border:1px solid var(--colore-linea);
   border-radius:20px;padding:26px 22px}
 
 .marchio{margin:0 0 6px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--colore-testo-tenue)}
-h1{font-family:var(--font-titoli);font-weight:400;font-size:28px;line-height:1.15;margin:0 0 8px}
+.riquadro h1{font-family:var(--font-titoli);font-weight:400;font-size:28px;line-height:1.15;margin:0 0 8px}
 .testo-tenue{color:var(--colore-testo-tenue);margin:0 0 18px}
 
 /* campi */
@@ -47,8 +51,8 @@ h1{font-family:var(--font-titoli);font-weight:400;font-size:28px;line-height:1.1
 .sotto a{color:var(--colore-accento-scuro)}
 
 /* il cursore da tastiera deve vedersi sempre */
-a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible{
+.riquadro a:focus-visible, .riquadro button:focus-visible, .riquadro input:focus-visible{
   outline:3px solid var(--colore-accento-scuro);outline-offset:2px}
-input:focus-visible{outline-offset:0}
+.riquadro input:focus-visible{outline-offset:0}
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}

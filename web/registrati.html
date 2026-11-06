@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FBF8F3">
+<meta name="referrer" content="no-referrer">
+<title>Crea il tuo accesso · Lena</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/tema.css">
+<link rel="stylesheet" href="/pagine.css">
+</head>
+<body class="semplice">
+<main class="pagina">
+  <div class="riquadro">
+    <p class="marchio">Lena</p>
+    <h1>Crea il tuo accesso</h1>
+    <p class="testo-tenue" id="introduzione">Il tuo personal trainer ti ha invitato. Scegli email e password per vedere la tua scheda.</p>
+
+    <div id="messaggio" class="messaggio errore" role="alert" hidden></div>
+
+    <form id="modulo" novalidate>
+      <div class="campo-modulo">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" inputmode="email"
+               autocapitalize="none" spellcheck="false" required>
+      </div>
+      <div class="campo-modulo">
+        <label for="password">Scegli una password</label>
+        <input id="password" name="password" type="password" autocomplete="new-password"
+               aria-describedby="aiuto-password" required>
+        <span class="aiuto" id="aiuto-password">Almeno 10 caratteri. Più è lunga, più è sicura: va bene anche una frase facile da ricordare.</span>
+      </div>
+      <label class="mostra"><input type="checkbox" id="mostra"> Mostra la password</label>
+      <button class="pulsante" type="submit" id="invia">Crea il mio accesso</button>
+    </form>
+
+    <p class="sotto">Hai già un account? <a href="/login.html">Accedi</a></p>
+  </div>
+</main>
+<noscript><p style="text-align:center">Per usare Lena serve JavaScript attivo nel browser.</p></noscript>
+<script src="/api.js"></script>
+<script src="/registrati.js"></script>
+</body>
+</html>

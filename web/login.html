@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FBF8F3">
+<title>Accedi · Lena</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/tema.css">
+<link rel="stylesheet" href="/pagine.css">
+</head>
+<body class="semplice">
+<main class="pagina">
+  <div class="riquadro">
+    <p class="marchio">Lena</p>
+    <h1>Accedi</h1>
+    <p class="testo-tenue">Entra per vedere la tua scheda di allenamento.</p>
+
+    <div id="messaggio" class="messaggio errore" role="alert" hidden></div>
+
+    <form id="modulo" novalidate>
+      <div class="campo-modulo">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" inputmode="email"
+               autocapitalize="none" spellcheck="false" required>
+      </div>
+      <div class="campo-modulo">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <label class="mostra"><input type="checkbox" id="mostra"> Mostra la password</label>
+      <button class="pulsante" type="submit" id="invia">Accedi</button>
+    </form>
+
+    <p class="sotto">Non hai ancora un account? Apri il link di invito che ti ha mandato il tuo PT.</p>
+  </div>
+</main>
+<noscript><p style="text-align:center">Per usare Lena serve JavaScript attivo nel browser.</p></noscript>
+<script src="/api.js"></script>
+<script src="/login.js"></script>
+</body>
+</html>
