@@ -13,7 +13,7 @@ test("informativa e condizioni: mostrano la versione, hanno un titolo e usano il
     const html = leggi(f);
     assert.match(html, /<h1[^>]*>[^<]+<\/h1>/, `${f}: manca il titolo`);
     assert.match(html, /id="versione"/, `${f}: manca la riga con la versione`);
-    assert.match(html, /href="\/tema\.css"/, `${f}: non usa il tema`);
+    assert.match(html, /href="\/sistema\.css"/, `${f}: non usa il sistema grafico`);
     assert.match(html, /<html lang="it">/);
     assert.doesNotMatch(html, /style="/, `${f}: stile scritto nella pagina`);
     assert.ok(!/#[0-9a-fA-F]{3,8}/.test(html.replace(/<meta name="theme-color"[^>]*>/, "")), `${f}: colore scritto a mano`);

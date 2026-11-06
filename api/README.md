@@ -305,7 +305,8 @@ File usati da più pagine:
 
 | File | A cosa serve |
 |---|---|
-| `tema.css` | **tutti i colori e i font** (vedi la sezione dopo) |
+| `sistema.css`, `tema.js` | **colori, font, spazi e icone di tutte le pagine** (design system Lena, modalità scura e chiara; vedi sotto) |
+| `tema.css` | colori e font **della sola scheda di allenamento** (provvisorio, la scheda scaricabile li incorpora) |
 | `pagine.css` | stile di login, registrazione, area PT, 404 e dei messaggi di stato |
 | `scheda.css`, `scheda.js` | **l'unica copia** di stile e logica della scheda (vedi sotto) |
 | `api.js` | piccolo aiuto per chiamare l'API, uscire, mostrare gli errori comuni |
@@ -344,6 +345,16 @@ di `helmet` non va allentata: un test (`test/web.test.js`) fa fallire `npm test`
 
 ## Come cambiare colori e font
 
+Le pagine del sito usano il design system **Lena** (cartella `design-sistema/`). I valori stanno in **un solo file:
+`web/sistema.css`** (variabili CSS: `--sfondo`, `--superficie`, `--testo`, `--brace`…, per la modalità scura e per la chiara).
+Prima si cambia il design system (`design-sistema/tokens.json`), poi `sistema.css`; `npm test` controlla i contrasti
+in entrambe le modalità. Regole per le nuove pagine: [`web/README.md`](../web/README.md). Elementi aggiunti in attesa
+di approvazione: [`design-sistema/PROPOSTE.md`](../design-sistema/PROPOSTE.md).
+
+**La scheda di allenamento** (e quella scaricabile) usa ancora il vecchio tema, in `web/tema.css`, qui sotto.
+
+### Il tema della scheda (`web/tema.css`)
+
 Tutto sta in **un solo file: `web/tema.css`**. Sono "variabili" CSS: dai un nome a un colore o a un font,
 e tutte le pagine lo usano. Cambi il valore in un punto, cambia dappertutto.
 
@@ -357,8 +368,8 @@ e tutte le pagine lo usano. Cambi il valore in un punto, cambia dappertutto.
 | `--colore-accento`, `--colore-accento-chiaro`, `--colore-accento-scuro` | il colore "di marca": pulsanti, titoli colorati |
 | `--colore-su-accento` | il testo sopra i pulsanti pieni |
 | `--colore-ok-...`, `--colore-avviso-...`, `--colore-errore-...` | i messaggi verdi, arancio e rossi (`sfondo`, `bordo`, `testo`) |
-| `--font-titoli` | i titoli (oggi un carattere con le grazie, Georgia) |
-| `--font-testo` | tutto il resto (oggi il carattere di sistema) |
+| `--scheda-font-titoli` | i titoli (oggi un carattere con le grazie, Georgia) |
+| `--scheda-font-testo` | tutto il resto (oggi il carattere di sistema) |
 
 **Esempio.** Per un tema azzurro, in `web/tema.css` cambia (le altre righe restano):
 

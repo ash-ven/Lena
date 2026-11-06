@@ -41,7 +41,7 @@ test("le pagine e i file del sito rispondono 200 con il tipo giusto", async () =
   const attesi = {
     "/": "text/html", "/index.html": "text/html", "/login.html": "text/html", "/registrati.html": "text/html",
     "/scheda.html": "text/html", "/pt.html": "text/html", "/404.html": "text/html",
-    "/tema.css": "text/css", "/pagine.css": "text/css", "/scheda.css": "text/css",
+    "/tema.css": "text/css", "/pagine.css": "text/css", "/scheda.css": "text/css", "/sistema.css": "text/css", "/tema.js": "javascript",
     "/api.js": "javascript", "/login.js": "javascript", "/registrati.js": "javascript", "/scheda.js": "javascript",
     "/scheda-server.js": "javascript", "/sincronizza.js": "javascript", "/registrazioni.js": "javascript",
     "/index.js": "javascript", "/pt.js": "javascript", "/favicon.svg": "image/svg+xml",
@@ -179,11 +179,12 @@ test("scheda.js non contiene la sequenza che chiude un tag script (romperebbe la
   for (const f of ["scheda.js", "scheda.css", "tema.css"]) assert.doesNotMatch(leggi(f), /<\/script/i, f);
 });
 
-test("colori e font delle pagine nuove stanno SOLO in tema.css", () => {
+test("colori e font delle pagine nuove stanno SOLO in sistema.css (la scheda ha il suo tema.css)", () => {
   const colore = /#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(/;
   const font = /font-family\s*:\s*(?!var\()/;
-  assert.match(leggi("tema.css"), /--colore-sfondo/);
-  assert.match(leggi("tema.css"), /--font-titoli/);
+  assert.match(leggi("sistema.css"), /--sfondo/);
+  assert.match(leggi("sistema.css"), /--font-titoli/);
+  assert.match(leggi("tema.css"), /--scheda-font-titoli/);
   assert.doesNotMatch(leggi("pagine.css"), colore, "pagine.css ha un colore scritto a mano");
   assert.doesNotMatch(leggi("pagine.css"), font, "pagine.css ha un font scritto a mano");
   for (const f of paginePubbliche) {

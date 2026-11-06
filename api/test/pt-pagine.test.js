@@ -56,11 +56,13 @@ test("accessibilità: ogni campo ha la sua etichetta, ogni pulsante un testo, li
   }
 });
 
-// ---- contrasto dei colori (WCAG: testo normale ≥ 4,5:1, elementi grafici ≥ 3:1) ----
-function coloriDelTema() {
-  const mappa = {};
-  for (const m of leggi("tema.css").matchAll(/--([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})/g)) mappa[m[1]] = m[2];
-  return mappa;
+// ---- contrasto dei colori (WCAG: testo normale ≥ 4,5:1, elementi grafici ≥ 3:1), in ENTRAMBE le modalità ----
+function coloriDelSistema(modo) {
+  const css = leggi("sistema.css");
+  const blocco = (inizio) => { const i = css.indexOf(inizio); return css.slice(i, css.indexOf("\n}", i)); };
+  const leggiVar = (testo, mappa) => { for (const m of testo.matchAll(/--([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})/g)) mappa[m[1]] = m[2]; return mappa; };
+  const mappa = leggiVar(blocco(':root, [data-theme="scura"]'), {});
+  return modo === "chiara" ? leggiVar(blocco('[data-theme="chiara"]'), mappa) : mappa;   // la chiara cambia solo alcuni valori
 }
 function luminanza(hex) {
   const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
@@ -68,20 +70,39 @@ function luminanza(hex) {
 }
 const contrasto = (a, b) => { const [x, y] = [luminanza(a), luminanza(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
 
-test("contrasto dei colori dell'area del PT: testo almeno 4,5:1, contorno del focus almeno 3:1", () => {
-  const c = coloriDelTema();
-  const coppie = [
-    ["colore-testo", "colore-carta"], ["colore-testo", "colore-sfondo"], ["colore-testo", "colore-accento-chiaro"], ["colore-testo", "colore-avviso-sfondo"],
-    ["colore-testo-secondario", "colore-carta"], ["colore-testo-secondario", "colore-sfondo"],
-    ["colore-su-accento", "colore-azione"], ["colore-su-accento", "colore-pericolo"],
-    ["colore-azione", "colore-carta"], ["colore-azione", "colore-sfondo"],
-    ["colore-ok-testo", "colore-ok-sfondo"], ["colore-avviso-testo", "colore-avviso-sfondo"], ["colore-errore-testo", "colore-errore-sfondo"], ["colore-errore-testo", "colore-carta"],
-  ];
-  for (const [a, b] of coppie) {
-    assert.ok(c[a] && c[b], `variabile mancante: ${a} o ${b}`);
-    assert.ok(contrasto(c[a], c[b]) >= 4.5, `${a} (${c[a]}) su ${b} (${c[b]}): ${contrasto(c[a], c[b]).toFixed(2)}:1, serve almeno 4,5:1`);
+for (const modo of ["scura", "chiara"]) {
+  test(`contrasto dei colori (${modo}): testo almeno 4,5:1; contorni e focus almeno 3:1`, () => {
+    const c = coloriDelSistema(modo);
+    const fondi = ["sfondo", "superficie", "superficie-alta"];
+    const testo = [...fondi.flatMap((f) => [["testo", f], ["testo-secondario", f], ["conferma", f]]),
+      ["su-brace", "brace"], ["testo-brace", "sfondo"], ["testo-brace", "superficie"], ["errore", "sfondo"], ["errore", "superficie"]];
+    for (const [a, b] of testo) {
+      assert.ok(c[a] && c[b], `${modo}: variabile mancante ${a} o ${b}`);
+      assert.ok(contrasto(c[a], c[b]) >= 4.5, `${modo}: ${a} (${c[a]}) su ${b} (${c[b]}): ${contrasto(c[a], c[b]).toFixed(2)}:1, serve almeno 4,5:1`);
+    }
+    for (const f of ["sfondo", "superficie"]) {
+      assert.ok(contrasto(c["bordo-campo"], c[f]) >= 3, `${modo}: bordo-campo su ${f} sotto 3:1`);
+      assert.ok(contrasto(c["brace"], c[f]) >= 3, `${modo}: il contorno del focus (brace) su ${f} sotto 3:1`);
+    }
+  });
+}
+
+test("nessun colore scritto a mano in nessun CSS del sito, tranne sistema.css e il tema della scheda", () => {
+  const colore = /#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(/;
+  for (const f of fs.readdirSync(WEB).filter((n) => n.endsWith(".css") && !["sistema.css", "tema.css", "scheda.css"].includes(n))) {
+    assert.doesNotMatch(leggi(f), colore, `${f}: colore scritto a mano`);
   }
-  for (const sfondo of ["colore-carta", "colore-sfondo"]) {
-    assert.ok(contrasto(c["colore-azione"], c[sfondo]) >= 3, `il contorno del focus (colore-azione) deve vedersi su ${sfondo}`);
+});
+
+test("pagine: niente richieste esterne, niente script o stile scritti nella pagina, lingua, titolo, un solo h1", () => {
+  for (const f of fs.readdirSync(WEB).filter((n) => n.endsWith(".html"))) {
+    const html = leggi(f);
+    assert.match(html, /<html lang="it">/, f);
+    assert.match(html, /<title>[^<]+<\/title>/, f);
+    assert.doesNotMatch(html, /(?:src|href)="https?:\/\//, `${f}: richiesta a un sito esterno`);
+    assert.doesNotMatch(html, /<style\b/, `${f}: stile scritto nella pagina`);
+    for (const m of html.matchAll(/<script\b([^>]*)>/g)) assert.match(m[1], /\bsrc=/, `${f}: script scritto dentro la pagina`);
   }
+  for (const f of ["login.css"].filter((n) => fs.existsSync(path.join(WEB, n)))) assert.doesNotMatch(leggi(f), /https?:\/\//);
+  assert.doesNotMatch(leggi("sistema.css"), /url\((?!["']?\/fonts\/|["']?\/icone\/)/, "sistema.css carica qualcosa che non è in /fonts o /icone");
 });
