@@ -37,7 +37,7 @@ router.param("id", async (req, res, next, valore) => {
 // Una sola query: i conteggi e le date si calcolano nel database.
 async function riassuntoClienti(ptId, clienteId) {
   const r = await db.query(
-    `SELECT c.id, c.nome, c.cognome, c.creato_il,
+    `SELECT c.id, c.nome, c.cognome, c.creato_il, c.ultima_attivita, c.rapporto_finito_il,
             (c.utente_id IS NOT NULL) AS registrato,
             (SELECT count(*)::int FROM scheda s WHERE s.cliente_id = c.id) AS schede,
             (SELECT s.id FROM scheda s WHERE s.cliente_id = c.id ORDER BY s.creata_il DESC, s.id DESC LIMIT 1) AS scheda_recente_id,
@@ -62,6 +62,19 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const [cliente] = await riassuntoClienti(req.ptId, req.cliente.id);
   res.json(cliente);
+});
+
+// PUT /api/clienti/:id/rapporto  { concluso: true | false }
+// Il professionista segna il rapporto come concluso (o lo riapre). Serve a decidere quando cancellare i dati del cliente
+// (vedi conservazione.js). Non toglie l'accesso al cliente e si può annullare in qualsiasi momento.
+router.put("/:id/rapporto", async (req, res) => {
+  const concluso = (req.body || {}).concluso;
+  if (typeof concluso !== "boolean") return res.status(400).json({ errore: "Serve «concluso»: true oppure false" });
+  const r = await db.query(
+    "UPDATE cliente SET rapporto_finito_il = CASE WHEN $2 THEN COALESCE(rapporto_finito_il, now()) ELSE NULL END WHERE id = $1 RETURNING rapporto_finito_il",
+    [req.cliente.id, concluso]
+  );
+  res.json({ rapporto_finito_il: r.rows[0].rapporto_finito_il });
 });
 
 // POST /api/clienti  { nome, cognome }

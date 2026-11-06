@@ -6,4 +6,16 @@
 const VERSIONE_INFORMATIVA = "2026-11-bozza-1";       // informativa privacy per i clienti (web/privacy.html)
 const VERSIONE_CONDIZIONI_PT = "2026-11-bozza-1";     // condizioni d'uso per i professionisti (web/condizioni-pt.html)
 
-module.exports = { VERSIONE_INFORMATIVA, VERSIONE_CONDIZIONI_PT };
+// CONSERVAZIONE. Dopo quanti mesi si cancellano i clienti con rapporto concluso o senza attività (vedi pulizia.js).
+// Il valore giusto è ancora da decidere con il professionista: per questo si cambia in api/.env, senza toccare il codice.
+const MESI_CONSERVAZIONE_DEFAULT = 24;
+function mesiConservazione(env = process.env) {
+  const grezzo = env.MESI_CONSERVAZIONE;
+  if (grezzo === undefined || grezzo === "") return MESI_CONSERVAZIONE_DEFAULT;
+  if (!/^\d{1,3}$/.test(String(grezzo).trim()) || Number(grezzo) < 1 || Number(grezzo) > 120) {
+    throw new Error("MESI_CONSERVAZIONE deve essere un numero intero tra 1 e 120 (mesi).");
+  }
+  return Number(grezzo);
+}
+
+module.exports = { VERSIONE_INFORMATIVA, VERSIONE_CONDIZIONI_PT, MESI_CONSERVAZIONE_DEFAULT, mesiConservazione };

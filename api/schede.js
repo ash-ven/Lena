@@ -120,6 +120,8 @@ router.put("/:id/registrazioni", richiediRuolo("cliente"), async (req, res) => {
         salvate++;
       }
     }
+    // salvare dei valori è un'attività del cliente (serve a decidere dopo quanto tempo cancellare i dati)
+    await client.query("UPDATE cliente SET ultima_attivita = now() WHERE id = (SELECT cliente_id FROM scheda WHERE id = $1)", [req.scheda.id]);
     return { salvate, cancellate };
   });
   res.json(esito);

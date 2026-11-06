@@ -55,6 +55,27 @@
     }
   }
 
+  function disegnaRapporto() {
+    const concluso = !!cliente.rapporto_finito_il;
+    $("rapporto-stato").textContent = concluso
+      ? `Rapporto concluso il ${LenaPt.dataBreve(cliente.rapporto_finito_il)}.`
+      : "Il rapporto con questo cliente è in corso.";
+    $("rapporto-bottone").textContent = concluso ? "Riapri il rapporto" : "Segna rapporto concluso";
+  }
+
+  let rapportoInCorso = false;
+  $("rapporto-bottone").addEventListener("click", async () => {
+    if (rapportoInCorso) return;
+    rapportoInCorso = true;
+    $("rapporto-bottone").disabled = true;
+    $("rapporto-esito").replaceChildren();
+    const r = await LenaPt.chiama("PUT", `/api/clienti/${id}/rapporto`, { concluso: !cliente.rapporto_finito_il });
+    rapportoInCorso = false;
+    $("rapporto-bottone").disabled = false;
+    if (r.stato === 200) await ricarica(true);
+    else $("rapporto-esito").append(messaggio("errore", "Non sono riuscito ad aggiornare il rapporto", [LenaPt.testoErrore(r, "aggiornare il rapporto")]));
+  });
+
   // ---------- caricamento ----------
   async function ricarica(silenzioso) {
     if (!silenzioso) {
@@ -74,6 +95,7 @@
     disegnaDati();
     disegnaSchede(s.json);
     disegnaInvito();
+    disegnaRapporto();
     const firma = JSON.stringify([cliente.registrato, cliente.ultimo_progresso, s.json.map((x) => [x.id, x.registrazioni])]);
     if (firma !== firmaProgressi) { firmaProgressi = firma; LenaPtProgressi.aggiorna(cliente, s.json); }
   }

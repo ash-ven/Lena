@@ -35,6 +35,7 @@
 
   // Lo stato di un cliente, in parole (per l'elenco e per la pagina del cliente)
   function statoCliente(c) {
+    if (c.rapporto_finito_il) return { testo: `Rapporto concluso il ${dataBreve(c.rapporto_finito_il)}`, tipo: "neutro" };
     if (!c.schede) return { testo: "Nessuna scheda", tipo: "nessuna" };
     if (!c.registrato) {
       return c.invito_attivo

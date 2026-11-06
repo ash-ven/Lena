@@ -31,6 +31,8 @@ async function creaScheda(clienteId, dati) {
     "INSERT INTO scheda (cliente_id, inizio, settimane, dati) VALUES ($1, $2, $3, $4) RETURNING id",
     [clienteId, dati.inizio, dati.settimane, dati]
   );
+  // caricare una scheda è un'attività: serve a decidere dopo quanto tempo cancellare i dati (conservazione.js)
+  await db.query("UPDATE cliente SET ultima_attivita = now() WHERE id = $1", [clienteId]);
   return { id: r.rows[0].id };
 }
 
@@ -46,7 +48,7 @@ async function esportaCliente(clienteId, conn = db) {
   const id = clienteId;
   const [anagrafica, schede, registrazioni, inviti] = await Promise.all([
     conn.query(
-      `SELECT c.id, c.nome, c.cognome, c.creato_il, p.nome AS professionista,
+      `SELECT c.id, c.nome, c.cognome, c.creato_il, c.ultima_attivita, c.rapporto_finito_il, p.nome AS professionista,
               u.email, u.creato_il AS account_creato_il
          FROM cliente c JOIN pt p ON p.id = c.pt_id LEFT JOIN utente u ON u.id = c.utente_id
         WHERE c.id = $1`, [id]),
