@@ -38,7 +38,7 @@ h2.sezione-pt{font-family:var(--font-titoli);font-weight:400;font-size:22px;marg
 
 .campo-pt{margin:0 0 14px}
 .campo-pt label{display:block;font-size:15px;margin:0 0 6px}
-.campo-pt input[type="text"],.campo-pt input[type="search"],.campo-pt input[type="file"]{
+.campo-pt input[type="text"],.campo-pt input[type="search"],.campo-pt input[type="password"],.campo-pt input[type="file"]{
   width:100%;min-height:48px;padding:10px 14px;font:inherit;font-size:16px;color:var(--colore-testo);
   background:var(--colore-sfondo);border:1.5px solid var(--colore-linea);border-radius:14px}
 .campo-pt input[type="file"]{padding:9px 12px}
@@ -115,3 +115,6 @@ select.scelta{min-height:48px;padding:8px 12px;font:inherit;font-size:16px;borde
 .testo-legale h2:first-child{margin-top:0}
 .piede-legale{max-width:960px;margin:0 auto;padding:8px 16px 28px;font-size:14px;color:var(--colore-testo-secondario);text-align:center}
 .piede-legale a{color:var(--colore-azione)}
+
+/* link dentro ai testi: nel colore del tema, non nel blu del browser */
+.nota a,.testo-legale a,.sotto-titolo a,.pannello p a,.avviso-pt a{color:var(--colore-azione)}

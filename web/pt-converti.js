@@ -69,7 +69,7 @@
       ]));
     }
     if (avvisi.length) {
-      box.append(messaggio("avviso", `Ci sono ${avvisi.length} ${avvisi.length === 1 ? "avviso" : "avvisi"} da controllare`, avvisi));
+      box.append(messaggio("avviso", avvisi.length === 1 ? "C'è 1 avviso da controllare" : `Ci sono ${avvisi.length} avvisi da controllare`, avvisi));
     }
     serveConferma = nomeDiverso || avvisi.length > 0;
     if (!serveConferma) {
