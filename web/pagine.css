@@ -72,20 +72,32 @@ body.semplice a:focus-visible, body.semplice button:focus-visible, body.semplice
 .centrato{text-align:center}
 
 
-/* ---------- Home: logo grande, linea che si disegna, due porte d'ingresso (PROPOSTA) ---------- */
+/* ---------- Home: composizione a blocchi con i "gradi" che salgono (PROPOSTA; ripresa dalla copertina del design system) ---------- */
 .home{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--spazio-10);
   padding:max(var(--spazio-10),env(safe-area-inset-top)) var(--spazio-4) var(--spazio-10)}
-.home-testa{text-align:center;display:flex;flex-direction:column;align-items:center}
+.home-testa{width:100%;max-width:960px;display:grid;gap:var(--spazio-6);justify-items:center;text-align:center}
+.composizione{width:min(100%,380px);height:auto;display:block}
 /* LOGO PROVVISORIO (come .logo): sostituire con l'immagine quando ci sono i file in design-sistema/assets/Logos */
-.logo-grande{margin:0;font-family:var(--font-titoli);font-weight:700;font-size:clamp(64px,22vw,168px);line-height:1;
-  letter-spacing:.24em;text-transform:uppercase;color:var(--testo)}
-.logo-grande span{display:inline-block;margin-right:-.24em}   /* il distanziamento dopo l'ultima lettera sbilancerebbe il centro */
-.linea-brace{display:block;width:min(240px,50vw);height:4px;margin:var(--spazio-4) 0 var(--spazio-5);border-radius:2px;
-  background:var(--brace);transform-origin:left center;animation:linea-disegna .9s cubic-bezier(.2,.7,.2,1) both,linea-respira 6s ease-in-out 1.2s infinite}
-.home-frase{margin:0;font-size:18px;line-height:26px;color:var(--testo-secondario)}
-@keyframes linea-disegna{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@keyframes linea-respira{0%,100%{opacity:1}50%{opacity:.45}}
-@media (prefers-reduced-motion:reduce){.linea-brace{animation:none}}
+.logo-grande{margin:0;font-family:var(--font-titoli);font-weight:700;font-size:clamp(64px,22vw,120px);line-height:.92;letter-spacing:-.01em;color:var(--testo)}
+.home-frase{margin:var(--spazio-3) 0 0;font-size:18px;line-height:26px;color:var(--testo-secondario)}
+@media (min-width:860px){
+  .home-testa{grid-template-columns:1fr 1fr;align-items:center;text-align:left;justify-items:stretch;gap:var(--spazio-8)}
+  .composizione{order:2;width:100%;justify-self:end}
+  .logo-grande{font-size:120px}
+}
+.b-brace{fill:var(--brace)}
+.b-testo{fill:var(--testo)}
+.b-sec{fill:var(--testo-secondario)}
+.gr{fill:none;stroke-width:8}
+.gr.su{stroke:var(--su-brace)}
+.gr.br{stroke:var(--brace)}
+
+/* i gradi si accendono dal basso verso l'alto, uno dopo l'altro, in un ciclo lento */
+.gr{animation:sale 4.8s ease-in-out infinite;opacity:.3}
+.gr.r3{animation-delay:0s}.gr.r2{animation-delay:.35s}.gr.r1{animation-delay:.7s}
+@keyframes sale{0%{opacity:.3;transform:translateY(6px)}18%,46%{opacity:1;transform:translateY(0)}70%,100%{opacity:.3;transform:translateY(-4px)}}
+.gr{transform-box:fill-box}
+@media (prefers-reduced-motion:reduce){.gr{animation:none;opacity:1}}
 
 .scelte{width:100%;max-width:520px;display:grid;gap:var(--spazio-3)}
 @media (min-width:720px){.scelte{max-width:760px;grid-template-columns:1fr 1fr}}

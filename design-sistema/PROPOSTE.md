@@ -16,6 +16,7 @@ Cose che nel sito servono ma il sistema "Performance lab" non ha ancora. Sono st
 | 10 | "Mostra la password" come casella | Login e registrazione | Il sistema suggerisce l'occhio dentro il campo; la casella è più chiara con lo screen reader. Da decidere. |
 | 11 | Selettore del tema (auto, scura, chiara) | Barra di ogni pagina | Il sistema prevede le due modalità ma non dice come si sceglie. |
 | 12 | Icone Phosphor Bold come file SVG (via maschera CSS) | Ovunque | Colorabili con i token, nessuna richiesta esterna. |
+| 13 | Home con la composizione a blocchi della copertina e i gradi che si accendono dal basso verso l'alto (4,8 s, si ferma con «riduci movimento») | Home | Il movimento è una proposta: il sistema non ne descrive. |
 
 ## Ancora da fare (non dipende da te)
 
