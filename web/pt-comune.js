@@ -35,16 +35,16 @@
 
   // Lo stato di un cliente, in parole (per l'elenco e per la pagina del cliente)
   function statoCliente(c) {
-    if (c.rapporto_finito_il) return { testo: `Rapporto concluso il ${dataBreve(c.rapporto_finito_il)}`, tipo: "neutro" };
-    if (!c.schede) return { testo: "Nessuna scheda", tipo: "nessuna" };
+    if (c.rapporto_finito_il) return { testo: `Rapporto concluso il ${dataBreve(c.rapporto_finito_il)}`, tipo: "neutro", breve: "Concluso", dettaglio: `Il ${dataBreve(c.rapporto_finito_il)}` };
+    if (!c.schede) return { testo: "Nessuna scheda", tipo: "nessuna", breve: "Nessuna scheda", dettaglio: "Ancora nessuna scheda caricata" };
     if (!c.registrato) {
       return c.invito_attivo
-        ? { testo: `Invito non ancora usato (scade il ${dataBreve(c.invito_scade_il)})`, tipo: "invito" }
-        : { testo: "Scheda caricata, da invitare", tipo: "neutro" };
+        ? { testo: `Invito non ancora usato (scade il ${dataBreve(c.invito_scade_il)})`, tipo: "invito", breve: "Invito in attesa", dettaglio: `Scade il ${dataBreve(c.invito_scade_il)}` }
+        : { testo: "Scheda caricata, da invitare", tipo: "neutro", breve: "Da invitare", dettaglio: "Scheda caricata, manca l'invito" };
     }
     return c.ultimo_progresso
-      ? { testo: `Attivo, ultimo allenamento il ${dataBreve(c.ultimo_progresso)}`, tipo: "attivo" }
-      : { testo: "Registrato, non ha ancora segnato nulla", tipo: "neutro" };
+      ? { testo: `Attivo, ultimo allenamento il ${dataBreve(c.ultimo_progresso)}`, tipo: "attivo", breve: "Si allena", dettaglio: `Ultimo allenamento il ${dataBreve(c.ultimo_progresso)}` }
+      : { testo: "Registrato, non ha ancora segnato nulla", tipo: "neutro", breve: "Registrato", dettaglio: "Non ha ancora segnato nulla" };
   }
 
   // ---------- costruire pezzi di pagina SEMPRE come testo (mai come HTML) ----------

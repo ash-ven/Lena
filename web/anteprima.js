@@ -29,6 +29,7 @@
     $("stato-titolo").textContent = titolo;
     $("stato-testo").textContent = testo;
     $("stato-pagina").hidden = false;
+    document.body.classList.add("semplice");
   }
   const rispondi = (messaggio) => window.parent.postMessage(messaggio, ORIGINE);
 
@@ -79,6 +80,7 @@
       return;
     }
     $("stato-pagina").hidden = true;
+    document.body.classList.remove("semplice");
     rispondi({ tipo: "mostrata" });
   });
 

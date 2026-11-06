@@ -1,120 +1,166 @@
-/* Stile dell'area del PT (pt.html e pt-cliente.html).
-   Nessun colore e nessun font scritto a mano: tutto arriva da tema.css (variabili --colore-... e --font-...).
-   Pensato prima per il telefono, e allargato sui PC (da 900px in su). */
+/* Area del PT (pt.html, pt-cliente.html) e pagine di testo (account, informativa, condizioni).
+   Nessun colore e nessun font scritto a mano: tutto arriva dal sistema di design (sistema.css).
+   Regole del sistema: un solo pulsante arancio (brace) per vista; scritta nera sull'arancio; testo arancio solo con --testo-brace;
+   superfici piatte; controlli alti almeno 44 px; numeri con cifre a larghezza fissa.
+   Dove il sistema non ha ancora un elemento (pulsante secondario, pulsante pericoloso, chip di stato, riepilogo)
+   c'è un commento PROPOSTA: l'elenco sta in design-sistema/PROPOSTE.md. */
 
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body.pt{margin:0;background:var(--colore-sfondo);color:var(--colore-testo);font-family:var(--font-testo);font-size:16px;line-height:1.5;min-height:100vh}
-[hidden]{display:none!important}
-.solo-lettori{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+body.pt{margin:0;background:var(--sfondo);color:var(--testo);font-family:var(--font-testo);font-size:16px;line-height:24px;min-height:100vh}
+body.pt a{color:var(--testo-brace)}
 
 /* ---------- barra in alto ---------- */
-.barra-pt{background:var(--colore-carta);border-bottom:1px solid var(--colore-linea);position:sticky;top:0;z-index:5}
-.barra-pt .dentro{max-width:960px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;justify-content:space-between}
-.marchio-pt{font-family:var(--font-titoli);font-size:20px;margin:0}
-.marchio-pt small{font-family:var(--font-testo);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--colore-testo-secondario);margin-left:8px}
-.contenitore{max-width:960px;margin:0 auto;padding:18px 16px 64px}
+.barra-pt{background:var(--superficie);border-bottom:1px solid var(--bordo-superficie);position:sticky;top:0;z-index:5}
+.barra-pt .dentro{max-width:1040px;margin:0 auto;padding:var(--spazio-2) var(--spazio-4);display:flex;align-items:center;gap:var(--spazio-3);justify-content:space-between}
+.barra-pt .destra{display:flex;align-items:center;gap:var(--spazio-2)}
+/* LOGO PROVVISORIO: scritta in Space Grotesk Bold, da sostituire con i file del logo */
+.logo-pt{font-family:var(--font-titoli);font-weight:700;font-size:20px;line-height:24px;letter-spacing:.24em;text-transform:uppercase;color:var(--testo);text-decoration:none}
+body.pt a.logo-pt{color:var(--testo)}
+.area-pt{font-size:13px;line-height:18px;color:var(--testo-secondario);margin-left:var(--spazio-3)}
+.contenitore{max-width:1040px;margin:0 auto;padding:var(--spazio-6) var(--spazio-4) 64px}
 
-h1.titolo{font-family:var(--font-titoli);font-weight:400;font-size:30px;line-height:1.15;margin:6px 0 4px}
-h2.sezione-pt{font-family:var(--font-titoli);font-weight:400;font-size:22px;margin:0 0 8px}
-.sotto-titolo{color:var(--colore-testo-secondario);margin:0 0 16px}
-.indietro{display:inline-flex;align-items:center;min-height:44px;color:var(--colore-azione);text-decoration:none;font-size:15px}
-.indietro:hover{text-decoration:underline}
+h1.titolo{font-family:var(--font-titoli);font-weight:700;font-size:22px;line-height:28px;margin:var(--spazio-2) 0 var(--spazio-1)}
+h2.sezione-pt{font-family:var(--font-titoli);font-weight:700;font-size:18px;line-height:24px;margin:0 0 var(--spazio-2)}
+.sotto-titolo{color:var(--testo-secondario);margin:0 0 var(--spazio-6)}
+.indietro{display:inline-flex;align-items:center;gap:var(--spazio-2);min-height:44px;font-size:14px;line-height:20px;text-decoration:none}
+body.pt a.indietro:hover{text-decoration:underline}
 
 /* ---------- riquadri ---------- */
-.pannello{background:var(--colore-carta);border:1px solid var(--colore-linea);border-radius:18px;padding:18px 16px;margin:0 0 16px}
+.pannello{background:var(--superficie);border:1px solid var(--bordo-superficie);border-radius:var(--raggio-riquadro);padding:var(--spazio-5) var(--spazio-4);margin:0 0 var(--spazio-4)}
 .pannello > :last-child{margin-bottom:0}
-.pannello p{margin:0 0 10px}
-.nota{color:var(--colore-testo-secondario);font-size:14px}
+.pannello p{margin:0 0 var(--spazio-3)}
+.nota{color:var(--testo-secondario);font-size:14px;line-height:20px}
+.pannello p.nota,p.nota{margin:0 0 var(--spazio-3)}
 
 /* ---------- pulsanti, campi ---------- */
-.bottone{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:10px 20px;font:inherit;font-size:16px;
-  text-decoration:none;cursor:pointer;border-radius:999px;border:1.5px solid var(--colore-azione);background:var(--colore-azione);color:var(--colore-su-accento)}
-.bottone.secondario{background:var(--colore-carta);color:var(--colore-azione)}
-.bottone.pericolo{background:var(--colore-pericolo);border-color:var(--colore-pericolo);color:var(--colore-su-accento)}
-.bottone.piccolo{min-height:44px;padding:6px 16px;font-size:15px}
-.bottone:disabled{opacity:.5;cursor:default}
-.azioni-pt{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 0}
+/* principale: arancio brace, scritta nera. PROPOSTA: variante secondaria (contorno), pericolosa (contorno rosso) e piccola. */
+.bottone{display:inline-flex;align-items:center;justify-content:center;gap:var(--spazio-2);min-height:44px;padding:var(--spazio-3) var(--spazio-6);
+  font-family:var(--font-testo);font-size:15px;line-height:20px;font-weight:600;text-decoration:none;cursor:pointer;
+  border-radius:var(--raggio-controllo);border:1px solid var(--brace);background:var(--brace);color:var(--su-brace)}
+body.pt a.bottone{color:var(--su-brace)}
+.bottone:hover{filter:brightness(1.08)}
+.bottone.secondario,body.pt a.bottone.secondario{background:transparent;color:var(--testo);border-color:var(--bordo-campo)}
+.bottone.secondario:hover{background:var(--superficie-alta);filter:none}
+.bottone.pericolo,body.pt a.bottone.pericolo{background:transparent;color:var(--errore);border-color:var(--errore)}
+.bottone.pericolo:hover{background:var(--superficie-alta);filter:none}
+.bottone.piccolo{padding:var(--spazio-2) var(--spazio-4)}
+.bottone:disabled{opacity:.5;cursor:default;filter:none}
+.azioni-pt{display:flex;flex-wrap:wrap;gap:var(--spazio-3);margin:var(--spazio-4) 0 0}
 
-.campo-pt{margin:0 0 14px}
-.campo-pt label{display:block;font-size:15px;margin:0 0 6px}
+.campo-pt{margin:0 0 var(--spazio-4)}
+.campo-pt label{display:block;font-size:13px;line-height:18px;font-weight:500;margin:0 0 var(--spazio-2)}
 .campo-pt input[type="text"],.campo-pt input[type="search"],.campo-pt input[type="password"],.campo-pt input[type="file"]{
-  width:100%;min-height:48px;padding:10px 14px;font:inherit;font-size:16px;color:var(--colore-testo);
-  background:var(--colore-sfondo);border:1.5px solid var(--colore-linea);border-radius:14px}
-.campo-pt input[type="file"]{padding:9px 12px}
-.campo-pt .aiuto-pt{display:block;font-size:14px;color:var(--colore-testo-secondario);margin-top:6px}
-.riga-campi{display:grid;gap:0 12px;grid-template-columns:1fr}
-.spunta-pt{display:flex;align-items:flex-start;gap:12px;margin:12px 0;min-height:44px}
-.spunta-pt input{width:24px;height:24px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--colore-azione)}
+  width:100%;min-height:48px;padding:var(--spazio-3);font:inherit;font-size:16px;line-height:24px;color:var(--testo);
+  background:var(--superficie);border:1px solid var(--bordo-campo);border-radius:var(--raggio-controllo)}
+.campo-pt input[type="file"]{padding:var(--spazio-2) var(--spazio-3)}
+.campo-pt .aiuto-pt{display:block;font-size:12px;line-height:16px;color:var(--testo-secondario);margin-top:var(--spazio-2)}
+.riga-campi{display:grid;gap:0 var(--spazio-3);grid-template-columns:1fr}
+.spunta-pt{display:flex;align-items:flex-start;gap:var(--spazio-3);margin:var(--spazio-3) 0;min-height:44px;font-size:14px;line-height:20px;padding:var(--spazio-2) 0}
+.spunta-pt input[type="checkbox"]{appearance:none;-webkit-appearance:none;flex:none;margin:0;width:20px;height:20px;display:grid;place-items:center;
+  border:2px solid var(--bordo-campo);border-radius:var(--raggio-casella);background:var(--superficie);cursor:pointer}
+.spunta-pt input[type="checkbox"]::after{content:"";width:12px;height:12px;background:var(--su-brace);opacity:0;
+  -webkit-mask:url("/icone/check.svg") center/contain no-repeat;mask:url("/icone/check.svg") center/contain no-repeat}
+.spunta-pt input[type="checkbox"]:checked{background:var(--brace);border-color:var(--brace)}
+.spunta-pt input[type="checkbox"]:checked::after{opacity:1}
 
 /* il cursore da tastiera si deve vedere sempre */
 .pt a:focus-visible,.pt button:focus-visible,.pt input:focus-visible,.pt select:focus-visible,.pt summary:focus-visible,.pt iframe:focus-visible{
-  outline:3px solid var(--colore-azione);outline-offset:2px}
+  outline:2px solid var(--anello-attivo);outline-offset:2px}
 
-/* ---------- messaggi ---------- */
-.avviso-pt{border-radius:12px;padding:12px 14px;margin:0 0 14px;border:1.5px solid transparent;font-size:15px}
-.avviso-pt strong{display:block;margin-bottom:4px}
-.avviso-pt ul{margin:6px 0 0;padding-left:20px}
-.avviso-pt li{margin:0 0 4px}
-.avviso-pt.errore{background:var(--colore-errore-sfondo);border-color:var(--colore-errore-bordo);color:var(--colore-errore-testo)}
-.avviso-pt.avviso{background:var(--colore-avviso-sfondo);border-color:var(--colore-avviso-bordo);color:var(--colore-avviso-testo)}
-.avviso-pt.ok{background:var(--colore-ok-sfondo);border-color:var(--colore-ok-bordo);color:var(--colore-ok-testo)}
-.avviso-pt.info{background:var(--colore-accento-chiaro);border-color:var(--colore-accento);color:var(--colore-testo)}
-.attesa-pt{color:var(--colore-testo-secondario);padding:14px 0}
+/* ---------- messaggi: sempre icona E parole ---------- */
+.avviso-pt{position:relative;border-radius:var(--raggio-controllo);padding:var(--spazio-3) var(--spazio-4) var(--spazio-3) 48px;margin:0 0 var(--spazio-4);
+  border:1px solid var(--bordo-campo);font-size:14px;line-height:20px;color:var(--testo)}
+.avviso-pt::before{content:"";position:absolute;left:var(--spazio-4);top:var(--spazio-3);width:20px;height:20px;background:currentColor;
+  -webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat}
+.avviso-pt strong{display:block;margin-bottom:var(--spazio-1)}
+.avviso-pt ul{margin:var(--spazio-2) 0 0;padding-left:20px}
+.avviso-pt li{margin:0 0 var(--spazio-1)}
+.avviso-pt.errore{--i:url("/icone/warning-circle.svg");color:var(--errore);border-color:var(--errore)}
+.avviso-pt.avviso{--i:url("/icone/warning.svg")}
+.avviso-pt.ok{--i:url("/icone/check-circle.svg");color:var(--conferma);border-color:var(--conferma)}
+.avviso-pt.info{--i:url("/icone/info.svg")}
+.avviso-pt.ok strong,.avviso-pt.errore strong{color:inherit}
+.avviso-pt.ok li,.avviso-pt.errore li{color:var(--testo)}
+.attesa-pt{color:var(--testo-secondario);padding:var(--spazio-4) 0}
+
+/* ---------- riepilogo in numeri (PROPOSTA) ---------- */
+.riepilogo{list-style:none;margin:0 0 var(--spazio-6);padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--spazio-3)}
+.riepilogo li{background:var(--superficie);border:1px solid var(--bordo-superficie);border-radius:var(--raggio-riquadro);padding:var(--spazio-4)}
+.riepilogo .cifra{display:block;font-family:var(--font-titoli);font-weight:700;font-size:28px;line-height:34px;font-variant-numeric:tabular-nums}
+.riepilogo .dida{display:block;font-size:14px;line-height:20px;color:var(--testo-secondario)}
 
 /* ---------- elenco clienti ---------- */
-.elenco-clienti{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-.elenco-clienti a{display:block;padding:14px 16px;background:var(--colore-carta);border:1px solid var(--colore-linea);border-radius:16px;text-decoration:none;color:var(--colore-testo)}
-.elenco-clienti a:hover{border-color:var(--colore-azione)}
-.elenco-clienti .nome-cliente{font-family:var(--font-titoli);font-size:19px;display:block}
-.stato{display:inline-block;margin-top:6px;padding:3px 12px;border-radius:999px;font-size:14px;border:1px solid transparent}
-.stato.nessuna{background:var(--colore-avviso-sfondo);border-color:var(--colore-avviso-bordo);color:var(--colore-avviso-testo)}
-.stato.invito{background:var(--colore-accento-chiaro);border-color:var(--colore-accento);color:var(--colore-testo)}
-.stato.attivo{background:var(--colore-ok-sfondo);border-color:var(--colore-ok-bordo);color:var(--colore-ok-testo)}
-.stato.neutro{background:var(--colore-sfondo);border-color:var(--colore-linea);color:var(--colore-testo-secondario)}
-.conteggio{color:var(--colore-testo-secondario);font-size:14px;margin:8px 0}
+.intestazione-pagina{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--spazio-4);margin:0 0 var(--spazio-6)}
+.intestazione-pagina .sotto-titolo{margin:0}
+.elenco-clienti{list-style:none;margin:0;padding:0;display:grid;gap:var(--spazio-3)}
+.elenco-clienti a{display:flex;align-items:center;gap:var(--spazio-4);padding:var(--spazio-4);background:var(--superficie);border:1px solid var(--bordo-superficie);
+  border-radius:var(--raggio-riquadro);text-decoration:none;color:var(--testo)}
+body.pt .elenco-clienti a{color:var(--testo)}
+.elenco-clienti a:hover{border-color:var(--bordo-campo)}
+.elenco-clienti .corpo-cliente{flex:1 1 auto;min-width:0;display:grid;gap:var(--spazio-1);justify-items:start}
+.elenco-clienti .nome-cliente{font-family:var(--font-titoli);font-weight:700;font-size:18px;line-height:24px;overflow-wrap:anywhere}
+.elenco-clienti .dettaglio{font-size:14px;line-height:20px;color:var(--testo-secondario)}
+.elenco-clienti .vai{color:var(--testo-secondario)}
+.conteggio{color:var(--testo-secondario);font-size:14px;line-height:20px;margin:var(--spazio-2) 0}
+
+/* chip di stato (PROPOSTA): parole + icona, il colore da solo non basta */
+.stato{display:inline-flex;align-items:center;gap:6px;margin:var(--spazio-1) 0;padding:2px var(--spazio-3);border-radius:999px;font-size:13px;line-height:18px;font-weight:500;
+  border:1px solid var(--bordo-superficie);background:var(--superficie);color:var(--testo-secondario)}
+.stato::before{content:"";width:14px;height:14px;background:currentColor;-webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat;display:none}
+.stato.attivo{color:var(--conferma);--i:url("/icone/check-circle.svg")}
+.stato.invito{color:var(--testo-brace);--i:url("/icone/clock.svg")}
+.stato.nessuna{color:var(--testo-brace);--i:url("/icone/info.svg")}
+.stato.attivo::before,.stato.invito::before,.stato.nessuna::before{display:block}
+.stato.neutro{background:var(--superficie-alta);border-color:transparent}
 
 /* ---------- pagina del cliente ---------- */
-.schede-lista{list-style:none;margin:0 0 6px;padding:0}
-.schede-lista li{padding:10px 0;border-bottom:1px solid var(--colore-linea)}
+.prossimo{display:flex;gap:var(--spazio-3);align-items:flex-start;background:var(--superficie-alta);border-radius:var(--raggio-riquadro);padding:var(--spazio-4);margin:0 0 var(--spazio-4)}
+.prossimo .icona{margin-top:2px}
+.prossimo p{margin:0}
+.prossimo strong{display:block;font-family:var(--font-titoli);font-size:18px;line-height:24px}
+.riga-cliente{display:flex;flex-wrap:wrap;align-items:center;gap:var(--spazio-2) var(--spazio-3);margin:0 0 var(--spazio-4);color:var(--testo-secondario)}
+.schede-lista{list-style:none;margin:0 0 var(--spazio-2);padding:0}
+.schede-lista li{padding:var(--spazio-3) 0;border-bottom:1px solid var(--divisorio)}
 .schede-lista li:last-child{border-bottom:0}
 .schede-lista .titolo-scheda{font-weight:600}
-.etichetta{display:inline-block;margin-left:6px;padding:1px 10px;border-radius:999px;font-size:13px;background:var(--colore-ok-sfondo);color:var(--colore-ok-testo);border:1px solid var(--colore-ok-bordo)}
+.schede-lista .nota{margin:var(--spazio-1) 0 0;font-variant-numeric:tabular-nums}
+/* PROPOSTA: etichetta neutra accanto al titolo di una scheda */
+.pt .etichetta{display:inline-block;margin-left:var(--spazio-2);padding:1px var(--spazio-3);border-radius:999px;font-size:13px;line-height:18px;font-weight:500;background:var(--superficie-alta);color:var(--testo-secondario)}
 
-.link-invito{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-.link-invito input{flex:1 1 260px;min-width:0;min-height:48px;padding:10px 12px;font:inherit;font-size:14px;color:var(--colore-testo);background:var(--colore-sfondo);border:1.5px solid var(--colore-linea);border-radius:14px}
+.link-invito{display:flex;gap:var(--spazio-2);flex-wrap:wrap;margin:var(--spazio-3) 0}
+.link-invito input{flex:1 1 260px;min-width:0;min-height:48px;padding:var(--spazio-3);font:inherit;font-size:14px;line-height:20px;color:var(--testo);background:var(--superficie);border:1px solid var(--bordo-campo);border-radius:var(--raggio-controllo)}
 
 /* la cornice a forma di telefono per l'anteprima e per la scheda del cliente */
-.telefono-pt{width:100%;max-width:390px;height:720px;border:10px solid var(--colore-testo);border-radius:36px;overflow:hidden;background:var(--colore-sfondo);margin:12px auto 0;box-sizing:content-box}
+.telefono-pt{width:100%;max-width:390px;height:720px;border:10px solid var(--bordo-campo);border-radius:36px;overflow:hidden;background:var(--sfondo);margin:var(--spazio-3) auto 0;box-sizing:content-box}
 .telefono-pt iframe{width:100%;height:100%;border:0;display:block}
 
 /* progressi */
-.settimane{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
-.settimane li{padding:10px 12px;border:1px solid var(--colore-linea);border-radius:12px;background:var(--colore-sfondo)}
-.settimane .testo-sett{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.settimane progress{width:100%;height:10px;margin-top:6px;accent-color:var(--colore-azione)}
-.totale-progressi{font-weight:600;margin:8px 0}
+.settimane{list-style:none;margin:var(--spazio-3) 0 0;padding:0;display:grid;gap:var(--spazio-2)}
+.settimane li{padding:var(--spazio-3);border-radius:var(--raggio-controllo);background:var(--superficie-alta)}
+.settimane .testo-sett{display:flex;justify-content:space-between;gap:var(--spazio-3);flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.settimane progress{width:100%;height:10px;margin-top:var(--spazio-2);accent-color:var(--brace)}
+.totale-progressi{font-weight:600;margin:var(--spazio-2) 0;font-variant-numeric:tabular-nums}
 
-.zona-pericolo{border-color:var(--colore-errore-bordo)}
-.zona-pericolo h2{color:var(--colore-errore-testo)}
+.zona-pericolo{border-color:var(--errore)}
+.zona-pericolo h2{color:var(--errore)}
 
-select.scelta{min-height:48px;padding:8px 12px;font:inherit;font-size:16px;border:1.5px solid var(--colore-linea);border-radius:14px;background:var(--colore-sfondo);color:var(--colore-testo);max-width:100%}
+select.scelta{min-height:48px;padding:var(--spazio-2) var(--spazio-3);font:inherit;font-size:16px;line-height:24px;border:1px solid var(--bordo-campo);border-radius:var(--raggio-controllo);background:var(--superficie);color:var(--testo);max-width:100%}
 
 @media (min-width:900px){
   .riga-campi{grid-template-columns:1fr 1fr}
-  .progressi-dentro{display:grid;grid-template-columns:1fr 430px;gap:24px;align-items:start}
+  .progressi-dentro{display:grid;grid-template-columns:1fr 430px;gap:var(--spazio-6);align-items:start}
   .progressi-dentro .telefono-pt{margin-top:0}
 }
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
-.separatore{border:0;border-top:1px solid var(--colore-linea);margin:16px 0}
+.separatore{border:0;border-top:1px solid var(--divisorio);margin:var(--spazio-4) 0}
 
 /* testi legali segnaposto: i campi da compilare devono SALTARE all'occhio */
-.segnaposto{background:var(--colore-avviso-sfondo);color:var(--colore-avviso-testo);border:1px dashed var(--colore-avviso-bordo);border-radius:6px;padding:0 6px;font-weight:600}
-.testo-legale h2{margin-top:18px}
+.segnaposto{color:var(--testo-brace);border:1px dashed var(--brace);border-radius:6px;padding:0 6px;font-weight:600}
+.testo-legale h2{margin-top:var(--spazio-5)}
 .testo-legale h2:first-child{margin-top:0}
-.piede-legale{max-width:960px;margin:0 auto;padding:8px 16px 28px;font-size:14px;color:var(--colore-testo-secondario);text-align:center}
-.piede-legale a{color:var(--colore-azione)}
+.piede-legale{max-width:1040px;margin:0 auto;padding:var(--spazio-2) var(--spazio-4) var(--spazio-8);font-size:13px;line-height:18px;color:var(--testo-secondario);text-align:center}
+.piede-legale a{text-decoration:underline}
+.nota a,.testo-legale a,.sotto-titolo a,.pannello p a,.avviso-pt a{text-decoration:underline}
 
-/* link dentro ai testi: nel colore del tema, non nel blu del browser */
-.nota a,.testo-legale a,.sotto-titolo a,.pannello p a,.avviso-pt a{color:var(--colore-azione)}
+/* ---------- passi numerati del convertitore (PROPOSTA) ---------- */
+.passi{margin:0 0 var(--spazio-4);padding-left:var(--spazio-5);color:var(--testo-secondario)}
+.passi li{padding-left:var(--spazio-1)}

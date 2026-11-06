@@ -3,22 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#FBF8F3">
+<meta name="theme-color" content="#0B0D10">
 <title>Il mio account · Lena</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/tema.css">
+<script src="/tema.js"></script>
+<link rel="stylesheet" href="/sistema.css">
 <link rel="stylesheet" href="/pt.css">
 </head>
 <body class="pt">
 <header class="barra-pt">
   <div class="dentro">
-    <p class="marchio-pt">Lena<small>Il mio account</small></p>
-    <button class="bottone secondario piccolo" type="button" id="esci">Esci</button>
+    <div><a class="logo-pt" href="/scheda.html">Lena</a><span class="area-pt">Il mio account</span></div>
+    <div class="destra">
+      <div data-tema-controllo></div>
+      <button class="bottone secondario piccolo" type="button" id="esci"><span class="icona i-esci" aria-hidden="true"></span>Esci</button>
+    </div>
   </div>
 </header>
 
 <main class="contenitore" id="contenuto">
-  <a class="indietro" href="/scheda.html">← Torna alla mia scheda</a>
+  <a class="indietro" href="/scheda.html"><span class="icona i-indietro" aria-hidden="true"></span>Torna alla scheda</a>
   <h1 class="titolo">Il mio account</h1>
   <p class="sotto-titolo" id="chi"></p>
 
@@ -28,7 +32,7 @@
     <section class="pannello" aria-labelledby="t-dati">
       <h2 class="sezione-pt" id="t-dati">Scarica i miei dati</h2>
       <p>Ricevi un file con tutto ciò che Lena ha su di te: nome, email, le tue schede, i valori che hai segnato (kg, ripetizioni, serie, esercizi completati) e le date in cui hai accettato i testi.</p>
-      <div class="azioni-pt"><button class="bottone" type="button" id="esporta">Scarica i miei dati</button></div>
+      <div class="azioni-pt"><button class="bottone secondario" type="button" id="esporta"><span class="icona i-scarica" aria-hidden="true"></span>Scarica i miei dati</button></div>
       <div id="esporta-esito" role="status"></div>
     </section>
 

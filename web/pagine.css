@@ -1,66 +1,72 @@
-/* Stile delle pagine semplici (login, registrazione, area PT, 404) e dei messaggi di stato della scheda.
-   Non contiene nessun colore o font scritto a mano: legge tutto da tema.css.
-   Le regole sul <body> valgono solo con class="semplice", così non toccano la pagina della scheda. */
+/* Pagine d'ingresso (login, registrazione, 404...) e messaggi di stato della scheda del cliente.
+   Nessun colore e nessun font scritto a mano: tutto arriva dal sistema di design (sistema.css).
+   Le regole sul <body> valgono solo con class="semplice": la scheda, quando è pronta, toglie la classe. */
 
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-/* l'attributo "hidden" deve vincere sempre, anche su elementi che hanno un display loro (flex...) */
-[hidden]{display:none!important}
-/* visibile solo ai lettori di schermo */
-.solo-lettori{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-body.semplice{margin:0;background:var(--colore-sfondo);color:var(--colore-testo);font-family:var(--font-testo);
-  font-size:16px;line-height:1.45;min-height:100vh}
+body.semplice{margin:0;background:var(--sfondo);color:var(--testo);font-family:var(--font-testo);font-size:16px;line-height:24px;min-height:100vh}
+body.semplice a{color:var(--testo-brace)}
 
-.pagina.compatta{min-height:70vh}
+.angolo{position:absolute;top:var(--spazio-4);right:var(--spazio-4)}
+
 .pagina{min-height:100vh;display:flex;align-items:center;justify-content:center;
-  padding:max(20px,env(safe-area-inset-top)) 16px max(20px,env(safe-area-inset-bottom))}
-.riquadro{width:100%;max-width:420px;background:var(--colore-carta);border:1px solid var(--colore-linea);
-  border-radius:20px;padding:26px 22px}
+  padding:max(var(--spazio-10),env(safe-area-inset-top)) var(--spazio-4) max(var(--spazio-5),env(safe-area-inset-bottom))}
+.pagina.compatta{min-height:70vh}
+.riquadro{width:100%;max-width:420px;background:var(--superficie);border:1px solid var(--bordo-superficie);
+  border-radius:var(--raggio-riquadro);padding:var(--spazio-6)}
 
-.marchio{margin:0 0 6px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--colore-testo-tenue)}
-.riquadro h1{font-family:var(--font-titoli);font-weight:400;font-size:28px;line-height:1.15;margin:0 0 8px}
-.testo-tenue{color:var(--colore-testo-tenue);margin:0 0 18px}
+/* LOGO PROVVISORIO: scritta in Space Grotesk Bold. Quando ci saranno i file del logo (design-sistema/assets/Logos) va sostituita con l'immagine. */
+.logo{margin:0 0 var(--spazio-10);font-family:var(--font-titoli);font-weight:700;font-size:20px;line-height:24px;letter-spacing:.24em;text-transform:uppercase;color:var(--testo)}
+.riquadro h1{font-family:var(--font-titoli);font-weight:700;font-size:28px;line-height:34px;margin:0 0 var(--spazio-2)}
+.testo-tenue{color:var(--testo-secondario);margin:0 0 var(--spazio-6)}
 
-/* campi */
-.campo-modulo{margin:0 0 16px}
-.campo-modulo label{display:block;font-size:14px;margin:0 0 6px}
+/* campi: etichetta sempre visibile sopra, requisito scritto sotto */
+.campo-modulo{margin:0 0 var(--spazio-5)}
+.campo-modulo label{display:block;font-size:13px;line-height:18px;font-weight:500;margin:0 0 var(--spazio-2)}
 .campo-modulo input[type="email"],
 .campo-modulo input[type="password"],
 .campo-modulo input[type="text"]{
-  width:100%;min-height:52px;padding:10px 14px;font:inherit;font-size:17px;color:var(--colore-testo);
-  background:var(--colore-sfondo);border:1.5px solid var(--colore-linea);border-radius:14px}
-.campo-modulo input:focus{border-color:var(--colore-accento-scuro)}
-.aiuto{display:block;font-size:13px;color:var(--colore-testo-tenue);margin-top:6px}
-.mostra{display:flex;align-items:center;gap:10px;font-size:14px;margin:-4px 0 18px;min-height:44px}
-.mostra input{width:22px;height:22px;accent-color:var(--colore-accento-scuro)}
+  width:100%;min-height:48px;padding:var(--spazio-3);font:inherit;font-size:16px;line-height:24px;color:var(--testo);
+  background:var(--superficie);border:1px solid var(--bordo-campo);border-radius:var(--raggio-controllo)}
+.aiuto{display:block;font-size:12px;line-height:16px;color:var(--testo-secondario);margin-top:var(--spazio-2)}
 
-/* pulsanti */
-.pulsante,button.pulsante{display:flex;align-items:center;justify-content:center;width:100%;min-height:54px;padding:12px 18px;
-  font:inherit;font-size:17px;text-decoration:none;cursor:pointer;color:var(--colore-su-accento);
-  background:var(--colore-accento-scuro);border:1px solid var(--colore-accento-scuro);border-radius:999px}
-.pulsante.secondario{background:transparent;color:var(--colore-accento-scuro)}
-.pulsante:disabled{opacity:.5;cursor:default}
-.pulsante + .pulsante{margin-top:10px}
+/* caselle da spuntare (mai già spuntate) */
+.mostra{display:flex;align-items:flex-start;gap:var(--spazio-3);font-size:14px;line-height:20px;margin:0 0 var(--spazio-4);min-height:44px;padding:var(--spazio-2) 0}
+.mostra input[type="checkbox"]{appearance:none;-webkit-appearance:none;flex:none;margin:0;width:20px;height:20px;display:grid;place-items:center;
+  border:2px solid var(--bordo-campo);border-radius:var(--raggio-casella);background:var(--superficie);cursor:pointer}
+.mostra input[type="checkbox"]::after{content:"";width:12px;height:12px;background:var(--su-brace);opacity:0;
+  -webkit-mask:url("/icone/check.svg") center/contain no-repeat;mask:url("/icone/check.svg") center/contain no-repeat}
+.mostra input[type="checkbox"]:checked{background:var(--brace);border-color:var(--brace)}
+.mostra input[type="checkbox"]:checked::after{opacity:1}
 
-/* messaggi */
-.messaggio{border-radius:12px;padding:11px 13px;margin:0 0 16px;font-size:15px;border:1px solid transparent}
+/* pulsante principale (uno solo per vista) e secondario */
+.pulsante,button.pulsante{display:flex;align-items:center;justify-content:center;gap:var(--spazio-2);width:100%;min-height:48px;padding:var(--spazio-3) var(--spazio-6);
+  font-family:var(--font-testo);font-size:15px;line-height:20px;font-weight:600;text-decoration:none;cursor:pointer;
+  color:var(--su-brace);background:var(--brace);border:1px solid var(--brace);border-radius:var(--raggio-controllo)}
+body.semplice a.pulsante{color:var(--su-brace)}
+.pulsante:hover{filter:brightness(1.08)}
+.pulsante.secondario,body.semplice a.pulsante.secondario{color:var(--testo);background:transparent;border-color:var(--bordo-campo)}
+.pulsante.secondario:hover{background:var(--superficie-alta);filter:none}
+.pulsante:disabled{opacity:.5;cursor:default;filter:none}
+.pulsante + .pulsante{margin-top:var(--spazio-3)}
+
+/* messaggi: sempre con icona E parole, mai solo colore */
+.messaggio{position:relative;border-radius:var(--raggio-controllo);padding:var(--spazio-3) var(--spazio-3) var(--spazio-3) 44px;margin:0 0 var(--spazio-5);
+  font-size:14px;line-height:20px;border:1px solid var(--bordo-campo);color:var(--testo)}
+.messaggio::before{content:"";position:absolute;left:var(--spazio-3);top:var(--spazio-3);width:20px;height:20px;background:currentColor;
+  -webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat}
 .messaggio[hidden]{display:none}
-.messaggio.errore{background:var(--colore-errore-sfondo);border-color:var(--colore-errore-bordo);color:var(--colore-errore-testo)}
-.messaggio.avviso{background:var(--colore-avviso-sfondo);border-color:var(--colore-avviso-bordo);color:var(--colore-avviso-testo)}
-.messaggio.ok{background:var(--colore-ok-sfondo);border-color:var(--colore-ok-bordo);color:var(--colore-ok-testo)}
+.messaggio.errore{--i:url("/icone/warning-circle.svg");color:var(--errore);border-color:var(--errore)}
+.messaggio.avviso{--i:url("/icone/warning.svg")}
+.messaggio.ok{--i:url("/icone/check-circle.svg");color:var(--conferma);border-color:var(--conferma)}
 
-.sotto{margin:18px 0 0;font-size:15px;text-align:center}
-.sotto a{color:var(--colore-accento-scuro)}
+.sotto{margin:var(--spazio-6) 0 0;font-size:14px;line-height:20px;text-align:center;color:var(--testo-secondario)}
+.sotto a{text-decoration:underline}
 
-/* il cursore da tastiera deve vedersi sempre */
-.riquadro a:focus-visible, .riquadro button:focus-visible, .riquadro input:focus-visible{
-  outline:3px solid var(--colore-accento-scuro);outline-offset:2px}
-.riquadro input:focus-visible{outline-offset:0}
-
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* il cursore da tastiera si deve vedere sempre */
+body.semplice a:focus-visible, body.semplice button:focus-visible, body.semplice input:focus-visible{
+  outline:2px solid var(--anello-attivo);outline-offset:2px}
 
 /* link a piè di pagina (informativa, condizioni) */
-.piede-legale{padding:8px 16px 28px;font-size:14px;color:var(--colore-testo-secondario);text-align:center}
-.piede-legale a{color:var(--colore-azione)}
-
-.mostra a{color:var(--colore-azione)}
+.piede-legale{padding:var(--spazio-2) var(--spazio-4) var(--spazio-8);font-size:13px;line-height:18px;color:var(--testo-secondario);text-align:center}
+.piede-legale a{text-decoration:underline}
+.mostra a{text-decoration:underline}
+.centrato{text-align:center}

@@ -20,6 +20,7 @@
       zona.append(b);
     }
     $("stato-pagina").hidden = false;
+    document.body.classList.add("semplice");
   }
   const ricarica = () => location.reload();
   const AZIONE_RIPROVA = { testo: "Riprova", fa: ricarica };
@@ -165,6 +166,7 @@
         "I dati della scheda non sono nel formato atteso. Avvisa il tuo PT.", [AZIONE_RIPROVA, AZIONE_ESCI]);
     }
     $("stato-pagina").hidden = true;
+    document.body.classList.remove("semplice");
   }
 
   avvia();

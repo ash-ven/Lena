@@ -28,6 +28,25 @@
     $("nome-da-scrivere").textContent = `${cliente.nome} ${cliente.cognome}`;
   }
 
+  // ---------- "cosa fare adesso": un solo pulsante arancio per volta ----------
+  function passoSuccessivo() {
+    if (cliente.rapporto_finito_il) return null;
+    if (!cliente.schede) return { testo: "Carica la prima scheda di questo cliente.", principale: "apri-convertitore" };
+    if (!cliente.registrato && !cliente.invito_attivo) return { testo: "La scheda c'è: crea l'invito per far entrare il cliente.", principale: "crea-invito" };
+    if (!cliente.registrato) return { testo: "Il cliente non ha ancora usato l'invito. Se ha perso il link, creane uno nuovo.", principale: null };
+    return null;
+  }
+  function aggiornaPrincipale() {
+    if (!cliente) return;
+    const passo = passoSuccessivo();
+    const convAperto = !$("convertitore").hidden;
+    const principale = convAperto ? "conv-invia" : (passo && passo.principale);
+    for (const b of ["apri-convertitore", "conv-invia", "crea-invito"]) $(b).classList.toggle("secondario", b !== principale);
+    $("prossimo-passo").replaceChildren(...(passo && !convAperto
+      ? [el("div", { class: "prossimo" }, el("span", { class: "icona i-info", "aria-hidden": "true" }), el("p", {}, el("strong", {}, "Cosa fare adesso"), passo.testo))] : []));
+  }
+  new MutationObserver(aggiornaPrincipale).observe($("convertitore"), { attributes: true, attributeFilter: ["hidden"] });
+
   function disegnaSchede(schede) {
     const lista = $("schede-lista");
     lista.replaceChildren(...schede.map((s, i) => el("li", {},
@@ -96,6 +115,7 @@
     disegnaSchede(s.json);
     disegnaInvito();
     disegnaRapporto();
+    aggiornaPrincipale();
     const firma = JSON.stringify([cliente.registrato, cliente.ultimo_progresso, s.json.map((x) => [x.id, x.registrazioni])]);
     if (firma !== firmaProgressi) { firmaProgressi = firma; LenaPtProgressi.aggiorna(cliente, s.json); }
   }
@@ -121,14 +141,15 @@
     const esito = el("span", { class: "nota", role: "status" });
     const copia = el("button", { class: "bottone", type: "button" }, "Copia");
     copia.addEventListener("click", async () => {
-      try { await navigator.clipboard.writeText(link); esito.textContent = "Copiato ✓"; }
+      try { await navigator.clipboard.writeText(link); esito.textContent = "Copiato."; }
       catch (e) {
         campo.focus(); campo.select();
         let ok = false;
         try { ok = document.execCommand("copy"); } catch (e2) { /* non disponibile */ }
-        esito.textContent = ok ? "Copiato ✓" : "Non riesco a copiare da solo: il link è selezionato, premi Ctrl+C.";
+        esito.textContent = ok ? "Copiato." : "Non riesco a copiare da solo: il link è selezionato, premi Ctrl+C.";
       }
     });
+    $("crea-invito").classList.add("secondario");
     zona.append(messaggio("ok", "Invito creato", [
       `Manda questo link al cliente. Scade il ${LenaPt.dataBreve(r.json.scade_il)} e si può usare una volta sola.`]),
       el("div", { class: "link-invito" }, campo, copia), esito,

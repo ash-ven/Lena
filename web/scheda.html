@@ -3,19 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#FBF8F3">
+<meta name="theme-color" content="#0B0D10">
 <title>La tua scheda · Lena</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script src="/tema.js"></script>
+<link rel="stylesheet" href="/sistema.css">
 <link rel="stylesheet" href="/tema.css">
 <link rel="stylesheet" href="/pagine.css">
 <link rel="stylesheet" href="/scheda.css">
 </head>
-<body>
+<body class="semplice">
 <!-- Messaggi di stato (caricamento, nessuna scheda, errori). Sparisce quando la scheda è pronta.
      La scheda vera la costruisce scheda.js: la sua struttura non è scritta qui. -->
 <main class="pagina compatta" id="stato-pagina">
   <div class="riquadro">
-    <p class="marchio">Lena</p>
+    <p class="logo">Lena</p>
     <h1 id="stato-titolo">Un attimo…</h1>
     <p class="testo-tenue" id="stato-testo">Sto caricando la tua scheda.</p>
     <div id="stato-azioni"></div>

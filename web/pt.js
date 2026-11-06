@@ -14,8 +14,11 @@
     ul.replaceChildren(...visibili.map((c) => {
       const s = statoCliente(c);
       return el("li", {}, el("a", { href: `/pt-cliente.html?id=${c.id}` },
-        el("span", { class: "nome-cliente" }, `${c.cognome} ${c.nome}`),
-        el("span", { class: `stato ${s.tipo}` }, s.testo)));
+        el("span", { class: "corpo-cliente" },
+          el("span", { class: "nome-cliente" }, `${c.cognome} ${c.nome}`),
+          el("span", { class: `stato ${s.tipo}` }, s.breve),
+          el("span", { class: "dettaglio" }, s.dettaglio)),
+        el("span", { class: "icona i-avanti", "aria-hidden": "true" })));
     }));
     $("conteggio").textContent = !clienti.length ? "" : q
       ? `${visibili.length} ${visibili.length === 1 ? "cliente trovato" : "clienti trovati"} su ${clienti.length}`
@@ -26,6 +29,19 @@
     else if (!visibili.length) vuoto.append(el("p", { class: "attesa-pt" }, "Nessun cliente corrisponde alla ricerca."));
   }
   $("cerca").addEventListener("input", disegnaElenco);
+
+  // ---------- riepilogo in numeri ----------
+  function disegnaRiepilogo() {
+    const ul = $("riepilogo");
+    ul.hidden = !clienti.length;
+    if (!clienti.length) return;
+    const attivi = clienti.filter((c) => !c.rapporto_finito_il && c.registrato && c.ultimo_progresso).length;
+    const inviti = clienti.filter((c) => !c.rapporto_finito_il && c.schede && !c.registrato && c.invito_attivo).length;
+    const senza = clienti.filter((c) => !c.rapporto_finito_il && !c.schede).length;
+    const voce = (n, t) => el("li", {}, el("span", { class: "cifra" }, String(n)), el("span", { class: "dida" }, t));
+    ul.replaceChildren(voce(clienti.length, clienti.length === 1 ? "cliente" : "clienti"), voce(attivi, attivi === 1 ? "si allena" : "si allenano"),
+      voce(inviti, inviti === 1 ? "invito in attesa" : "inviti in attesa"), voce(senza, "senza scheda"));
+  }
 
   async function carica() {
     $("stato-elenco").replaceChildren(el("p", { class: "attesa-pt" }, "Carico i clienti…"));
@@ -41,6 +57,7 @@
       return;
     }
     clienti = r.json;
+    disegnaRiepilogo();
     disegnaElenco();
   }
 
