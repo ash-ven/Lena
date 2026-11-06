@@ -53,19 +53,6 @@
       el("span", { class: "icona i-avanti vai", "aria-hidden": "true" })))));
   }
 
-  // ---------- riepilogo in numeri ----------
-  function disegnaRiepilogo() {
-    const ul = $("riepilogo");
-    ul.hidden = !clienti.length;
-    if (!clienti.length) return;
-    const attivi = clienti.filter((c) => !c.rapporto_finito_il && c.registrato && c.ultimo_progresso).length;
-    const inviti = clienti.filter((c) => !c.rapporto_finito_il && c.schede && !c.registrato && c.invito_attivo).length;
-    const senza = clienti.filter((c) => !c.rapporto_finito_il && !c.schede).length;
-    const voce = (n, t) => el("li", {}, el("span", { class: "cifra" }, String(n)), el("span", { class: "dida" }, t));
-    ul.replaceChildren(voce(clienti.length, clienti.length === 1 ? "cliente" : "clienti"), voce(attivi, attivi === 1 ? "si allena" : "si allenano"),
-      voce(inviti, inviti === 1 ? "invito in attesa" : "inviti in attesa"), voce(senza, "senza scheda"));
-  }
-
   async function carica() {
     $("stato-elenco").replaceChildren(el("p", { class: "attesa-pt" }, "Carico i clienti…"));
     $("contenuto").setAttribute("aria-busy", "true");
@@ -80,7 +67,6 @@
       return;
     }
     clienti = r.json;
-    disegnaRiepilogo();
     disegnaScadenze();
     disegnaElenco();
   }

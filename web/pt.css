@@ -2,7 +2,7 @@
    Nessun colore e nessun font scritto a mano: tutto arriva dal sistema di design (sistema.css).
    Regole del sistema: un solo pulsante arancio (brace) per vista; scritta nera sull'arancio; testo arancio solo con --testo-brace;
    superfici piatte; controlli alti almeno 44 px; numeri con cifre a larghezza fissa.
-   Dove il sistema non ha ancora un elemento (pulsante secondario, pulsante pericoloso, chip di stato, riepilogo)
+   Dove il sistema non ha ancora un elemento (pulsante secondario, pulsante pericoloso, chip di stato)
    c'è un commento PROPOSTA: l'elenco sta in design-sistema/PROPOSTE.md. */
 
 body.pt{margin:0;background:var(--sfondo);color:var(--testo);font-family:var(--font-testo);font-size:16px;line-height:24px;min-height:100vh}
@@ -84,7 +84,7 @@ body.pt a.bottone{color:var(--su-brace)}
 .avviso-pt.ok li,.avviso-pt.errore li{color:var(--testo)}
 .attesa-pt{color:var(--testo-secondario);padding:var(--spazio-4) 0}
 
-/* ---------- testata della pagina e riepilogo in numeri (PROPOSTA: ripresa dalla home, con i gradi arancio) ---------- */
+/* ---------- testata della pagina (PROPOSTA: ripresa dalla home, con i gradi arancio) ---------- */
 .testata-pt{position:relative;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--spazio-4);margin:var(--spazio-4) 0 var(--spazio-8);padding-bottom:var(--spazio-6);border-bottom:1px solid var(--divisorio)}
 .testata-pt::after{content:"";position:absolute;left:0;bottom:-1px;width:96px;height:3px;background:var(--brace)}
 .testata-titolo{display:flex;align-items:flex-end;gap:var(--spazio-5)}
@@ -95,15 +95,6 @@ body.pt a.bottone{color:var(--su-brace)}
 .gradi-testata path:nth-child(3){animation-delay:1s}.gradi-testata path:nth-child(2){animation-delay:1.3s}.gradi-testata path:nth-child(1){animation-delay:1.6s}
 @keyframes sale-t{0%{opacity:.3;transform:translateY(5px)}18%,46%{opacity:1;transform:none}70%,100%{opacity:.3;transform:translateY(-3px)}}
 @media (prefers-reduced-motion:reduce){.gradi-testata path{animation:none;opacity:1}}
-.riepilogo{list-style:none;margin:0 0 var(--spazio-10);padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
-.riepilogo li{padding:0 var(--spazio-4);border-left:1px solid var(--divisorio)}
-.riepilogo li:first-child{padding-left:0;border-left:0}
-.riepilogo .cifra{display:block;font-family:var(--font-titoli);font-weight:700;font-size:clamp(36px,7vw,56px);line-height:1;font-variant-numeric:tabular-nums}
-.riepilogo .dida{display:block;margin-top:var(--spazio-2);font-size:14px;line-height:20px;color:var(--testo-secondario)}
-@media (max-width:600px){
-  .riepilogo{grid-template-columns:1fr 1fr;row-gap:var(--spazio-5)}
-  .riepilogo li:nth-child(odd){padding-left:0;border-left:0}
-}
 /* titolo di sezione piccolo, in maiuscolo, con il conteggio a destra */
 .etichetta-sezione{display:flex;justify-content:space-between;align-items:baseline;gap:var(--spazio-3);margin:0 0 var(--spazio-3);
   font-family:var(--font-titoli);font-weight:700;font-size:13px;line-height:18px;letter-spacing:.16em;text-transform:uppercase;color:var(--testo-secondario)}
