@@ -1,34 +1,18 @@
-require("dotenv").config();
-const express = require("express");
-const cookieParser = require("cookie-parser");
-const db = require("./db");
-const { router: rottaAuth } = require("./auth");
-const rottaClienti = require("./clienti");
-const { router: rottaSchede } = require("./schede");
-const rottaMe = require("./me");
+require("dotenv").config({ quiet: true });
+const { creaApp, problemiConfigurazione } = require("./app");
 
-const app = express();
-
-app.use(express.json({ limit: "1mb" }));
-app.use(cookieParser());
-app.use("/api/auth", rottaAuth);
-app.use("/api/clienti", rottaClienti);
-app.use("/api/schede", rottaSchede);
-app.use("/api/me", rottaMe);
-
-// controllo: il server è acceso e vede il database?
-app.get("/api/salute", async (req, res) => {
-  try {
-    const r = await db.query("SELECT count(*)::int AS utenti FROM utente");
-    res.json({ ok: true, utenti: r.rows[0].utenti });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok: false, errore: "database non raggiungibile" });
-  }
-});
+// Senza configurazione giusta (es. JWT_SECRET mancante) il server si rifiuta di partire
+const problemi = problemiConfigurazione();
+if (problemi.length) {
+  console.error("Il server non parte, sistema prima api/.env:\n - " + problemi.join("\n - "));
+  process.exit(1);
+}
 
 const PORTA = process.env.PORT || 3001;
-const server = app.listen(PORTA, () => {
+const server = creaApp().listen(PORTA, (err) => {
+  // In Express 5 questa funzione viene chiamata anche quando l'avvio fallisce (con l'errore):
+  // in quel caso non diciamo "acceso", ci pensa server.on("error") qui sotto.
+  if (err) return;
   console.log(`API Lena su http://localhost:${PORTA}`);
 });
 
