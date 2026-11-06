@@ -13,7 +13,7 @@
 const SCHELETRO = `
 <div class="wrap">
   <header>
-    <div class="sopra"><span>Scheda di allenamento</span><span class="stato-salv" role="status"></span></div>
+    <div class="sopra"><span>Scheda di allenamento</span><span class="stato-salv"></span></div>
     <h1 id="titolo"></h1>
     <div class="chi" id="chi"></div>
     <div class="settimana-oggi" id="oggi"></div>
@@ -161,7 +161,7 @@ function rip10(v, serie){
 function campo(tipo, k, etichetta, segnaposto, serie){
   const c = chiave(stato.settimana, k);
   const wrap = el("label",{class:"campo"});
-  const inp = el("input",{type:"text", inputmode: tipo==="kg" ? "decimal" : "text", autocomplete:"off", placeholder:segnaposto,
+  const inp = el("input",{type:"text", inputmode: tipo==="kg" ? "decimal" : "text", autocomplete:"off", maxlength:"40", placeholder:segnaposto,
     value: mem[tipo][c] || "", "aria-label": etichetta});
   const verde = () => wrap.classList.toggle("ok", tipo==="rip" && rip10(inp.value, serie));
   inp.addEventListener("input", () => { const v = inp.value.trim(); if (v) mem[tipo][c] = v; else delete mem[tipo][c]; verde(); salva(); });
@@ -252,7 +252,7 @@ function cardCircuito(g, i, c){
   const lista = el("ul",{class:"lista"});
   c.esercizi.forEach((e,j) => {
     const kk = `${k}|${j}`, cc = chiave(stato.settimana, kk);
-    const inp = el("input",{type:"text", inputmode:"decimal", placeholder:"kg", value: mem.kg[cc] || "", "aria-label":`Kg ${e.nome}`});
+    const inp = el("input",{type:"text", inputmode:"decimal", maxlength:"40", placeholder:"kg", value: mem.kg[cc] || "", "aria-label":`Kg ${e.nome}`});
     inp.addEventListener("input", () => { const v = inp.value.trim(); if (v) mem.kg[cc] = v; else delete mem.kg[cc]; salva(); });
     lista.append(el("li",{},
       el("span",{class:"t"}, e.nome, el("br"), el("span",{class:"rip", style:"font-size:14px"}, e.rip)),

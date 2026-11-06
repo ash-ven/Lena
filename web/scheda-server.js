@@ -4,7 +4,6 @@
    La logica della scheda NON è qui: è in scheda.js, lo stesso file che usa la scheda scaricabile. */
 (function () {
   const $ = (id) => document.getElementById(id);
-  const R = window.LenaRegistrazioni;
 
   // ---------- messaggi di stato ----------
   function mostraStato(titolo, testo, azioni) {
@@ -38,17 +37,78 @@
     });
   }
 
-  // ---------- l'archivio: dove scheda.js legge e salva kg, ripetizioni, serie e spunte ----------
-  function creaArchivio(utente, registrazioni) {
-    const confermato = R.mappaDaVoci(registrazioni);   // quello che il server ha già
+  // ---------- indicatore di salvataggio ----------
+  const TESTI_STATO = {
+    salvato: "Salvato ✓",
+    invio: "Salvo…",
+    attesa: "Non salvato, riprovo…",
+    definitivo: "Non riesco a salvare: ricarica la pagina",
+  };
+  // Una zona invisibile che i lettori di schermo leggono ad alta voce: la usiamo solo per i problemi
+  // (e per la loro risoluzione), non a ogni lettera scritta.
+  const annuncio = document.createElement("div");
+  annuncio.className = "solo-lettori";
+  annuncio.setAttribute("role", "status");
+  document.body.append(annuncio);
+
+  let statoPrecedente = null;
+  function segnalaStato(stato) {
+    for (const e of document.querySelectorAll(".stato-salv")) {
+      e.textContent = TESTI_STATO[stato];
+      e.classList.toggle("attenzione", stato === "attesa" || stato === "definitivo");
+    }
+    if (stato === "attesa" || stato === "definitivo") annuncio.textContent = TESTI_STATO[stato];
+    else if (stato === "salvato" && statoPrecedente === "attesa") annuncio.textContent = "Salvato";
+    statoPrecedente = stato;
+  }
+
+  // Dove si copiano le modifiche non ancora inviate: una chiave diversa per ogni utente e per ogni scheda
+  function memoriaBrowser(chiave) {
     return {
-      carica() { return R.memDaMappa(confermato); },
-      cambiato() { /* il salvataggio sul server arriva con sincronizza.js */ },
+      leggi() { try { return JSON.parse(localStorage.getItem(chiave) || "null"); } catch (e) { return null; } },
+      scrivi(valore) {
+        try { if (valore) localStorage.setItem(chiave, JSON.stringify(valore)); else localStorage.removeItem(chiave); } catch (e) { /* bloccata */ }
+      },
+    };
+  }
+
+  // ---------- l'archivio: dove scheda.js legge e salva kg, ripetizioni, serie e spunte ----------
+  function creaArchivio(utente, scheda, registrazioni) {
+    const sync = window.LenaSincronizza.creaSincronizzatore({
+      schedaId: scheda.id,
+      confermato: registrazioni,
+      chiama: Lena.chiama,
+      memoria: memoriaBrowser(`lena:coda:${utente.id}:${scheda.id}`),
+      segnala: segnalaStato,
+      inLinea: () => navigator.onLine !== false,
+      sessioneScaduta: () => location.replace("/login.html?sessione=scaduta"),   // le modifiche restano sul dispositivo e partono dopo il login
+      suRifiutata: (voce) => console.warn("Il server non ha accettato questa voce:", voce),
+    });
+
+    // Quando torna la rete, o la pagina sta per nascondersi/chiudersi: invia subito, senza aspettare il secondo di quiete
+    window.addEventListener("online", () => sync.sincronizzaOra());
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") sync.sincronizzaOra(); });
+    window.addEventListener("pagehide", () => sync.sincronizzaOra());
+
+    // Esci: prima prova a inviare tutto; se non ci riesce, chiede conferma (le modifiche restano su questo dispositivo)
+    async function uscire() {
+      const tuttoInviato = await sync.sincronizzaOra();
+      const domanda =
+        "Alcune modifiche non sono ancora state salvate sul server (manca la connessione?).\n\n" +
+        "Restano su questo dispositivo e partiranno quando rientri con questo stesso account.\n\n" +
+        "Vuoi uscire lo stesso?";
+      if (!tuttoInviato && !window.confirm(domanda)) return;
+      await Lena.esci();
+    }
+
+    return {
+      carica: () => sync.caricaMem(),
+      cambiato: (mem) => sync.cambiato(mem),
       riquadro(el) {
         return el("div", { class: "salvataggio" },
           el("div", {}, el("b", {}, "Quello che segni si salva da solo"), " nel tuo spazio su Lena."),
           el("div", { style: "margin-top:4px" }, `Sei dentro come ${utente.email}.`),
-          el("div", { class: "azioni" }, el("button", { type: "button", class: "btn piccolo", onclick: () => Lena.esci() }, "Esci")));
+          el("div", { class: "azioni" }, el("button", { type: "button", class: "btn piccolo", onclick: uscire }, "Esci")));
       },
     };
   }
@@ -74,7 +134,7 @@
     const { scheda, registrazioni } = sch.json;
     window.DATI = scheda.dati;
     window.IN_ANTEPRIMA = false;   // l'anteprima esiste solo nel convertitore
-    window.LENA_ARCHIVIO = creaArchivio(me.json, registrazioni);
+    window.LENA_ARCHIVIO = creaArchivio(me.json, scheda, registrazioni);
     document.title = `${scheda.dati.info.titolo || "La tua scheda"} · Lena`;
 
     try {

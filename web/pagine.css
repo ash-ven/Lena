@@ -6,6 +6,8 @@
 html{-webkit-text-size-adjust:100%}
 /* l'attributo "hidden" deve vincere sempre, anche su elementi che hanno un display loro (flex...) */
 [hidden]{display:none!important}
+/* visibile solo ai lettori di schermo */
+.solo-lettori{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 body.semplice{margin:0;background:var(--colore-sfondo);color:var(--colore-testo);font-family:var(--font-testo);
   font-size:16px;line-height:1.45;min-height:100vh}
 
