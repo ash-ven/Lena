@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { test, before, after } = require("node:test");
 const assert = require("node:assert/strict");
-const { CONSENSO, VERSIONE_INFORMATIVA, VERSIONE_CONDIZIONI_PT, email, PASSWORD, avvia, sessione, creaPt, datiProva, pulisci, db } = require("./comune");   // per primo: legge .env
+const { RUN, CONSENSO, VERSIONE_INFORMATIVA, VERSIONE_CONDIZIONI_PT, email, PASSWORD, avvia, sessione, creaPt, datiProva, pulisci, db } = require("./comune");   // per primo: legge .env
 const { creaApp } = require("../app");
 
 let server, BASE;
@@ -80,14 +80,14 @@ test("registrazione senza consenso (assente, false, testo, versione sbagliata): 
 test("il consenso sta nella stessa transazione della registrazione: se la registrazione fallisce non resta nessun consenso", async () => {
   const c = (await ptOk("POST", "/api/clienti", { nome: "Bea", cognome: "Doppione" })).json;
   const codice = (await ptOk("POST", `/api/clienti/${c.id}/invito`)).json.codice;
-  const prima = (await db.query("SELECT count(*)::int n FROM consenso")).rows[0].n;
+  const prima = (await db.query(`SELECT count(*)::int n FROM consenso WHERE utente_id IN (SELECT id FROM utente WHERE email LIKE '%.${RUN}@test.lena')`)).rows[0].n;
   // l'email esiste già (quella del PT): 409, e il numero di consensi non cambia
   const r = await anonimo("POST", "/api/auth/registra-cliente", { codice, email: email("pt-ok"), password: "PasswordCliente1", ...CONSENSO });
   assert.equal(r.stato, 409);
   // anche un invito sbagliato non lascia consensi
   const r2 = await anonimo("POST", "/api/auth/registra-cliente", { codice: "inventato", email: email("bea"), password: "PasswordCliente1", ...CONSENSO });
   assert.equal(r2.stato, 400);
-  assert.equal((await db.query("SELECT count(*)::int n FROM consenso")).rows[0].n, prima + 0, "nessun consenso in più");
+  assert.equal((await db.query(`SELECT count(*)::int n FROM consenso WHERE utente_id IN (SELECT id FROM utente WHERE email LIKE '%.${RUN}@test.lena')`)).rows[0].n, prima + 0, "nessun consenso in più");
 });
 
 test("lo stesso consenso non si duplica (vincolo utente + tipo + versione)", async () => {

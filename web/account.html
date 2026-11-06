@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FBF8F3">
+<title>Il mio account · Lena</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/tema.css">
+<link rel="stylesheet" href="/pt.css">
+</head>
+<body class="pt">
+<header class="barra-pt">
+  <div class="dentro">
+    <p class="marchio-pt">Lena<small>Il mio account</small></p>
+    <button class="bottone secondario piccolo" type="button" id="esci">Esci</button>
+  </div>
+</header>
+
+<main class="contenitore" id="contenuto">
+  <a class="indietro" href="/scheda.html">← Torna alla mia scheda</a>
+  <h1 class="titolo">Il mio account</h1>
+  <p class="sotto-titolo" id="chi"></p>
+
+  <div id="stato-pagina" aria-live="polite"></div>
+
+  <div id="pagina" hidden>
+    <section class="pannello" aria-labelledby="t-dati">
+      <h2 class="sezione-pt" id="t-dati">Scarica i miei dati</h2>
+      <p>Ricevi un file con tutto ciò che Lena ha su di te: nome, email, le tue schede, i valori che hai segnato (kg, ripetizioni, serie, esercizi completati) e le date in cui hai accettato i testi.</p>
+      <div class="azioni-pt"><button class="bottone" type="button" id="esporta">Scarica i miei dati</button></div>
+      <div id="esporta-esito" role="status"></div>
+    </section>
+
+    <section class="pannello zona-pericolo" aria-labelledby="t-cancella">
+      <h2 class="sezione-pt" id="t-cancella">Cancella il mio account</h2>
+      <p>Se confermi, vengono cancellati <strong>per sempre</strong>:</p>
+      <ul>
+        <li>il tuo account (email e password) e il tuo accesso a Lena;</li>
+        <li>le tue schede e tutti i valori che hai segnato;</li>
+        <li>le date in cui hai accettato i testi.</li>
+      </ul>
+      <p>Il tuo professionista <strong>non vedrà più niente</strong> di te su Lena. Non si può annullare. Se ti servono i tuoi dati, scaricali prima.</p>
+      <div class="campo-pt">
+        <label for="password">Per confermare riscrivi la tua password</label>
+        <input id="password" type="password" autocomplete="current-password">
+      </div>
+      <label class="spunta-pt" for="conferma"><input type="checkbox" id="conferma"><span>Ho capito: l'account e i dati vengono cancellati e non si può tornare indietro.</span></label>
+      <div id="cancella-esito" role="alert"></div>
+      <div class="azioni-pt"><button class="bottone pericolo" type="button" id="cancella" disabled>Cancella il mio account</button></div>
+    </section>
+  </div>
+</main>
+<footer class="piede-legale"><a href="/privacy.html">Informativa privacy</a></footer>
+<noscript><p>Per usare Lena serve JavaScript attivo nel browser.</p></noscript>
+<script src="/api.js"></script>
+<script src="/account.js"></script>
+</body>
+</html>

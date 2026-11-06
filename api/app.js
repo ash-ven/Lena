@@ -9,7 +9,7 @@ const db = require("./db");
 const { router: rottaAuth } = require("./auth");
 const rottaClienti = require("./clienti");
 const { router: rottaSchede } = require("./schede");
-const rottaMe = require("./me");
+const creaRotteMe = require("./me");
 const rottaPrivacy = require("./privacy");
 
 // La cartella con le pagine (HTML, CSS, JavaScript) che il browser scarica
@@ -31,6 +31,7 @@ function creaApp(opzioni = {}) {
     limiteAccesso = 10,     // tentativi SBAGLIATI di login/registrazione per IP...
     limiteGenerale = 600,   // ...e richieste in totale per IP...
     finestraMinuti = 15,    // ...ogni 15 minuti
+    limiteRiconferma = 5,   // tentativi di riconferma password per cancellare l'account, per utente, ogni 15 minuti
     produzione = process.env.NODE_ENV === "production",
   } = opzioni;
 
@@ -62,7 +63,7 @@ function creaApp(opzioni = {}) {
   app.use("/api/auth", rottaAuth);
   app.use("/api/clienti", rottaClienti);
   app.use("/api/schede", rottaSchede);
-  app.use("/api/me", rottaMe);
+  app.use("/api/me", creaRotteMe({ limiteRiconferma, finestraMinuti }));
   app.use("/api/privacy", rottaPrivacy);
 
   // controllo: il server è acceso e vede il database?

@@ -72,6 +72,14 @@
     };
   }
 
+  // Il collegamento a «Il mio account» (scaricare i dati, cancellare l'account). L'indirizzo si imposta qui e non passa
+  // da el(), che per sicurezza accetta solo indirizzi web completi.
+  function vaiAlMioAccount(el) {
+    const a = el("a", { class: "btn piccolo" }, "Il mio account e i miei dati");
+    a.href = "/account.html";
+    return a;
+  }
+
   // ---------- l'archivio: dove scheda.js legge e salva kg, ripetizioni, serie e spunte ----------
   function creaArchivio(utente, scheda, registrazioni) {
     const sync = window.LenaSincronizza.creaSincronizzatore({
@@ -108,7 +116,7 @@
         return el("div", { class: "salvataggio" },
           el("div", {}, el("b", {}, "Quello che segni si salva da solo"), " nel tuo spazio su Lena."),
           el("div", { style: "margin-top:4px" }, `Sei dentro come ${utente.email}.`),
-          el("div", { class: "azioni" }, el("button", { type: "button", class: "btn piccolo", onclick: uscire }, "Esci")));
+          el("div", { class: "azioni" }, vaiAlMioAccount(el), el("button", { type: "button", class: "btn piccolo", onclick: uscire }, "Esci")));
       },
     };
   }

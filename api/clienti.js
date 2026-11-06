@@ -3,7 +3,7 @@ const db = require("./db");
 const { richiediLogin, richiediRuolo } = require("./auth");
 const { richiediCondizioniPt } = require("./consensi");
 const { idDa } = require("./aiuti");
-const { creaInvito, creaScheda } = require("./operazioni");
+const { creaInvito, creaScheda, esportaCliente, cancellaCliente } = require("./operazioni");
 
 const router = express.Router();
 
@@ -109,55 +109,19 @@ router.get("/:id/schede", async (req, res) => {
 });
 
 // ---------- GDPR: diritto alla cancellazione e alla portabilità ----------
+// La logica è in operazioni.js: la usa anche il cliente dalla sua pagina «Il mio account».
 
-// DELETE /api/clienti/:id: cancella il cliente e TUTTO ciò che lo riguarda.
-// Schede, registrazioni e inviti se ne vanno "a cascata" con il cliente;
-// l'account (utente) invece va cancellato a mano, perché cliente.utente_id è ON DELETE SET NULL.
+// DELETE /api/clienti/:id: cancella il cliente e TUTTO ciò che lo riguarda (schede, progressi, inviti e il suo account)
 router.delete("/:id", async (req, res) => {
-  await db.transazione(async (client) => {
-    const r = await client.query(
-      "DELETE FROM cliente WHERE id = $1 AND pt_id = $2 RETURNING utente_id",
-      [req.cliente.id, req.ptId]
-    );
-    const utenteId = r.rows[0] && r.rows[0].utente_id;
-    if (utenteId) await client.query("DELETE FROM utente WHERE id = $1 AND ruolo = 'cliente'", [utenteId]);
-  });
+  await db.transazione((client) => cancellaCliente(client, req.cliente.id, req.ptId));
   res.status(204).end();
 });
 
 // GET /api/clienti/:id/esporta: tutti i dati del cliente in un unico file JSON
 router.get("/:id/esporta", async (req, res) => {
-  const id = req.cliente.id;
-  const [anagrafica, schede, registrazioni, inviti] = await Promise.all([
-    db.query(
-      `SELECT c.id, c.nome, c.cognome, c.creato_il, p.nome AS personal_trainer,
-              u.email, u.creato_il AS account_creato_il
-         FROM cliente c JOIN pt p ON p.id = c.pt_id LEFT JOIN utente u ON u.id = c.utente_id
-        WHERE c.id = $1`, [id]),
-    db.query(
-      "SELECT id, inizio, settimane, creata_il, aggiornata_il, dati FROM scheda WHERE cliente_id = $1 ORDER BY creata_il, id",
-      [id]),
-    db.query(
-      `SELECT g.scheda_id, g.tipo, g.chiave, g.valore, g.aggiornata_il
-         FROM registrazione g JOIN scheda s ON s.id = g.scheda_id
-        WHERE s.cliente_id = $1 ORDER BY g.scheda_id, g.tipo, g.chiave`, [id]),
-    // degli inviti diamo solo le date: l'impronta del codice non è un dato del cliente
-    db.query("SELECT creato_il, scade_il, usato_il FROM invito WHERE cliente_id = $1 ORDER BY creato_il", [id]),
-  ]);
-
-  const perScheda = new Map(schede.rows.map((s) => [s.id, { ...s, registrazioni: [] }]));
-  for (const g of registrazioni.rows) {
-    const { scheda_id, ...resto } = g;
-    perScheda.get(scheda_id).registrazioni.push(resto);
-  }
-
-  res.attachment(`lena-cliente-${id}.json`);   // il browser lo scarica come file
-  res.json({
-    esportato_il: new Date().toISOString(),
-    cliente: anagrafica.rows[0],
-    schede: [...perScheda.values()],
-    inviti: inviti.rows,
-  });
+  const dati = await esportaCliente(req.cliente.id);
+  res.attachment(`lena-cliente-${req.cliente.id}.json`);   // il browser lo scarica come file
+  res.json(dati);
 });
 
 module.exports = router;
