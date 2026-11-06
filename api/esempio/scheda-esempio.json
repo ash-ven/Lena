@@ -1,0 +1,190 @@
+{
+  "inizio": "2026-11-02",
+  "settimane": 5,
+  "info": {
+    "titolo": "Programma forza e tonificazione",
+    "nome": "Asiha",
+    "cognome": "Venturi",
+    "obiettivo": "Tonificazione",
+    "sedute": 3,
+    "nota_durata": "4 settimane + 1 di scarico"
+  },
+  "riscaldamento": {
+    "voce": "Riscaldamento",
+    "durata": "10'",
+    "istruzione": "2 giri senza pausa, ritmo leggero",
+    "esercizi": [
+      [
+        "Jumping jack",
+        null
+      ],
+      [
+        "Cat cow",
+        "https://example.com/catcow"
+      ],
+      [
+        "Rotazioni delle spalle",
+        null
+      ]
+    ]
+  },
+  "giorni": [
+    {
+      "id": "A",
+      "titolo_originale": "GIORNO A (gambe e glutei)",
+      "focus": "Gambe e glutei",
+      "stretching": [
+        "Stretching",
+        "5-10'"
+      ],
+      "titolo": "Giorno A",
+      "colore": "D49A9A",
+      "chiaro": "F6E9E7",
+      "scuro": "A86A6B",
+      "blocchi": [
+        {
+          "tipo": "esercizio",
+          "nome": "Squat con bilanciere",
+          "serie": "4",
+          "rip": "10",
+          "rec": "1'30\"",
+          "video": "https://example.com/squat",
+          "note": "Schiena dritta, scendi sotto il parallelo",
+          "schema": [
+            "4x10"
+          ],
+          "progressione": "+2,5 kg a settimana se chiudi tutte le serie"
+        },
+        {
+          "tipo": "esercizio",
+          "nome": "Hip thrust",
+          "serie": "3",
+          "rip": "12",
+          "rec": "1'",
+          "video": null,
+          "note": null,
+          "schema": null,
+          "progressione": null
+        },
+        {
+          "tipo": "esercizio",
+          "nome": "Affondi camminati",
+          "serie": "3",
+          "rip": "10 per gamba",
+          "rec": "1'30\" / 2'",
+          "video": null,
+          "note": null,
+          "schema": null,
+          "progressione": null
+        },
+        {
+          "tipo": "circuito",
+          "formato": "EMOM 10'",
+          "rec": null,
+          "esercizi": [
+            {
+              "nome": "Kettlebell swing",
+              "rip": "15",
+              "video": null
+            },
+            {
+              "nome": "Salti sul box",
+              "rip": "8",
+              "video": "https://example.com/box"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "B",
+      "titolo_originale": "GIORNO B (parte alta)",
+      "focus": "Parte alta",
+      "stretching": [
+        "Stretching",
+        "5-10'"
+      ],
+      "titolo": "Giorno B",
+      "colore": "9DB5A0",
+      "chiaro": "E8EFE8",
+      "scuro": "62806A",
+      "blocchi": [
+        {
+          "tipo": "esercizio",
+          "nome": "Lat machine",
+          "serie": "4",
+          "rip": "10",
+          "rec": "1'30\"",
+          "video": null,
+          "note": "Presa larga",
+          "schema": null,
+          "progressione": "+1 kg a settimana"
+        },
+        {
+          "tipo": "esercizio",
+          "nome": "Panca con manubri",
+          "serie": "4",
+          "rip": "10",
+          "rec": "1'30\"",
+          "video": null,
+          "note": null,
+          "schema": [
+            "4x10"
+          ],
+          "progressione": null
+        },
+        {
+          "tipo": "esercizio",
+          "nome": "Alzate laterali",
+          "serie": "3",
+          "rip": "15",
+          "rec": "45\"",
+          "video": null,
+          "note": null,
+          "schema": null,
+          "progressione": null
+        }
+      ]
+    },
+    {
+      "id": "C",
+      "titolo_originale": "GIORNO C (full body)",
+      "focus": "Full body",
+      "stretching": null,
+      "titolo": "Giorno C",
+      "colore": "D9B26F",
+      "chiaro": "F7EEDC",
+      "scuro": "9C7A3C",
+      "blocchi": [
+        {
+          "tipo": "esercizio",
+          "nome": "Stacco rumeno",
+          "serie": "4",
+          "rip": "8",
+          "rec": "2'",
+          "video": null,
+          "note": null,
+          "schema": null,
+          "progressione": null
+        },
+        {
+          "tipo": "circuito",
+          "formato": "AMRAP 8'",
+          "rec": null,
+          "esercizi": [
+            {
+              "nome": "Burpees",
+              "rip": "6",
+              "video": null
+            },
+            {
+              "nome": "Plank",
+              "rip": "30\"",
+              "video": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

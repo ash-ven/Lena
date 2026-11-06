@@ -16,6 +16,8 @@
   .card h2{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:20px;margin:0 0 10px}
   button{font:inherit;cursor:pointer;border-radius:999px;border:1px solid #A86A6B;background:#A86A6B;color:#fff;padding:10px 18px}
   button:disabled{opacity:.35;cursor:default}
+  button.secondario{background:transparent;color:#A86A6B}
+  .pulsanti{display:flex;flex-wrap:wrap;gap:8px}
   #esito{border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:12px;background:#FBF8F3;color:#8A8580}
   #esito.ok{background:#E2F1E6;color:#2F6B3F}
   #esito.avvisi{background:#FBEFE3;border:1px solid #EBCBA8;color:#7A5228}
@@ -32,7 +34,7 @@
 <body>
 <header>
   <h1>Lena</h1>
-  <p class="versione">Convertitore Excel → scheda · Versione 7 · con anteprima</p>
+  <p class="versione">Convertitore Excel → scheda · Versione 8 · con anteprima</p>
 </header>
 
 <div class="layout">
@@ -44,7 +46,11 @@
     <div class="card">
       <h2>2. Controlla</h2>
       <div id="esito">Scegli un file Excel per cominciare.</div>
-      <button id="scarica" disabled>Scarica scheda</button>
+      <div class="pulsanti">
+        <button id="scarica" disabled>Scarica scheda</button>
+        <button id="copia-dati" class="secondario" disabled title="Per caricare la scheda sul sito con node carica-scheda.js">Copia dati (JSON)</button>
+        <button id="scarica-dati" class="secondario" disabled title="Un file .json da dare a node carica-scheda.js">Scarica dati (JSON)</button>
+      </div>
     </div>
     <details class="card">
       <summary>Dati grezzi (per tecnici)</summary>
@@ -357,6 +363,8 @@ document.getElementById("file").addEventListener("change", async (ev) => {
   ultimiDati = null;
   paginaCompleta = null;
   document.getElementById("scarica").disabled = true;
+  document.getElementById("copia-dati").disabled = true;
+  document.getElementById("scarica-dati").disabled = true;
   let avvisi = [];
 
   try {
@@ -384,6 +392,8 @@ document.getElementById("file").addEventListener("change", async (ev) => {
       paginaCompleta = costruisciPagina(modello, ultimiDati);
       mostraAnteprima(paginaCompleta);
       document.getElementById("scarica").disabled = false;
+      document.getElementById("copia-dati").disabled = false;
+      document.getElementById("scarica-dati").disabled = false;
       if (avvisi.length) mostraEsito("avvisi", `Scheda pronta, ma ci sono ${avvisi.length} avvisi da controllare:`, avvisi);
       else mostraEsito("ok", "Scheda pronta: nessun avviso.");
     } catch (err) {
@@ -391,6 +401,44 @@ document.getElementById("file").addEventListener("change", async (ev) => {
     }
   }
   ev.target.value = "";
+});
+
+// il nome del file, per esempio "asiha-venturi"
+function nomeBase() {
+  return `${ultimiDati.info.nome}-${ultimiDati.info.cognome}`.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+const flash = (bottone, testo) => {
+  const prima = bottone.textContent;
+  bottone.textContent = testo;
+  setTimeout(() => { bottone.textContent = prima; }, 2500);
+};
+
+// I dati della scheda (quelli che il sito salva nel database), pronti da incollare o da salvare in un file
+document.getElementById("copia-dati").addEventListener("click", async (ev) => {
+  if (!ultimiDati) return;
+  const testo = JSON.stringify(ultimiDati, null, 2);
+  try {
+    await navigator.clipboard.writeText(testo);
+  } catch (err) {
+    // se il browser non permette di copiare da qui, si copia dal riquadro «Dati grezzi»
+    const area = document.getElementById("codice");
+    area.value = testo;
+    area.select();
+    if (!document.execCommand("copy")) return flash(ev.target, "Non riesco a copiare: usa «Scarica dati»");
+  }
+  flash(ev.target, "Copiato ✓");
+});
+
+document.getElementById("scarica-dati").addEventListener("click", () => {
+  if (!ultimiDati) return;
+  const blob = new Blob([JSON.stringify(ultimiDati, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `dati-${nomeBase()}.json`;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
 
 document.getElementById("scarica").addEventListener("click", () => {

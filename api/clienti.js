@@ -1,12 +1,10 @@
 const express = require("express");
-const crypto = require("crypto");
 const db = require("./db");
-const { richiediLogin, richiediRuolo, hashCodice } = require("./auth");
+const { richiediLogin, richiediRuolo } = require("./auth");
 const { idDa } = require("./aiuti");
-const { erroreScheda } = require("./valida-scheda");
+const { creaInvito, creaScheda } = require("./operazioni");
 
 const router = express.Router();
-const DURATA_INVITO_GIORNI = 7;
 
 // Tutto quello che sta in questo file è solo per PT con login valido
 router.use(richiediLogin, richiediRuolo("pt"));
@@ -63,31 +61,16 @@ router.post("/", async (req, res) => {
 router.post("/:id/invito", async (req, res) => {
   if (req.cliente.utente_id) return res.status(409).json({ errore: "Questo cliente ha già un account" });
 
-  const codice = crypto.randomBytes(32).toString("base64url");   // 43 caratteri, impossibile da indovinare
-  const scadeIl = await db.transazione(async (client) => {
-    // un nuovo invito annulla quelli vecchi non usati: resta valido un solo link alla volta
-    await client.query("DELETE FROM invito WHERE cliente_id = $1 AND usato_il IS NULL", [req.cliente.id]);
-    const r = await client.query(
-      `INSERT INTO invito (cliente_id, codice_hash, scade_il)
-       VALUES ($1, $2, now() + make_interval(days => $3)) RETURNING scade_il`,
-      [req.cliente.id, hashCodice(codice), DURATA_INVITO_GIORNI]
-    );
-    return r.rows[0].scade_il;
-  });
+  const { codice, scadeIl } = await creaInvito(req.cliente.id);
   res.status(201).json({ codice, scade_il: scadeIl });
 });
 
 // POST /api/clienti/:id/schede  { dati }   (dati = l'oggetto prodotto dal convertitore)
 router.post("/:id/schede", async (req, res) => {
   const dati = (req.body || {}).dati;
-  const errore = erroreScheda(dati);
-  if (errore) return res.status(400).json({ errore: `Scheda non valida: ${errore}` });
-
-  const r = await db.query(
-    "INSERT INTO scheda (cliente_id, inizio, settimane, dati) VALUES ($1, $2, $3, $4) RETURNING id",
-    [req.cliente.id, dati.inizio, dati.settimane, dati]
-  );
-  res.status(201).json({ id: r.rows[0].id });
+  const r = await creaScheda(req.cliente.id, dati);
+  if (r.errore) return res.status(400).json({ errore: `Scheda non valida: ${r.errore}` });
+  res.status(201).json({ id: r.id });
 });
 
 // GET /api/clienti/:id/schede: l'elenco delle schede del cliente, senza il JSON pesante

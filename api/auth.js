@@ -1,9 +1,8 @@
 const express = require("express");
-const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("./db");
-const { NOME_COOKIE, opzioniCookie, emailPulita } = require("./aiuti");
+const { NOME_COOKIE, opzioniCookie, emailPulita, hashCodice } = require("./aiuti");
 
 const router = express.Router();
 const DURATA_SESSIONE = 7 * 24 * 3600 * 1000;   // 7 giorni
@@ -11,11 +10,6 @@ const DURATA_SESSIONE = 7 * 24 * 3600 * 1000;   // 7 giorni
 // Un hash finto, per confrontare la password anche quando l'email non esiste:
 // così la risposta ci mette lo stesso tempo e non rivela quali email sono registrate.
 const HASH_FINTO = bcrypt.hashSync("password-finta", 12);
-
-// L'impronta (sha256) di un codice di invito: nel database salviamo solo questa.
-function hashCodice(codice) {
-  return crypto.createHash("sha256").update(codice).digest("hex");
-}
 
 // Crea il "pass" (JWT) e lo mette nel cookie
 function apriSessione(res, utente) {
@@ -125,4 +119,4 @@ router.get("/me", richiediLogin, async (req, res) => {
   res.json(r.rows[0]);
 });
 
-module.exports = { router, richiediLogin, richiediRuolo, hashCodice };
+module.exports = { router, richiediLogin, richiediRuolo };

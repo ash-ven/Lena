@@ -6,6 +6,11 @@ function idDa(testo) {
   return /^[1-9]\d{0,8}$/.test(String(testo)) ? Number(testo) : null;
 }
 
+// L'impronta (sha256) di un codice di invito: nel database salviamo solo questa, mai il codice.
+function hashCodice(codice) {
+  return require("crypto").createHash("sha256").update(codice).digest("hex");
+}
+
 // Il cookie di sessione: sempre con le stesse opzioni (anche quando lo cancelliamo).
 const NOME_COOKIE = "lena_sessione";
 function opzioniCookie() {
@@ -23,4 +28,4 @@ function emailPulita(valore) {
   return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : null;
 }
 
-module.exports = { idDa, NOME_COOKIE, opzioniCookie, emailPulita };
+module.exports = { idDa, NOME_COOKIE, opzioniCookie, emailPulita, hashCodice };
