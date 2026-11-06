@@ -7,7 +7,8 @@ Due ruoli: **PT** (personal trainer) e **cliente**.
 ## Indice
 
 1. [Avviare tutto da zero](#avviare-tutto-da-zero)
-2. [Provare tutto a mano: dal cliente alla scheda](#provare-tutto-a-mano-dal-cliente-alla-scheda)
+2. [Il giro completo del PT, passo per passo](#il-giro-completo-del-pt-passo-per-passo-tutto-dal-browser)
+   e gli [strumenti di emergenza](#strumenti-di-emergenza-riga-di-comando)
 3. [Aprire il sito dal telefono](#aprire-il-sito-dal-telefono-wifi-di-casa)
 3. [Le pagine del sito (cartella web/)](#le-pagine-del-sito-cartella-web)
 4. [Come cambiare colori e font](#come-cambiare-colori-e-font)
@@ -74,13 +75,14 @@ Non usare mai `docker compose down -v`: il `-v` cancella il volume, cioè **tutt
 
 **I test** (`npm test`) avviano una loro copia del server su una porta libera e usano il database di
 sviluppo: creano utenti con email `...@test.lena` e alla fine li cancellano. I tuoi dati non vengono toccati.
-Sono tre gruppi: `test/e2e.test.js` (l'API, con il database), `test/web.test.js` (pagine e sicurezza del sito)
-e `test/sincronizza.test.js` (il salvataggio dei progressi, senza rete né database: sono istantanei).
+Sono sette gruppi (83 test in tutto): `test/e2e.test.js` e `test/pt.test.js` (l'API, con il database), `test/web.test.js` e `test/pt-pagine.test.js`
+(pagine, sicurezza del sito, accessibilità e contrasto dei colori), `test/convertitore.test.js` (il convertitore, con file Excel veri creati al volo,
+buoni e "rotti"), `test/progressi.test.js` e `test/sincronizza.test.js` (calcoli e salvataggio, senza rete né database: sono istantanei).
 
-**Script a riga di comando** (da lanciare dalla cartella `api`):
+**Script a riga di comando:** sono diventati "strumenti di emergenza": vedi la sezione dedicata più sotto. Per cambiare l'indirizzo scritto nei link
+(es. quando sarai online) aggiungi in `api/.env` una riga `URL_BASE=https://il-tuo-dominio.it` (vale per `crea-invito.js`; il sito usa l'indirizzo con cui lo apri).
 
-| Comando | Cosa fa |
-|---|---|
+---|---|
 | `node crea-pt.js email password "Nome"` | crea un account da PT |
 | `node carica-scheda.js <id-cliente> <file.json>` | carica una scheda (il JSON del convertitore) per un cliente |
 | `node crea-invito.js <id-cliente>` | crea l'invito e stampa il link `.../registrati.html?codice=...` |
@@ -91,65 +93,96 @@ Per cambiare l'indirizzo scritto nei link (es. quando sarai online) aggiungi in 
 
 ---
 
-## Provare tutto a mano: dal cliente alla scheda
+## Il giro completo del PT, passo per passo (tutto dal browser)
 
-Serve il database acceso e il server avviato (`node --watch server.js` nella cartella `api`).
-Lo facciamo con il cliente di prova **"Asiha Venturi" (id 1)**, che esiste già; per crearne uno nuovo vedi il punto 1.
+Il PT fa tutto dal sito: **niente riga di comando** (se non la prima volta, per accendere il sistema e creare il proprio account).
 
-**1. (Facoltativo) Crea un nuovo cliente.** Serve il login da PT; l'`id` che compare è quello da usare dopo.
+### La prima volta: accendere il sistema
 
-```powershell
-$API = "http://localhost:3001"; $JSON = "application/json; charset=utf-8"
-Invoke-RestMethod "$API/api/auth/login" -Method Post -ContentType $JSON -SessionVariable pt -Body (@{ email = "tua@email.it"; password = "LaTuaPassword" } | ConvertTo-Json)
-Invoke-RestMethod "$API/api/clienti" -Method Post -ContentType $JSON -WebSession $pt -Body (@{ nome = "Mario"; cognome = "Rossi" } | ConvertTo-Json)
-```
-
-**2. Prepara la scheda (un file `.json`).** Due modi:
-
-- *Subito:* usa quella d'esempio, `api/esempio/scheda-esempio.json` (3 giorni, 5 settimane dal 2 novembre 2026).
-- *Dal tuo Excel:* nella cartella principale lancia `npx serve .`, apri `http://localhost:3000/convertitore-test.html`
-  (la porta la scrive il comando), carica l'Excel e premi **"Scarica dati (JSON)"** (oppure "Copia dati (JSON)" e incolla in un file).
-  Il pulsante "Scarica scheda" invece fa il file `.html` autonomo, come prima.
-
-**3. Carica la scheda sul cliente.**
+Servono **Docker Desktop** acceso e **Node.js 22**. Poi, in PowerShell, una riga alla volta:
 
 ```powershell
-cd C:\Users\a.venturi\progetti\schede-pt\api
-node carica-scheda.js 1 esempio\scheda-esempio.json
+cd C:\Users\a.venturi\progetti\schede-pt
+Copy-Item .env.example .env
+notepad .env
+docker compose up -d
+cd api
+Copy-Item .env.example .env
+notepad .env
+npm install
+node crea-pt.js tua@email.it LaTuaPasswordLunga123 "Il tuo nome"
+node --watch server.js
 ```
 
-Se la scheda ha qualcosa che non va, dice cosa (per esempio «settimane fuori range»). Se ne carichi più di una, il cliente vede l'ultima.
+(Nel primo `notepad` metti una password a tua scelta al posto di `CAMBIAMI`; nel secondo riempi `DATABASE_URL` con la stessa password
+e `JWT_SECRET` con un segreto lungo: i dettagli sono nella sezione "Avviare tutto da zero". La password del PT deve avere da 10 a 72 caratteri.)
 
-**4. Crea l'invito.**
+Le volte dopo basta Docker acceso e `node --watch server.js` dentro la cartella `api`.
 
-```powershell
-node crea-invito.js 1
-```
+### Ogni volta: dal browser
 
-Stampa un link lungo, tipo `http://localhost:3001/registrati.html?codice=...`. Vale 7 giorni e si usa **una volta sola**.
+1. **Entra.** Apri `http://localhost:3001` (dal telefono: vedi la sezione "Aprire il sito dal telefono"). Ti manda al login: email e password del PT.
+   Arrivi su **"I tuoi clienti"**.
+2. **Nuovo cliente.** Premi **"Nuovo cliente"**, scrivi nome e cognome, **"Crea cliente"**: si apre la pagina del cliente.
+   Nell'elenco ogni cliente ha uno **stato**:
+   - *Nessuna scheda* (arancio): non gli hai ancora caricato niente;
+   - *Invito non ancora usato (scade il …)* (rosa): hai creato l'invito ma non l'ha ancora aperto;
+   - *Scheda caricata, da invitare*: c'è la scheda ma non c'è un invito valido;
+   - *Attivo, ultimo allenamento il …* (verde): il cliente usa la scheda e salva i suoi kg;
+   - *Registrato, non ha ancora segnato nulla*.
+   La casella **"Cerca un cliente"** filtra per nome o cognome (senza badare a maiuscole e accenti).
+3. **Carica la scheda da Excel.** Nella pagina del cliente premi **"Carica scheda da Excel"** e scegli il file `.xlsx`
+   (può stare in **qualsiasi cartella**, per esempio sul Desktop: il browser lo legge da lì; **non va copiato nel progetto**, e infatti i `.xlsx`
+   sono ignorati da git di proposito). Il file viene **letto nel tuo browser**: al server arriva solo la scheda già convertita.
+   Poi guarda cosa dice la pagina:
+   - **riquadro rosso** = errore che *blocca* (per esempio manca la data di inizio): il pulsante "Invia al cliente" resta spento, correggi l'Excel e riscegli il file;
+   - **riquadro arancio** = avvisi che *non* bloccano (per esempio "l'Excel dice 3 sedute ma ho trovato 2 giorni"): leggili, e per inviare devi mettere la spunta **"Ho letto gli avvisi e voglio inviare lo stesso"**;
+   - **avviso sul nome**: se il nome e cognome scritti nell'Excel sono diversi da quelli del cliente (per esempio hai scelto il file di un altro) lo dice con tutti e due i nomi, e serve la spunta;
+   - sotto compare **l'anteprima nel telefono**: scorri e controlla che sia come la vuoi.
+   Poi **"Invia al cliente"**: da quel momento il cliente vede questa scheda (se ne carichi un'altra, vede sempre l'ultima).
+4. **Crea l'invito.** Nella sezione "Invito" premi **"Crea invito"**: compare il **link** completo con la scadenza (7 giorni).
+   Premi **"Copia"** e mandalo al cliente (WhatsApp, email...). Attenzione: **il link si vede una volta sola**. Se lo perdi, ne crei un altro
+   (e il vecchio smette di funzionare).
+5. **Il cliente apre il link**, sceglie email e password (almeno 10 caratteri) ed entra nella sua scheda. Da quel momento kg, ripetizioni, serie e spunte
+   si salvano da soli nel database. *Per provare da solo:* apri il link in una **finestra privata** (Ctrl+Maiusc+N).
+6. **Guarda i progressi.** Nella sezione "Progressi" vedi, settimana per settimana, quanti allenamenti sono completati
+   ("Settimana 3: 2 allenamenti su 3 completati") e, accanto, **la scheda del cliente in sola lettura** con i suoi kg e le sue ripetizioni:
+   puoi scegliere settimana e giorno, ma non cambiare niente. Il pulsante "Aggiorna" ricarica i dati. Un allenamento conta come *completato* quando
+   ogni esercizio ha la sua spunta (riscaldamento e stretching non contano).
+7. **Dati personali (GDPR).** In fondo alla pagina:
+   - **"Esporta dati (JSON)"** scarica un file con anagrafica, schede e progressi del cliente (serve se te li chiede);
+   - **"Cancella cliente"**: per sicurezza devi riscrivere nome e cognome. Vengono cancellati **per sempre** il cliente, tutte le sue schede,
+     tutti i suoi progressi **e il suo account**: dopo, non riesce più a entrare. Non si può annullare.
 
-**5. Apri il link.** Meglio in una **finestra privata** (Ctrl+Maiusc+N), così non si mescola con altri accessi.
-Scegli email e password (almeno 10 caratteri): finisci direttamente sulla scheda.
+Se qualcosa va storto la pagina lo dice: **rete assente** → messaggio con "Riprova"; **sessione scaduta** → ti riporta al login;
+**cliente non trovato** → messaggio gentile. I pulsanti che creano qualcosa (cliente, scheda, invito) si spengono mentre lavorano, quindi un doppio clic non fa doppioni.
 
-**6. Prova il salvataggio.**
+---
 
-- Scrivi un peso nel primo esercizio: in alto a destra passa da *Salvo…* a *Salvato ✓* dopo circa un secondo.
-- Ricarica la pagina (F5): il valore c'è ancora.
-- Guarda il database: `docker exec lena-db psql -U lena -d lena -c "SELECT * FROM registrazione"`.
-- Metti la finestra di DevTools (F12) su **Network → Offline** e scrivi un altro valore: compare *Non salvato, riprovo…*;
-  togli Offline e dopo qualche secondo diventa *Salvato ✓*.
-- Premi **Esci** (in fondo alla pagina) e rientra da `http://localhost:3001/login.html`.
+## Strumenti di emergenza (riga di comando)
 
-**Dal telefono?** Vedi la sezione "Aprire il sito dal telefono" qui sotto.
+Il sito fa già tutto. Questi script restano per i casi in cui il sito non è disponibile (o per automatizzare qualcosa); si lanciano **dalla cartella `api`**:
 
-**7. Per ripetere la prova con lo stesso cliente** cancella l'account di prova (il cliente e la sua scheda restano) e crea un nuovo invito:
+| Comando | Quando serve |
+|---|---|
+| `node crea-pt.js email password "Nome"` | creare un account da PT (email valida, password da 10 a 72 caratteri). **Unico modo** per creare un PT: dal sito non si può |
+| `node carica-scheda.js <id-cliente> <file.json>` | caricare una scheda (il JSON del convertitore) senza passare dal sito |
+| `node crea-invito.js <id-cliente>` | creare l'invito e stampare il link senza passare dal sito |
 
-```powershell
-docker exec lena-db psql -U lena -d lena -c "DELETE FROM utente WHERE email = 'la-tua-email-di-prova'"
-node crea-invito.js 1
-```
+Per vedere gli `id` dei clienti: `docker exec lena-db psql -U lena -d lena -c "SELECT id, nome, cognome FROM cliente"`.
+Il file `esempio/scheda-esempio.json` è una scheda d'esempio per provare `carica-scheda.js`; il JSON di una scheda vera si ottiene dalla pagina vecchia del
+convertitore (vedi sotto) con "Scarica dati (JSON)".
 
-(Per cancellare invece **tutto** di un cliente, account e schede compresi, c'è `DELETE /api/clienti/:id`.)
+**La pagina vecchia del convertitore** (`convertitore-test.html`, si apre con `npx serve .` nella cartella principale) funziona ancora come prima:
+carica l'Excel, mostra l'anteprima e scarica la scheda come file `.html` singolo (da mandare per esempio via WhatsApp, funziona anche senza il sito).
+Usa **lo stesso codice di conversione** del sito (`web/convertitore.js`) e la libreria Excel è ospitata nel progetto: nessun CDN.
+
+### Come funziona l'anteprima (per chi è curioso)
+
+La CSP del sito vieta gli script scritti dentro le pagine, e non va allentata. Quindi l'anteprima non è più un riquadro con la scheda "incollata" dentro:
+è una **pagina vera del sito**, `/anteprima.html`, mostrata in una cornice. L'area del PT le manda la scheda con un **messaggio** (`postMessage`);
+la pagina la accetta solo se il messaggio viene **dallo stesso sito** e **proprio dalla pagina che la contiene**, e solo se la scheda passa gli stessi controlli
+del server. I dati arrivano come semplice testo e non vengono mai eseguiti come codice. La stessa pagina, in "sola lettura", mostra anche i progressi di un cliente.
 
 ---
 
@@ -189,7 +222,9 @@ risponde sempre con un errore JSON, mai con una pagina.
 | `/login.html` | `login.html`, `login.js` | accesso con email e password; dopo: cliente → scheda, PT → area PT |
 | `/registrati.html?codice=...` | `registrati.html`, `registrati.js` | il cliente crea l'accesso con il codice dell'invito; poi va alla scheda |
 | `/scheda.html` | `scheda.html`, `scheda-server.js` | la scheda del cliente, letta dal server (401 → login, 404 → "non c'è ancora una scheda") |
-| `/pt.html` | `pt.html`, `pt.js` | segnaposto "Area PT in arrivo" con il pulsante Esci |
+| `/pt.html` | `pt.html`, `pt.js` | **area del PT**: elenco dei clienti con il loro stato, ricerca, "Nuovo cliente", Esci |
+| `/pt-cliente.html?id=...` | `pt-cliente.html`, `pt-cliente.js`, `pt-converti.js`, `pt-progressi.js` | pagina di un cliente: schede, carica Excel, invito, progressi, esporta/cancella |
+| `/anteprima.html` | `anteprima.html`, `anteprima.js` | mostra una scheda dentro una cornice (anteprima del convertitore e progressi in sola lettura): non si apre da sola |
 | (indirizzo inesistente) | `404.html` | pagina "non trovato" |
 
 File usati da più pagine:
@@ -200,6 +235,11 @@ File usati da più pagine:
 | `pagine.css` | stile di login, registrazione, area PT, 404 e dei messaggi di stato |
 | `scheda.css`, `scheda.js` | **l'unica copia** di stile e logica della scheda (vedi sotto) |
 | `api.js` | piccolo aiuto per chiamare l'API, uscire, mostrare gli errori comuni |
+| `pt.css`, `pt-comune.js` | stile e aiuti dell'area del PT (controllo accesso, richieste, cornice dell'anteprima) |
+| `convertitore.js` | **l'unica copia** della logica Excel → scheda (la usano il sito e la pagina vecchia del convertitore) |
+| `valida-scheda.js` | il controllo sulla forma di una scheda: lo usano il browser (prima di inviare) e il server (prima di salvare) |
+| `progressi.js` | calcola "Settimana 3: 2 allenamenti su 3 completati" |
+| `vendor/` | la libreria per leggere l'Excel (SheetJS 0.20.3), con licenza, versione e impronta in `vendor/LEGGIMI.txt` |
 | `registrazioni.js` | traduce i progressi tra il formato del database e quello della scheda |
 | `sincronizza.js` | il "motore" che manda i progressi al server (vedi sotto) |
 
@@ -320,7 +360,8 @@ per questo `DELETE /api/clienti/:id` lo cancella esplicitamente.
 | `POST /api/auth/logout` | tutti | Toglie il cookie |
 | `GET /api/auth/me` | con login | Chi sono io (`id`, `email`, `ruolo`) |
 | `POST /api/auth/registra-cliente` | tutti (con codice) | Crea l'account del cliente da un invito e fa già il login |
-| `GET /api/clienti` | PT | I miei clienti (con `registrato: true/false`) |
+| `GET /api/clienti` | PT | I miei clienti, ognuno con il suo stato: `registrato` (ha creato l'accesso), `schede` (quante), `scheda_recente_id`, `ultimo_progresso` (data dell'ultimo salvataggio), `invito_attivo` e `invito_scade_il` |
+| `GET /api/clienti/:id` | PT | Un cliente mio, con gli stessi campi dell'elenco (404 se non è mio) |
 | `POST /api/clienti` | PT | Nuovo cliente `{ nome, cognome }` |
 | `DELETE /api/clienti/:id` | PT | Cancella il cliente e tutti i suoi dati (GDPR) |
 | `GET /api/clienti/:id/esporta` | PT | Scarica tutti i dati del cliente in JSON (GDPR) |
@@ -450,6 +491,10 @@ Invoke-RestMethod "$API/api/auth/logout" -Method Post -WebSession $pt
 ## Regole di sicurezza già attive
 
 - **Password**: salvate solo come hash bcrypt (costo 12). Per i clienti: minimo 10 caratteri, massimo 72.
+- **Sessione legata al database**: a ogni richiesta, oltre alla firma del cookie, il server controlla che l'utente **esista ancora** (e prende il ruolo dal database).
+  Il prezzo è **una piccola query in più per richiesta** (frazioni di millisecondo in locale, trascurabile finché il sito è piccolo); il vantaggio è che
+  dopo una cancellazione il vecchio cookie smette di valere **subito**, non dopo 7 giorni. Non esiste ancora un "account disattivato": per bloccare
+  qualcuno oggi si cancella l'utente.
 - **Sessione**: un JWT firmato (valido 7 giorni) dentro il cookie `lena_sessione`, che è:
   - `HttpOnly`: il JavaScript della pagina non lo legge;
   - `SameSite=Lax`: non parte dalle richieste di altri siti;
@@ -482,9 +527,9 @@ Oggi tutto è pensato per girare sul tuo PC. Prima di mettere Lena su un server 
 6. **CORS** solo se il frontend sta su un **dominio diverso** dall'API. Se frontend e API sono sullo stesso dominio (consigliato) non serve niente. Se servono domini diversi: pacchetto `cors` con `origin` = il dominio esatto del frontend e `credentials: true`, e il cookie dovrà diventare `sameSite: "none"` + `secure`.
 7. **Backup del database** (sono dati di salute): un `pg_dump` automatico, cifrato, conservato fuori dal server.
 8. **Link di invito**: in `api/.env` metti `URL_BASE=https://il-tuo-dominio.it`, così `crea-invito.js` stampa link con l'indirizzo vero.
-9. **Il convertitore usa una libreria di terzi.** `convertitore-test.html` carica la libreria per leggere l'Excel da `cdn.sheetjs.com`.
-   Oggi gira solo sul tuo PC (e non manda l'Excel a nessuno: la libreria lavora nel tuo browser), ma il giorno in cui sarà
-   una pagina del sito va **scaricata e servita da noi** (file in `web/`), sia per la privacy sia perché la CSP la bloccherebbe.
+9. **La libreria Excel è nostra.** Il convertitore (sito e pagina vecchia) usa SheetJS 0.20.3 salvata in `web/vendor/`: nessuna richiesta a terzi.
+   Per aggiornarla segui `web/vendor/LEGGIMI.txt` (un test controlla che il file corrisponda all'impronta dichiarata). Non usare la 0.18.5 di npm:
+   ha due vulnerabilità note.
 10. **Dispositivi condivisi.** Dopo "Esci", se c'erano modifiche non ancora inviate, restano nel `localStorage` di quel browser
     (solo kg, ripetizioni, serie e spunte, senza nomi). Per un telefono condiviso conviene aggiungere "svuota tutto al logout"
     quando si decide come comportarsi.
