@@ -22,11 +22,16 @@ function apriSessione(res, utente) {
   res.cookie(NOME_COOKIE, token, { ...opzioniCookie(), maxAge: DURATA_SESSIONE });
 }
 
-// POST /api/auth/login  { email, password }
+// POST /api/auth/login  { email, password, ruolo? }
+// "ruolo" ("pt" o "cliente") dice da quale porta della home si entra. Se c'è e l'account è dell'altro tipo,
+// NON si apre nessuna sessione. Si controlla solo dopo la password giusta, così non si scopre chi ha un account.
+// Una stessa email non può essere insieme PT e cliente: la colonna "email" è UNIQUE e "ruolo" è una sola.
 router.post("/login", async (req, res) => {
   const corpo = req.body || {};
   const email = String(corpo.email || "").toLowerCase().trim();
   const password = String(corpo.password || "");
+  const ruoloScelto = corpo.ruolo == null ? null : String(corpo.ruolo);
+  if (ruoloScelto !== null && ruoloScelto !== "pt" && ruoloScelto !== "cliente") return res.status(400).json({ errore: "Ruolo non valido" });
 
   const r = await db.query("SELECT id, password_hash, ruolo FROM utente WHERE email = $1", [email]);
   const utente = r.rows[0];
@@ -34,6 +39,9 @@ router.post("/login", async (req, res) => {
   const ok = await bcrypt.compare(password, utente ? utente.password_hash : HASH_FINTO);
   if (!utente || !ok) return res.status(401).json({ errore: "Email o password non corrette" });
 
+  if (ruoloScelto && ruoloScelto !== utente.ruolo) {
+    return res.status(403).json({ errore: "Questo account è di un altro tipo", codice: "RUOLO_SBAGLIATO", ruolo: utente.ruolo });
+  }
   apriSessione(res, utente);
   res.json({ id: utente.id, ruolo: utente.ruolo });
 });
