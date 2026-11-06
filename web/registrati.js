@@ -23,6 +23,15 @@
     $("password").type = ev.target.checked ? "text" : "password";
   });
 
+  // La versione dell'informativa che si sta accettando arriva dal server (c'è un solo punto dove si decide: api/config.js)
+  let versioneInformativa = null;
+  async function leggiVersione() {
+    const r = await Lena.chiama("GET", "/api/privacy/versioni");
+    if (r.stato === 200) { versioneInformativa = r.json.informativa_cliente; $("versione-informativa").textContent = versioneInformativa; }
+    return versioneInformativa;
+  }
+  leggiVersione();
+
   $("modulo").addEventListener("submit", async (ev) => {
     ev.preventDefault();
     const email = $("email").value.trim();
@@ -39,9 +48,21 @@
       return;
     }
 
+    if (!$("accetta").checked) {
+      mostra("errore", "Per registrarti devi spuntare la casella «Ho letto l'informativa privacy».");
+      $("accetta").focus();
+      return;
+    }
+
     $("invia").disabled = true;
     $("invia").textContent = "Un attimo…";
-    const r = await Lena.chiama("POST", "/api/auth/registra-cliente", { codice, email, password });
+    if (!versioneInformativa && !(await leggiVersione())) {
+      $("invia").disabled = false;
+      $("invia").textContent = "Crea il mio accesso";
+      mostra("errore", "Non riesco a contattare il server. Controlla la connessione e riprova.");
+      return;
+    }
+    const r = await Lena.chiama("POST", "/api/auth/registra-cliente", { codice, email, password, accettaInformativa: true, versioneInformativa });
 
     if (r.stato === 201) {
       location.replace("/scheda.html");   // la registrazione ha già fatto il login
@@ -56,6 +77,9 @@
     } else if (r.stato === 409) {
       mostra("errore", "Questa email è già registrata. Se hai già un account, accedi dalla pagina di login.");
       $("email").focus();
+    } else if (r.stato === 400 && r.json && r.json.codice === "VERSIONE_INFORMATIVA_CAMBIATA") {
+      mostra("errore", errore);   // l'informativa è cambiata mentre compilavi: si ricarica per leggerla
+      versioneInformativa = null; leggiVersione(); $("accetta").checked = false;
     } else if (r.stato === 400 && errore) {
       mostra("errore", errore);   // per esempio password troppo lunga
     } else {

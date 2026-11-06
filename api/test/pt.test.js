@@ -5,7 +5,7 @@ const { test, before, after } = require("node:test");
 const assert = require("node:assert/strict");
 const { execFileSync } = require("node:child_process");
 const path = require("node:path");
-const { email, PASSWORD, avvia, sessione, creaPt, datiProva, pulisci, db } = require("./comune");   // per primo: legge .env
+const { CONSENSO, email, PASSWORD, avvia, sessione, creaPt, datiProva, pulisci, db } = require("./comune");   // per primo: legge .env
 const { creaApp } = require("../app");
 
 let server, BASE;
@@ -52,7 +52,7 @@ test("un cliente cancellato non entra più con il vecchio cookie (401, non 404)"
   await A("POST", `/api/clienti/${c.id}/schede`, { dati: datiProva("Da", "Cancellare") });
   const codice = (await A("POST", `/api/clienti/${c.id}/invito`)).json.codice;
   const k = sessione(() => BASE);
-  assert.equal((await k("POST", "/api/auth/registra-cliente", { codice, email: email("cliente-cancellato"), password: "PasswordCliente1" })).stato, 201);
+  assert.equal((await k("POST", "/api/auth/registra-cliente", { ...CONSENSO, codice, email: email("cliente-cancellato"), password: "PasswordCliente1" })).stato, 201);
   assert.equal((await k("GET", "/api/me/scheda")).stato, 200);
   assert.equal((await A("DELETE", `/api/clienti/${c.id}`)).stato, 204);
   assert.equal((await k("GET", "/api/me/scheda")).stato, 401);
@@ -179,7 +179,7 @@ test("elenco clienti e GET /:id: schede, scheda più recente, invito, registrazi
 
   // registrazione del cliente
   const codice = (await A("POST", `/api/clienti/${id}/invito`)).json.codice;
-  assert.equal((await cliente("POST", "/api/auth/registra-cliente", { codice, email: email("elena"), password: "PasswordCliente1" })).stato, 201);
+  assert.equal((await cliente("POST", "/api/auth/registra-cliente", { ...CONSENSO, codice, email: email("elena"), password: "PasswordCliente1" })).stato, 201);
   st = await stato();
   assert.equal(st.registrato, true);
   assert.equal(st.invito_attivo, false, "invito usato: non è più attivo");

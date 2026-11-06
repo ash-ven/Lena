@@ -3,6 +3,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("./db");
 const { NOME_COOKIE, opzioniCookie, emailPulita, hashCodice } = require("./aiuti");
+const { VERSIONE_INFORMATIVA } = require("./config");
+const { TIPO_INFORMATIVA, registraConsenso } = require("./consensi");
 
 const router = express.Router();
 const DURATA_SESSIONE = 7 * 24 * 3600 * 1000;   // 7 giorni
@@ -51,6 +53,14 @@ router.post("/registra-cliente", async (req, res) => {
   // bcrypt usa solo i primi 72 byte: oltre, il resto verrebbe ignorato senza dirlo
   if (Buffer.byteLength(password) > 72) return res.status(400).json({ errore: "La password è troppo lunga (massimo 72 caratteri)" });
 
+  // Il consenso: senza aver accettato l'informativa (la versione corrente) non ci si registra
+  if (corpo.accettaInformativa !== true) {
+    return res.status(400).json({ errore: "Per registrarti devi leggere e accettare l'informativa privacy.", codice: "CONSENSO_MANCANTE" });
+  }
+  if (corpo.versioneInformativa !== VERSIONE_INFORMATIVA) {
+    return res.status(400).json({ errore: "L'informativa è stata aggiornata: ricarica la pagina e leggila di nuovo.", codice: "VERSIONE_INFORMATIVA_CAMBIATA" });
+  }
+
   // l'hash della password si calcola prima: è lento e non serve tenere il database bloccato intanto
   const passwordHash = await bcrypt.hash(password, 12);
 
@@ -77,6 +87,8 @@ router.post("/registra-cliente", async (req, res) => {
     if (!u.rows[0]) return { stato: 409, errore: "Questa email è già registrata" };
 
     await client.query("UPDATE cliente SET utente_id = $1 WHERE id = $2", [u.rows[0].id, clienteId]);
+    // il consenso si salva nella stessa transazione: o c'è l'account CON il consenso, o non c'è niente
+    await registraConsenso(client, u.rows[0].id, TIPO_INFORMATIVA, VERSIONE_INFORMATIVA);
     await client.query("UPDATE invito SET usato_il = now() WHERE id = $1", [invitoId]);
     return { stato: 201, utente: u.rows[0] };
   });

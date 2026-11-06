@@ -10,6 +10,8 @@ const { test, before, after } = require("node:test");
 const assert = require("node:assert/strict");
 const bcrypt = require("bcryptjs");
 const db = require("../db");
+const { VERSIONE_INFORMATIVA, VERSIONE_CONDIZIONI_PT } = require("../config");
+const CONSENSO = { accettaInformativa: true, versioneInformativa: VERSIONE_INFORMATIVA };
 const { creaApp } = require("../app");
 
 const RUN = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
@@ -57,6 +59,7 @@ async function creaPtNelDb(nomeEmail, nome) {
   const u = await db.query(
     "INSERT INTO utente (email, password_hash, ruolo) VALUES ($1, $2, 'pt') RETURNING id", [email(nomeEmail), hash]);
   await db.query("INSERT INTO pt (utente_id, nome) VALUES ($1, $2)", [u.rows[0].id, nome]);
+  await db.query("INSERT INTO consenso (utente_id, tipo, versione) VALUES ($1, 'condizioni_pt', $2)", [u.rows[0].id, VERSIONE_CONDIZIONI_PT]);
   return u.rows[0].id;
 }
 
@@ -249,7 +252,7 @@ test("flusso completo: invito → registrazione → login cliente → propria sc
   assert.equal(salvato.rows[0].codice_hash.length, 64);
 
   const reg = await cliente("POST", "/api/auth/registra-cliente",
-    { codice: stato.codiceA1, email: ` ${email("anna").toUpperCase()} `, password: PASSWORD_CLIENTE });
+    { ...CONSENSO, codice: stato.codiceA1, email: ` ${email("anna").toUpperCase()} `, password: PASSWORD_CLIENTE });
   assert.equal(reg.stato, 201);
   assert.equal(reg.json.ruolo, "cliente");
   assert.ok(cliente.cookie(), "dopo la registrazione è già dentro (cookie)");
@@ -354,7 +357,7 @@ test("il cliente non può usare le rotte da PT (403)", async () => {
 
 test("inviti: riusato, scaduto, sbagliato o sostituito → rifiutati con lo stesso messaggio", async () => {
   const altra = sessione();
-  const prova = (codice, nome) => altra("POST", "/api/auth/registra-cliente", { codice, email: email(nome), password: PASSWORD_CLIENTE });
+  const prova = (codice, nome) => altra("POST", "/api/auth/registra-cliente", { ...CONSENSO, codice, email: email(nome), password: PASSWORD_CLIENTE });
 
   const riusato = await prova(stato.codiceA1, "riuso");
   assert.equal(riusato.stato, 400);
@@ -378,11 +381,11 @@ test("inviti: riusato, scaduto, sbagliato o sostituito → rifiutati con lo stes
   assert.equal((await prova(vecchio, "vecchio")).json.errore, messaggio);
 
   // con il codice nuovo: password corta e email già usata vengono rifiutate senza consumare l'invito
-  const corta = await altra("POST", "/api/auth/registra-cliente", { codice: nuovo, email: email("bruno"), password: "corta" });
+  const corta = await altra("POST", "/api/auth/registra-cliente", { ...CONSENSO, codice: nuovo, email: email("bruno"), password: "corta" });
   assert.equal(corta.stato, 400);
-  const giaUsata = await altra("POST", "/api/auth/registra-cliente", { codice: nuovo, email: email("pt-a"), password: PASSWORD_CLIENTE });
+  const giaUsata = await altra("POST", "/api/auth/registra-cliente", { ...CONSENSO, codice: nuovo, email: email("pt-a"), password: PASSWORD_CLIENTE });
   assert.equal(giaUsata.stato, 409);
-  const ok = await altra("POST", "/api/auth/registra-cliente", { codice: nuovo, email: email("bruno"), password: PASSWORD_CLIENTE });
+  const ok = await altra("POST", "/api/auth/registra-cliente", { ...CONSENSO, codice: nuovo, email: email("bruno"), password: PASSWORD_CLIENTE });
   assert.equal(ok.stato, 201, "l'invito era ancora valido dopo i tentativi sbagliati");
 
   const nessunUtente = await db.query("SELECT count(*)::int AS n FROM utente WHERE email = ANY($1)",
@@ -394,7 +397,7 @@ test("cliente registrato senza schede: /api/me/scheda dà 404", async () => {
   const a2 = await ptA("POST", "/api/clienti", { nome: "Carla", cognome: "Verdi" });
   const codice = (await ptA("POST", `/api/clienti/${a2.json.id}/invito`)).json.codice;
   const carla = sessione();
-  await carla("POST", "/api/auth/registra-cliente", { codice, email: email("carla"), password: PASSWORD_CLIENTE });
+  await carla("POST", "/api/auth/registra-cliente", { ...CONSENSO, codice, email: email("carla"), password: PASSWORD_CLIENTE });
   assert.equal((await carla("GET", "/api/me/scheda")).stato, 404);
 });
 
@@ -460,7 +463,7 @@ test("limite tentativi: dopo 10 login sbagliati dallo stesso IP arriva 429, anch
     assert.equal(bloccato.stato, 429);
     const giusta = await prova("POST", "/api/auth/login", { email: email("pt-a"), password: PASSWORD_PT });
     assert.equal(giusta.stato, 429, "bloccato anche con la password giusta finché non passa il tempo");
-    assert.equal((await prova("POST", "/api/auth/registra-cliente", { codice: "x", email: email("y"), password: "x" })).stato, 429,
+    assert.equal((await prova("POST", "/api/auth/registra-cliente", { ...CONSENSO, codice: "x", email: email("y"), password: "x" })).stato, 429,
       "il limite vale anche per la registrazione");
     assert.equal((await prova("GET", "/api/salute")).stato, 200, "le altre rotte restano accessibili");
   } finally {

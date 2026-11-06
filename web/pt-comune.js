@@ -10,14 +10,20 @@
     if (r.stato === 401) { location.replace("/login.html"); return new Promise(() => {}); }   // non è mai entrato: login pulito, senza «sessione scaduta»
     if (r.stato === 200 && r.json.ruolo !== "pt") { location.replace("/scheda.html"); return new Promise(() => {}); }
     if (r.stato !== 200) return null;   // rete o server: la pagina mostra il suo messaggio con "Riprova"
+    // Le condizioni d'uso (versione corrente) vanno accettate prima di usare l'area: altrimenti si va alla schermata apposta
+    const c = await Lena.chiama("GET", "/api/privacy/condizioni-pt");
+    if (c.stato === 200 && !c.json.accettate) { vaiAlleCondizioni(); return new Promise(() => {}); }
     return r.json;
   }
+  function vaiAlleCondizioni() { location.replace("/condizioni-pt.html"); }
   function vaiAlLogin() { location.replace("/login.html?sessione=scaduta"); }
 
   // Come Lena.chiama, ma se la sessione è scaduta (401) manda al login
   async function chiama(metodo, url, corpo) {
     const r = await Lena.chiama(metodo, url, corpo);
     if (r.stato === 401) { vaiAlLogin(); return new Promise(() => {}); }
+    // le condizioni sono cambiate mentre si lavorava: si torna alla schermata per accettarle
+    if (r.stato === 403 && r.json && r.json.codice === "CONDIZIONI_DA_ACCETTARE") { vaiAlleCondizioni(); return new Promise(() => {}); }
     return r;
   }
 

@@ -3,6 +3,10 @@ const path = require("node:path");
 require("dotenv").config({ path: path.join(__dirname, "..", ".env"), quiet: true });
 const bcrypt = require("bcryptjs");
 const db = require("../db");
+const { VERSIONE_INFORMATIVA, VERSIONE_CONDIZIONI_PT } = require("../config");
+
+// Il consenso che la registrazione di un cliente deve mandare
+const CONSENSO = { accettaInformativa: true, versioneInformativa: VERSIONE_INFORMATIVA };
 
 // Un codice unico per ogni esecuzione: tutti i dati di prova hanno l'email ...<RUN>@test.lena e si cancellano insieme
 const RUN = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
@@ -35,10 +39,12 @@ function sessione(base) {
   return chiama;
 }
 
-async function creaPt(nomeEmail, nome) {
+// "accetta": se il PT ha già accettato le condizioni d'uso (di default sì: come un PT che ha già fatto il primo accesso)
+async function creaPt(nomeEmail, nome, accetta = true) {
   const hash = await bcrypt.hash(PASSWORD, 4);   // costo basso: è solo per i test
   const u = await db.query("INSERT INTO utente (email, password_hash, ruolo) VALUES ($1, $2, 'pt') RETURNING id", [email(nomeEmail), hash]);
   const pt = await db.query("INSERT INTO pt (utente_id, nome) VALUES ($1, $2) RETURNING id", [u.rows[0].id, nome]);
+  if (accetta) await db.query("INSERT INTO consenso (utente_id, tipo, versione) VALUES ($1, 'condizioni_pt', $2)", [u.rows[0].id, VERSIONE_CONDIZIONI_PT]);
   return { utenteId: u.rows[0].id, ptId: pt.rows[0].id };
 }
 
@@ -56,4 +62,4 @@ async function pulisci() {
   return r.rows[0].n;
 }
 
-module.exports = { RUN, email, PASSWORD, avvia, sessione, creaPt, datiProva, pulisci, db };
+module.exports = { CONSENSO, VERSIONE_INFORMATIVA, VERSIONE_CONDIZIONI_PT, RUN, email, PASSWORD, avvia, sessione, creaPt, datiProva, pulisci, db };

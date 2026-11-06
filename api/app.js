@@ -10,6 +10,7 @@ const { router: rottaAuth } = require("./auth");
 const rottaClienti = require("./clienti");
 const { router: rottaSchede } = require("./schede");
 const rottaMe = require("./me");
+const rottaPrivacy = require("./privacy");
 
 // La cartella con le pagine (HTML, CSS, JavaScript) che il browser scarica
 const CARTELLA_WEB = path.join(__dirname, "..", "web");
@@ -62,6 +63,7 @@ function creaApp(opzioni = {}) {
   app.use("/api/clienti", rottaClienti);
   app.use("/api/schede", rottaSchede);
   app.use("/api/me", rottaMe);
+  app.use("/api/privacy", rottaPrivacy);
 
   // controllo: il server è acceso e vede il database?
   app.get("/api/salute", async (req, res) => {

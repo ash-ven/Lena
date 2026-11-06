@@ -2,9 +2,12 @@ const express = require("express");
 const db = require("./db");
 const { richiediLogin, richiediRuolo } = require("./auth");
 const { idDa } = require("./aiuti");
+const { richiediCondizioniPt } = require("./consensi");
 
 const router = express.Router();
 router.use(richiediLogin);
+// il professionista passa da qui solo se ha accettato le condizioni d'uso; il cliente non è toccato
+router.use((req, res, next) => (req.utente.ruolo === "pt" ? richiediCondizioniPt(req, res, next) : next()));
 
 // LA regola di accesso alle schede, in un posto solo:
 // - il PT vede solo le schede dei SUOI clienti

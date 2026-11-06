@@ -1,13 +1,15 @@
 const express = require("express");
 const db = require("./db");
 const { richiediLogin, richiediRuolo } = require("./auth");
+const { richiediCondizioniPt } = require("./consensi");
 const { idDa } = require("./aiuti");
 const { creaInvito, creaScheda } = require("./operazioni");
 
 const router = express.Router();
 
 // Tutto quello che sta in questo file è solo per PT con login valido
-router.use(richiediLogin, richiediRuolo("pt"));
+// ...e solo dopo aver accettato le condizioni d'uso (versione corrente): altrimenti 403 con codice CONDIZIONI_DA_ACCETTARE
+router.use(richiediLogin, richiediRuolo("pt"), richiediCondizioniPt);
 
 // Dato l'utente loggato, trova il suo "pt.id" e lo mette in req.ptId
 router.use(async (req, res, next) => {
