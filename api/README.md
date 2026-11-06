@@ -9,6 +9,7 @@ Due ruoli: **PT** (personal trainer) e **cliente**.
 1. [Avviare tutto da zero](#avviare-tutto-da-zero)
 2. [Il giro completo del PT, passo per passo](#il-giro-completo-del-pt-passo-per-passo-tutto-dal-browser)
    e gli [strumenti di emergenza](#strumenti-di-emergenza-riga-di-comando)
+3. [Privacy, consensi e conservazione dei dati](#privacy-consensi-e-conservazione-dei-dati)
 3. [Aprire il sito dal telefono](#aprire-il-sito-dal-telefono-wifi-di-casa)
 3. [Le pagine del sito (cartella web/)](#le-pagine-del-sito-cartella-web)
 4. [Come cambiare colori e font](#come-cambiare-colori-e-font)
@@ -75,9 +76,9 @@ Non usare mai `docker compose down -v`: il `-v` cancella il volume, cioè **tutt
 
 **I test** (`npm test`) avviano una loro copia del server su una porta libera e usano il database di
 sviluppo: creano utenti con email `...@test.lena` e alla fine li cancellano. I tuoi dati non vengono toccati.
-Sono sette gruppi (83 test in tutto): `test/e2e.test.js` e `test/pt.test.js` (l'API, con il database), `test/web.test.js` e `test/pt-pagine.test.js`
-(pagine, sicurezza del sito, accessibilità e contrasto dei colori), `test/convertitore.test.js` (il convertitore, con file Excel veri creati al volo,
-buoni e "rotti"), `test/progressi.test.js` e `test/sincronizza.test.js` (calcoli e salvataggio, senza rete né database: sono istantanei).
+Sono molti gruppi (circa 130 test in tutto): `e2e` e `pt` (l'API, con il database), `consensi` e `account` (consensi, diritti del cliente), `conservazione` (scadenze, pulizia, rapporto concluso),
+`web`, `pt-pagine` e `pagine-privacy` (pagine, sicurezza, accessibilità, contrasto dei colori), `convertitore` e `salute` (il convertitore con Excel veri e il controllo sui dati di salute),
+`log` (i log non contengono dati personali), `progressi`, `sincronizza` e `uscita` (calcoli, salvataggio e uscita: senza rete né database, istantanei).
 
 **Script a riga di comando:** sono diventati "strumenti di emergenza": vedi la sezione dedicata più sotto. Per cambiare l'indirizzo scritto nei link
 (es. quando sarai online) aggiungi in `api/.env` una riga `URL_BASE=https://il-tuo-dominio.it` (vale per `crea-invito.js`; il sito usa l'indirizzo con cui lo apri).
@@ -122,7 +123,7 @@ Le volte dopo basta Docker acceso e `node --watch server.js` dentro la cartella 
 ### Ogni volta: dal browser
 
 1. **Entra.** Apri `http://localhost:3001` (dal telefono: vedi la sezione "Aprire il sito dal telefono"). Ti manda al login: email e password del PT.
-   Arrivi su **"I tuoi clienti"**.
+   **Al primo accesso** (e ogni volta che le condizioni cambiano versione) prima compare la schermata **«Condizioni d'uso per i professionisti»**: leggi, spunta e premi **«Accetta e continua»**. Poi arrivi su **"I tuoi clienti"**.
 2. **Nuovo cliente.** Premi **"Nuovo cliente"**, scrivi nome e cognome, **"Crea cliente"**: si apre la pagina del cliente.
    Nell'elenco ogni cliente ha uno **stato**:
    - *Nessuna scheda* (arancio): non gli hai ancora caricato niente;
@@ -143,7 +144,7 @@ Le volte dopo basta Docker acceso e `node --watch server.js` dentro la cartella 
 4. **Crea l'invito.** Nella sezione "Invito" premi **"Crea invito"**: compare il **link** completo con la scadenza (7 giorni).
    Premi **"Copia"** e mandalo al cliente (WhatsApp, email...). Attenzione: **il link si vede una volta sola**. Se lo perdi, ne crei un altro
    (e il vecchio smette di funzionare).
-5. **Il cliente apre il link**, sceglie email e password (almeno 10 caratteri) ed entra nella sua scheda. Da quel momento kg, ripetizioni, serie e spunte
+5. **Il cliente apre il link**, sceglie email e password (almeno 10 caratteri), **spunta «Ho letto l'informativa privacy»** ed entra nella sua scheda. Da quel momento kg, ripetizioni, serie e spunte
    si salvano da soli nel database. *Per provare da solo:* apri il link in una **finestra privata** (Ctrl+Maiusc+N).
 6. **Guarda i progressi.** Nella sezione "Progressi" vedi, settimana per settimana, quanti allenamenti sono completati
    ("Settimana 3: 2 allenamenti su 3 completati") e, accanto, **la scheda del cliente in sola lettura** con i suoi kg e le sue ripetizioni:
@@ -168,6 +169,7 @@ Il sito fa già tutto. Questi script restano per i casi in cui il sito non è di
 | `node crea-pt.js email password "Nome"` | creare un account da PT (email valida, password da 10 a 72 caratteri). **Unico modo** per creare un PT: dal sito non si può |
 | `node carica-scheda.js <id-cliente> <file.json>` | caricare una scheda (il JSON del convertitore) senza passare dal sito |
 | `node crea-invito.js <id-cliente>` | creare l'invito e stampare il link senza passare dal sito |
+| `node pulizia.js [--prova \| --esegui]` | **non è di emergenza: è la pulizia dei clienti vecchi** (vedi «Conservazione dei dati»). Senza argomenti è solo un elenco |
 
 Per vedere gli `id` dei clienti: `docker exec lena-db psql -U lena -d lena -c "SELECT id, nome, cognome FROM cliente"`.
 Il file `esempio/scheda-esempio.json` è una scheda d'esempio per provare `carica-scheda.js`; il JSON di una scheda vera si ottiene dalla pagina vecchia del
@@ -183,6 +185,74 @@ La CSP del sito vieta gli script scritti dentro le pagine, e non va allentata. Q
 è una **pagina vera del sito**, `/anteprima.html`, mostrata in una cornice. L'area del PT le manda la scheda con un **messaggio** (`postMessage`);
 la pagina la accetta solo se il messaggio viene **dallo stesso sito** e **proprio dalla pagina che la contiene**, e solo se la scheda passa gli stessi controlli
 del server. I dati arrivano come semplice testo e non vengono mai eseguiti come codice. La stessa pagina, in "sola lettura", mostra anche i progressi di un cliente.
+
+---
+
+## Privacy, consensi e conservazione dei dati
+
+> **Importante.** Tutto quello che c'è qui sono le **basi tecniche**. I testi legali (informativa, condizioni d'uso) sono **segnaposto** da sostituire, e manca ancora molto prima di usare Lena
+> con dati di persone vere: l'elenco onesto è in [`docs/privacy/COSA-MANCA.md`](../docs/privacy/COSA-MANCA.md).
+> Gli altri documenti: [`PERIMETRO.md`](../docs/privacy/PERIMETRO.md) (cosa Lena è e non è), [`DATI-TRATTATI.md`](../docs/privacy/DATI-TRATTATI.md) (quali dati, dove, per quanto tempo),
+> [`REGISTRO-TRATTAMENTI-BOZZA.md`](../docs/privacy/REGISTRO-TRATTAMENTI-BOZZA.md) (bozza da compilare).
+
+**Il perimetro in una riga:** pilota con **un** professionista e pochi clienti **maggiorenni**; **solo schede di allenamento**; **nessun dato di salute**; Lena mostra e raccoglie, non decide.
+Chi gestisce Lena è il *responsabile del trattamento*, il professionista è il *titolare*.
+
+### I consensi
+
+- **Cliente:** per registrarsi deve spuntare «Ho letto l'informativa privacy» (con il link). Il server rifiuta la registrazione se manca `accettaInformativa: true` o se la versione non è quella corrente;
+  il consenso (tipo, versione, data) si salva **nella stessa operazione** della creazione dell'account.
+- **Professionista:** al primo accesso vede la schermata «Condizioni d'uso per i professionisti» e deve accettarla. Finché non accetta, tutte le rotte dell'area rispondono **403 con codice `CONDIZIONI_DA_ACCETTARE`**
+  e le pagine lo portano alla schermata. Vale per tutti, compreso il PT di prova: nessuna scorciatoia.
+- **Le versioni dei testi stanno in un solo posto: [`api/config.js`](config.js)** (`VERSIONE_INFORMATIVA`, `VERSIONE_CONDIZIONI_PT`). Quando cambi un testo, cambia la versione lì: i professionisti dovranno
+  riaccettare al prossimo accesso e i nuovi clienti accetteranno la nuova. I clienti già registrati **non** vengono richiamati (limite noto, vedi `COSA-MANCA.md`).
+- **Dove sono i testi:** `web/privacy.html` e `web/condizioni-pt.html`. Sono segnaposto: dentro ci sono le sezioni minime e i campi `[DA COMPILARE]` evidenziati. Per sostituirli basta cambiare l'HTML (e la versione):
+  i test controllano solo la struttura (versione, link, titoli), non le parole.
+
+### I diritti del cliente, da solo (pagina «Il mio account»)
+
+Dalla scheda, il pulsante **«Il mio account e i miei dati»** porta a `/account.html`:
+
+- **«Scarica i miei dati»** → un file JSON con anagrafica, email, schede, valori segnati e consensi con le date (`GET /api/me/esporta`). Usa la stessa funzione dell'esportazione fatta dal professionista.
+- **«Cancella il mio account»** → serve **riscrivere la password** e spuntare la conferma. Cancella in un'unica operazione l'utente, i consensi, il record cliente, le schede e i valori; chiude la sessione e porta a una pagina di conferma.
+  È la stessa cancellazione che fa il professionista dalla pagina del cliente. Sulla password sbagliata c'è un limite: **5 tentativi ogni 15 minuti** per utente.
+  Dopo la cancellazione il vecchio cookie non vale più (il server controlla a ogni richiesta che l'utente esista ancora).
+
+### Conservazione dei dati
+
+- **Quanti mesi:** parametro `MESI_CONSERVAZIONE` in `api/.env` (se manca, **24**). È **ancora da decidere con il professionista**.
+- **Cosa si registra:** per ogni cliente `ultima_attivita` (si aggiorna quando il professionista carica una scheda o il cliente salva un valore) e `rapporto_finito_il` (il professionista, dalla pagina del cliente,
+  può premere **«Segna rapporto concluso»**; è reversibile con «Riapri il rapporto» e non toglie l'accesso al cliente).
+- **Chi viene cancellato:** i clienti con rapporto concluso da più di N mesi (conta la data di conclusione) oppure, se il rapporto è in corso, senza attività da più di N mesi.
+- **Come si pulisce** (dalla cartella `api`):
+
+  ```powershell
+  node pulizia.js            # prova: elenca chi verrebbe cancellato e perché, senza toccare niente
+  node pulizia.js --esegui   # cancella davvero (cliente, schede, valori, inviti, account e consensi), un cliente alla volta
+  ```
+
+- **Perché è manuale, per ora:** una cancellazione è **definitiva**, e una cancellazione automatica *sbagliata* (periodo sbagliato, una data errata, un test dimenticato) è peggio di una cancellazione dimenticata.
+  Finché il periodo non è deciso con il professionista e l'elenco della prova non è stato controllato un po' di volte, si lancia a mano.
+- **Come programmarla più avanti** (su Windows, con l'Utilità di pianificazione): si crea un'attività che lancia ogni settimana `node pulizia.js` **in modalità prova** e avvisa se l'elenco non è vuoto;
+  solo dopo mesi senza sorprese si pensa a programmare `--esegui`. Attenzione: l'elenco stampa nomi e cognomi, quindi **non salvarlo in file di log condivisi**.
+
+### Nessun dato di salute
+
+- Nella pagina di caricamento della scheda c'è l'avvertenza **«Non inserire dati di salute (infortuni, patologie, farmaci)»**; è anche nelle condizioni d'uso.
+- Il convertitore fa un **controllo morbido**: se un testo dell'Excel contiene parole tipiche (infortunio, ernia, diabete, gravidanza, allergia, farmaco...) compare un avviso
+  **non bloccante** («Questo testo sembra contenere informazioni sulla salute: verifica di averne il consenso o toglile»), con l'indicazione di dove si trova. Il professionista può proseguire con la spunta.
+- **La lista delle parole** è in [`web/parole-salute.js`](../web/parole-salute.js), facile da modificare (le istruzioni sono in cima al file). È solo un aiuto: **non vede** sinonimi, errori di battitura, altre lingue o frasi indirette, e **può scattare** su parole usate in senso non medico.
+
+### I log del server
+
+Nei log **non finiscono mai** dati delle persone: né corpi di richieste, né email o password, né dati delle schede, né cookie, né la parte dell'indirizzo dopo il `?`, né i messaggi di errore (quelli del database possono contenere i valori).
+Si scrive solo il tipo di errore, il percorso e il punto del codice (`api/log.js`). Un test avvia un server vero, gli manda dati pieni di "marcatori" e controlla che non compaiano nei log.
+
+### Dispositivi condivisi
+
+Premendo **«Esci»** nella scheda: l'app prova a inviare le modifiche non ancora salvate; se ci riesce, esce e **cancella la copia locale**. Se non ci riesce (offline) avvisa
+**«Hai modifiche non salvate: se esci ora si perdono»** e lascia scegliere se restare o uscire. Se esci, la copia locale di quell'utente viene cancellata in ogni caso.
+Se manca la rete **l'uscita non riesce** (il cookie di sessione si toglie solo dal server) e te lo dice: resti dentro e non perdi niente.
 
 ---
 
@@ -225,6 +295,10 @@ risponde sempre con un errore JSON, mai con una pagina.
 | `/pt.html` | `pt.html`, `pt.js` | **area del PT**: elenco dei clienti con il loro stato, ricerca, "Nuovo cliente", Esci |
 | `/pt-cliente.html?id=...` | `pt-cliente.html`, `pt-cliente.js`, `pt-converti.js`, `pt-progressi.js` | pagina di un cliente: schede, carica Excel, invito, progressi, esporta/cancella |
 | `/anteprima.html` | `anteprima.html`, `anteprima.js` | mostra una scheda dentro una cornice (anteprima del convertitore e progressi in sola lettura): non si apre da sola |
+| `/privacy.html` | `privacy.html`, `privacy.js` | informativa privacy per i clienti (**testo segnaposto**), con la versione |
+| `/condizioni-pt.html` | `condizioni-pt.html`, `condizioni-pt.js` | condizioni d'uso per i professionisti (**segnaposto**); il professionista le accetta qui |
+| `/account.html` | `account.html`, `account.js` | «Il mio account»: il cliente scarica i suoi dati o cancella il suo account |
+| `/account-cancellato.html` | `account-cancellato.html` | conferma dopo la cancellazione dell'account |
 | (indirizzo inesistente) | `404.html` | pagina "non trovato" |
 
 File usati da più pagine:
@@ -359,9 +433,15 @@ per questo `DELETE /api/clienti/:id` lo cancella esplicitamente.
 | `POST /api/auth/login` | tutti | Login con `{ email, password }`. Mette il cookie di sessione |
 | `POST /api/auth/logout` | tutti | Toglie il cookie |
 | `GET /api/auth/me` | con login | Chi sono io (`id`, `email`, `ruolo`) |
-| `POST /api/auth/registra-cliente` | tutti (con codice) | Crea l'account del cliente da un invito e fa già il login |
+| `POST /api/auth/registra-cliente` | tutti (con codice) | Crea l'account del cliente da un invito e fa già il login. Serve `accettaInformativa: true` e `versioneInformativa` (la versione corrente), altrimenti 400 |
 | `GET /api/clienti` | PT | I miei clienti, ognuno con il suo stato: `registrato` (ha creato l'accesso), `schede` (quante), `scheda_recente_id`, `ultimo_progresso` (data dell'ultimo salvataggio), `invito_attivo` e `invito_scade_il` |
 | `GET /api/clienti/:id` | PT | Un cliente mio, con gli stessi campi dell'elenco (404 se non è mio) |
+| `PUT /api/clienti/:id/rapporto` | PT | `{ concluso: true \| false }`: segna il rapporto come concluso (o lo riapre) |
+| `GET /api/privacy/versioni` | tutti | Le versioni correnti di informativa e condizioni |
+| `GET /api/privacy/condizioni-pt` | PT | Ho già accettato la versione corrente delle condizioni? |
+| `POST /api/privacy/condizioni-pt` | PT | `{ versione }`: accetta le condizioni (deve essere la versione corrente) |
+| `GET /api/me/esporta` | cliente | Scarica **i miei** dati (file JSON) |
+| `DELETE /api/me/account` | cliente | `{ password, conferma: true }`: cancella il mio account e tutti i miei dati (5 tentativi/15 min) |
 | `POST /api/clienti` | PT | Nuovo cliente `{ nome, cognome }` |
 | `DELETE /api/clienti/:id` | PT | Cancella il cliente e tutti i suoi dati (GDPR) |
 | `GET /api/clienti/:id/esporta` | PT | Scarica tutti i dati del cliente in JSON (GDPR) |
@@ -449,8 +529,8 @@ $inv = Invoke-RestMethod "$API/api/clienti/$($c.id)/invito" -Method Post -WebSes
 
 # --- il cliente si registra con il codice (crea la sessione $cl, è già dentro) ---
 Invoke-RestMethod "$API/api/auth/registra-cliente" -Method Post -ContentType $JSON -SessionVariable cl `
-  -Body (@{ codice = $inv.codice; email = "niccolo@email.it"; password = "PasswordCliente1" } | ConvertTo-Json)
-# → { id: 25, ruolo: "cliente" }   (codice sbagliato/scaduto/usato → 400 "Invito non valido o scaduto")
+  -Body (@{ codice = $inv.codice; email = "niccolo@email.it"; password = "PasswordCliente1"; accettaInformativa = $true; versioneInformativa = (Invoke-RestMethod "$API/api/privacy/versioni").informativa_cliente } | ConvertTo-Json)
+# → { id: 25, ruolo: "cliente" }   (codice sbagliato/scaduto/usato → 400 "Invito non valido o scaduto"; senza consenso → 400 con codice CONSENSO_MANCANTE)
 
 # --- il cliente legge la sua scheda ---
 $mia = Invoke-RestMethod "$API/api/me/scheda" -WebSession $cl
