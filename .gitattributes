@@ -1,0 +1,3 @@
+# Le librerie di terzi non vanno mai modificate (neanche nei ritorni a capo): il test controlla la loro impronta SHA-256
+web/vendor/** -text
+*.png binary
