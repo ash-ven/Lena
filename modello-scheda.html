@@ -220,6 +220,7 @@ body.in-allenamento .timer{bottom:calc(86px + env(safe-area-inset-bottom))}
 
 <script>
 const DATI = /*__DATI__*/ null;
+const IN_ANTEPRIMA = window.name === "lena-anteprima";   // vero solo dentro l'anteprima del convertitore
 
 const SVG = {
   play:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>',
@@ -459,6 +460,7 @@ function disegna(){
 
 function zonaSalvataggio(){
   const z = document.getElementById("zona-salvataggio"); z.replaceChildren();
+  if (IN_ANTEPRIMA) return;   // nell'anteprima non serve il riquadro dei salvataggi
   const ora = mem.ultimo ? new Date(mem.ultimo) : null;
   const box = el("div",{class:"salvataggio"},
     el("div",{}, el("b",{}, "I tuoi kg restano su questo telefono"), ora ? ` · ultimo salvataggio ${fmt(ora)} alle ${ora.toTimeString().slice(0,5)}` : ""),

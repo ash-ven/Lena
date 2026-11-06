@@ -2,20 +2,59 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Lena · Convertitore</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<style>
+  body{margin:0;background:#FBF8F3;color:#3A3A3A;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.45}
+  header{padding:22px 24px 0}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:32px;margin:0}
+  .versione{font-size:12px;color:#8A8580;margin:2px 0 0}
+  .layout{display:grid;grid-template-columns:minmax(280px,420px) 1fr;gap:24px;padding:20px 24px 40px;align-items:start}
+  @media (max-width:800px){.layout{grid-template-columns:1fr}}
+  .card{background:#fff;border:1px solid #E8E2DA;border-radius:18px;padding:16px;margin-bottom:16px}
+  .card h2{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:20px;margin:0 0 10px}
+  button{font:inherit;cursor:pointer;border-radius:999px;border:1px solid #A86A6B;background:#A86A6B;color:#fff;padding:10px 18px}
+  button:disabled{opacity:.35;cursor:default}
+  #esito{border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:12px;background:#FBF8F3;color:#8A8580}
+  #esito.ok{background:#E2F1E6;color:#2F6B3F}
+  #esito.avvisi{background:#FBEFE3;border:1px solid #EBCBA8;color:#7A5228}
+  #esito.errore{background:#F8E1E1;border:1px solid #E3B4B4;color:#7A2E2E}
+  #esito ul{margin:6px 0 0;padding-left:20px}
+  #esito li{margin-bottom:4px}
+  .telefono{width:390px;max-width:100%;height:760px;border:10px solid #3A3A3A;border-radius:36px;overflow:hidden;background:#FBF8F3;margin:0 auto;box-sizing:content-box}
+  .telefono iframe{width:100%;height:100%;border:0;display:block}
+  .telefono .vuoto{margin:0;padding:40px 24px;text-align:center;color:#8A8580;font-style:italic}
+  details.card summary{cursor:pointer;color:#8A8580;font-size:14px}
+  textarea{width:100%;margin-top:10px;font-family:ui-monospace,Consolas,monospace;font-size:12px;box-sizing:border-box}
+</style>
 </head>
 <body>
-  <h1>Lena · Convertitore Excel → scheda</h1>
-  <p><b>Versione 6 · stretching per giorno</b></p>
-  <input type="file" id="file" accept=".xlsx">
-  <p><button id="scarica" disabled>Scarica scheda</button></p>
+<header>
+  <h1>Lena</h1>
+  <p class="versione">Convertitore Excel → scheda · Versione 7 · con anteprima</p>
+</header>
 
-  <h2>Codice da incollare nella scheda</h2>
-  <textarea id="codice" rows="8" style="width:100%"></textarea>
-
-  <h2>Avvisi</h2>
-  <pre id="avvisi"></pre>
+<div class="layout">
+  <div>
+    <div class="card">
+      <h2>1. Carica l'Excel</h2>
+      <input type="file" id="file" accept=".xlsx">
+    </div>
+    <div class="card">
+      <h2>2. Controlla</h2>
+      <div id="esito">Scegli un file Excel per cominciare.</div>
+      <button id="scarica" disabled>Scarica scheda</button>
+    </div>
+    <details class="card">
+      <summary>Dati grezzi (per tecnici)</summary>
+      <textarea id="codice" rows="10" readonly></textarea>
+    </details>
+  </div>
+  <div>
+    <div class="telefono" id="telefono"><p class="vuoto">L'anteprima della scheda comparirà qui.</p></div>
+  </div>
+</div>
 
 <script>
 // ---------- piccoli aiuti ----------
@@ -243,13 +282,61 @@ function convertiExcel(righe, merges) {
 }
 
 // ---------- la pagina ----------
-let ultimiDati = null;   // qui teniamo i dati dell'ultimo Excel letto
+let ultimiDati = null;       // i dati dell'ultimo Excel letto
+let paginaCompleta = null;   // la scheda finita (modello + dati): serve all'anteprima e al download
+
+// il modello della scheda si legge una volta sola, all'apertura della pagina
+const modelloPronto = fetch("modello-scheda.html").then(r => {
+  if (!r.ok) throw new Error("modello non trovato");
+  return r.text();
+});
+modelloPronto.catch(() => {});   // l'errore lo gestiamo più avanti, quando serve
+
+// mette i dati al posto del segnaposto
+function costruisciPagina(modello, dati) {
+  const json = JSON.stringify(dati).replace(/</g, "\\u003c");
+  return modello.replace("/*__DATI__*/ null", () => json);
+}
+
+// il riquadro colorato con l'esito del controllo
+function mostraEsito(tipo, titolo, elenco) {
+  const box = document.getElementById("esito");
+  box.className = tipo;
+  box.replaceChildren(titolo);
+  if (elenco && elenco.length) {
+    const ul = document.createElement("ul");
+    for (const voce of elenco) {
+      const li = document.createElement("li");
+      li.textContent = voce;
+      ul.append(li);
+    }
+    box.append(ul);
+  }
+}
+
+// la cornice del telefono
+function mostraAnteprima(html) {
+  const tel = document.getElementById("telefono");
+  tel.replaceChildren();
+  const f = document.createElement("iframe");
+  f.name = "lena-anteprima";   // il modello lo riconosce da questo nome
+  f.setAttribute("sandbox", "allow-scripts allow-popups allow-popups-to-escape-sandbox");
+  f.srcdoc = html;
+  tel.append(f);
+}
+function svuotaAnteprima(messaggio) {
+  const p = document.createElement("p");
+  p.className = "vuoto";
+  p.textContent = messaggio;
+  document.getElementById("telefono").replaceChildren(p);
+}
 
 document.getElementById("file").addEventListener("change", async (ev) => {
   const file = ev.target.files[0];
   if (!file) return;
 
   ultimiDati = null;
+  paginaCompleta = null;
   document.getElementById("scarica").disabled = true;
   let avvisi = [];
 
@@ -267,25 +354,31 @@ document.getElementById("file").addEventListener("change", async (ev) => {
     avvisi = ["Non riesco a leggere questo file: " + err.message];
   }
 
-  document.getElementById("codice").value = ultimiDati ? "const DATI = " + JSON.stringify(ultimiDati) + ";" : "";
-  document.getElementById("avvisi").textContent = avvisi.length ? avvisi.join("\n") : "Nessun avviso";
-  document.getElementById("scarica").disabled = !ultimiDati;
+  document.getElementById("codice").value = ultimiDati ? JSON.stringify(ultimiDati, null, 1) : "";
+
+  if (!ultimiDati) {
+    mostraEsito("errore", "La scheda non si può creare:", avvisi);
+    svuotaAnteprima("Nessuna anteprima: correggi l'Excel e riprova.");
+  } else {
+    try {
+      const modello = await modelloPronto;
+      paginaCompleta = costruisciPagina(modello, ultimiDati);
+      mostraAnteprima(paginaCompleta);
+      document.getElementById("scarica").disabled = false;
+      if (avvisi.length) mostraEsito("avvisi", `Scheda pronta, ma ci sono ${avvisi.length} avvisi da controllare:`, avvisi);
+      else mostraEsito("ok", "Scheda pronta: nessun avviso.");
+    } catch (err) {
+      mostraEsito("errore", "Non riesco a leggere il modello della scheda. Apri questa pagina dall'indirizzo http://localhost (comando npx serve .), non con doppio clic.", avvisi);
+    }
+  }
   ev.target.value = "";
 });
 
-document.getElementById("scarica").addEventListener("click", async () => {
-  // 1. leggo il modello dal server
-  const risposta = await fetch("modello-scheda.html");
-  const modello = await risposta.text();
-
-  // 2. metto i dati al posto del segnaposto
-  const json = JSON.stringify(ultimiDati).replace(/</g, "\\u003c");
-  const pagina = modello.replace("/*__DATI__*/ null", () => json);
-
-  // 3. faccio scaricare il risultato come file
+document.getElementById("scarica").addEventListener("click", () => {
+  if (!paginaCompleta) return;
   const nomeFile = `scheda-${ultimiDati.info.nome}-${ultimiDati.info.cognome}`
     .toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".html";
-  const blob = new Blob([pagina], { type: "text/html" });
+  const blob = new Blob([paginaCompleta], { type: "text/html" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = nomeFile;
