@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Lena · Convertitore</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <h1>Lena · Convertitore Excel → scheda</h1>
+  <p><b>Versione 4 · con pulsante Scarica</b></p>
+  <input type="file" id="file" accept=".xlsx">
+  <p><button id="scarica" disabled>Scarica scheda</button></p>
+
+  <h2>Codice da incollare nella scheda</h2>
+  <textarea id="codice" rows="8" style="width:100%"></textarea>
+
+  <h2>Avvisi</h2>
+  <pre id="avvisi"></pre>
+
+<script>
+// ---------- piccoli aiuti ----------
+function testo(v) { return v == null ? "" : String(v).trim(); }
+function èLink(v) { return /^https?:\/\//i.test(testo(v)); }
+function rigaVuota(r) { return r.every(c => testo(c) === ""); }
+
+// Trasforma una data di Excel in testo "2026-10-26", leggendo l'ora locale
+function dataInTesto(d) {
+  const x = new Date(d.getTime() + 12 * 3600 * 1000);
+  const mm = String(x.getMonth() + 1).padStart(2, "0");
+  const gg = String(x.getDate()).padStart(2, "0");
+  return `${x.getFullYear()}-${mm}-${gg}`;
+}
+
+// ---------- intestazione e giorni ----------
+function leggiInfo(righe) {
+  const info = {};
+  info.titolo = testo(righe[0][1]);   // B1: il titolo del programma
+  for (const r of righe) {
+    const etichetta = typeof r[0] === "string" ? r[0].trim() : "";
+    if (!etichetta.endsWith(":")) continue;
+
+    const valore = r[1];
+    if (etichetta === "Nome:") info.nome = String(valore).trim();
+    if (etichetta === "Cognome:") info.cognome = String(valore).trim();
+    if (etichetta === "Obiettivo:") info.obiettivo = String(valore).trim();
+    if (etichetta === "N° sedute a settimana:") info.sedute = Number(valore);
+    if (etichetta === "Data inizio scheda:") info.inizio = dataInTesto(valore);
+    if (etichetta === "Data fine scheda:") {
+      info.fine = dataInTesto(valore);
+      info.nota_durata = r[2] ? String(r[2]).trim() : null;
+    }
+  }
+  return info;
+}
+
+function trovaGiorni(righe) {
+  const giorni = [];
+  for (let i = 0; i < righe.length; i++) {
+    const a = typeof righe[i][0] === "string" ? righe[i][0].trim() : "";
+    const m = a.match(/^GIORNO\s+(\w+)\s*\((.+)\)$/i);
+    if (!m) continue;
+
+    let fine = -1;
+    for (let j = i + 1; j < righe.length; j++) {
+      const b = typeof righe[j][0] === "string" ? righe[j][0].trim() : "";
+      if (b.toLowerCase() === "stretching") { fine = j; break; }
+    }
+
+    const focus = m[2].toLowerCase();
+    giorni.push({
+      id: m[1].toUpperCase(),
+      titolo_originale: a,
+      focus: focus.charAt(0).toUpperCase() + focus.slice(1),
+      rigaInizio: i + 1,
+      rigaFine: fine + 1,
+    });
+  }
+  return giorni;
+}
+
+// ---------- esercizi e circuiti ----------
+function leggiBlocchi(righe, giorno, avvisi) {
+  const blocchi = [];
+  const ultima = giorno.rigaFine - 1;
+  let i = giorno.rigaInizio;
+
+  while (i < ultima) {
+    const r = righe[i];
+    const nome = testo(r[0]).toLowerCase();
+
+    if (rigaVuota(r) || nome === "esercizio" || nome.startsWith("riscaldamento")) { i++; continue; }
+
+    // circuito: in colonna B c'è EMOM o AMRAP
+    if (/^(EMOM|AMRAP)/i.test(testo(r[1]))) {
+      const circuito = { tipo: "circuito", formato: testo(r[1]), rec: testo(r[3]) || null, esercizi: [] };
+      while (i < ultima && !rigaVuota(righe[i])) {
+        const c = righe[i];
+        const link = c.find(èLink);
+        circuito.esercizi.push({ nome: testo(c[0]), rip: testo(c[2]), video: link ? testo(link) : null });
+        i++;
+      }
+      blocchi.push(circuito);
+      continue;
+    }
+
+    // esercizio normale
+    const e = {
+      tipo: "esercizio", nome: testo(r[0]), serie: testo(r[1]), rip: testo(r[2]), rec: testo(r[3]),
+      video: null, note: null, schema: null, progressione: null, riga: i + 1,
+    };
+    const schema = [], note = [];
+    r.forEach((cella, col) => {
+      const t = testo(cella);
+      if (col < 4 || !t) return;
+      if (èLink(t)) e.video = t;
+      else if (/^\d+\s*x\s*\d+$/i.test(t)) schema.push(t.replace(/\s/g, ""));
+      else if (col >= 5 && col <= 11) e.progressione = t;
+      else if (col >= 12) note.push(t);
+    });
+    e.schema = schema.length ? schema : null;
+    e.note = note.length ? note.join(" ") : null;
+
+    if (!e.serie || !e.rip) avvisi.push(`Riga ${i + 1}: "${e.nome}" non ha serie o ripetizioni`);
+    blocchi.push(e);
+    i++;
+  }
+  return blocchi;
+}
+
+// ---------- oggetto DATI completo ----------
+const PALETTE = [
+  { colore: "D49A9A", chiaro: "F6E9E7", scuro: "A86A6B" },
+  { colore: "9DB5A0", chiaro: "E8EFE8", scuro: "62806A" },
+  { colore: "D9B26F", chiaro: "F7EEDC", scuro: "9C7A3C" },
+];
+
+function leggiRoutine(righe) {
+  const inizio = righe.findIndex(r => testo(r[0]).toLowerCase().startsWith("*routine"));
+  if (inizio < 0) return { istruzione: "", esercizi: [] };
+
+  let istruzione = "";
+  const esercizi = [];
+  for (let i = inizio + 1; i < righe.length; i++) {
+    const r = righe[i];
+    if (rigaVuota(r)) break;
+    const frase = r.slice(1).map(testo).find(t => t && !èLink(t));
+    if (frase && !istruzione) istruzione = frase;
+    const link = r.find(èLink);
+    esercizi.push([testo(r[0]), link ? testo(link) : null]);
+  }
+  return { istruzione, esercizi };
+}
+
+function convertiExcel(righe) {
+  const avvisi = [];
+  const info = leggiInfo(righe);
+  const giorni = trovaGiorni(righe);
+  if (giorni.length === 0) avvisi.push("Non trovo nessun giorno (cerco righe tipo «GIORNO A (...)»)");
+
+  const rigaRisc = righe.find(r => testo(r[0]).toLowerCase().startsWith("riscaldamento"));
+  const routine = leggiRoutine(righe);
+  const riscaldamento = {
+    voce: rigaRisc ? testo(rigaRisc[1]) : "",
+    durata: rigaRisc ? testo(rigaRisc[2]) : "",
+    istruzione: routine.istruzione,
+    esercizi: routine.esercizi,
+  };
+
+  const rigaStretch = giorni.length ? righe[giorni[0].rigaFine - 1] : null;
+  const stretching = rigaStretch ? [testo(rigaStretch[0]), testo(rigaStretch[2])] : ["Stretching", ""];
+
+  const intestazione = righe.find(r => testo(r[0]).toLowerCase() === "esercizio") || [];
+  const colonneSettimana = intestazione.filter(c => /settimana/i.test(testo(c))).length;
+  const scarico = (info.nota_durata || "").match(/(\d+)\s*di scarico/i);
+  const settimane = colonneSettimana + (scarico ? Number(scarico[1]) : 0);
+
+  const fineAttesa = new Date(info.inizio + "T00:00:00");
+  fineAttesa.setDate(fineAttesa.getDate() + settimane * 7 - 1);
+  const fineAttesaTesto = dataInTesto(fineAttesa);
+  if (info.fine && fineAttesaTesto !== info.fine) {
+    avvisi.push(`Date: ${settimane} settimane da ${info.inizio} finiscono il ${fineAttesaTesto}, ma l'Excel dice ${info.fine}`);
+  }
+
+  giorni.forEach((g, n) => {
+    if (g.rigaFine < 1) avvisi.push(`Giorno ${g.id}: non trovo la riga «Stretching» che lo chiude`);
+    g.blocchi = leggiBlocchi(righe, g, avvisi);
+    g.blocchi.forEach(b => delete b.riga);
+    g.titolo = "Giorno " + g.id;
+    Object.assign(g, PALETTE[n % PALETTE.length]);
+    delete g.rigaInizio;
+    delete g.rigaFine;
+  });
+
+  const dati = {
+    inizio: info.inizio,
+    settimane,
+    info: {
+      titolo: info.titolo, nome: info.nome, cognome: info.cognome,
+      obiettivo: info.obiettivo, sedute: info.sedute, nota_durata: info.nota_durata,
+    },
+    riscaldamento,
+    giorni,
+    stretching,
+  };
+  return { dati, avvisi };
+}
+
+// ---------- la pagina ----------
+let ultimiDati = null;   // qui teniamo i dati dell'ultimo Excel letto
+
+document.getElementById("file").addEventListener("change", async (ev) => {
+  const file = ev.target.files[0];
+  if (!file) return;
+
+  const byte = await file.arrayBuffer();
+  const cartella = XLSX.read(byte, { cellDates: true });
+  const foglio = cartella.Sheets[cartella.SheetNames[0]];
+  const righe = XLSX.utils.sheet_to_json(foglio, { header: 1, blankrows: true, defval: null });
+
+  const { dati, avvisi } = convertiExcel(righe);
+  ultimiDati = dati;
+  document.getElementById("codice").value = "const DATI = " + JSON.stringify(dati) + ";";
+  document.getElementById("avvisi").textContent = avvisi.length ? avvisi.join("\n") : "Nessun avviso";
+  document.getElementById("scarica").disabled = false;
+  ev.target.value = "";
+});
+
+document.getElementById("scarica").addEventListener("click", async () => {
+  // 1. leggo il modello dal server
+  const risposta = await fetch("modello-scheda.html");
+  const modello = await risposta.text();
+
+  // 2. metto i dati al posto del segnaposto
+  const json = JSON.stringify(ultimiDati).replace(/</g, "\\u003c");
+  const pagina = modello.replace("/*__DATI__*/ null", () => json);
+
+  // 3. faccio scaricare il risultato come file
+  const nomeFile = `scheda-${ultimiDati.info.nome}-${ultimiDati.info.cognome}`
+    .toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".html";
+  const blob = new Blob([pagina], { type: "text/html" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = nomeFile;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+</script>
+</body>
+</html>
