@@ -1,0 +1,62 @@
+/* Lena — generated from tokens.json */
+@font-face { font-family: "Space Grotesk"; src: url("fonts/space-grotesk-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Space Grotesk"; src: url("fonts/space-grotesk-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/inter-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/inter-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/inter-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+
+:root, [data-theme="scura"] {
+  --sfondo: #0b0d10;
+  --superficie: #15191e;
+  --superficie-alta: #1e232a;
+  --testo: #eef1f4;
+  --testo-secondario: #8b939d;
+  --bordo-campo: #626a74;
+  --bordo-superficie: #252b33;
+  --divisorio: #1e232a;
+  --brace: #e84800;
+  --su-brace: #0b0d10;
+  --testo-brace: #e84800;
+  --errore: #ff5c7a;
+  --anello-attivo: var(--brace);
+}
+
+[data-theme="chiara"] {
+  --sfondo: #f2f3f0;
+  --superficie: #ffffff;
+  --superficie-alta: #e4e6e0;
+  --testo: #0b0d10;
+  --testo-secondario: #5c636b;
+  --bordo-campo: #878d82;
+  --bordo-superficie: #dcded8;
+  --divisorio: #e1e3dd;
+  --testo-brace: #c23c00;
+  --errore: #c8203f;
+  --anello-attivo: var(--brace);
+}
+
+:root {
+  --spazio-1: 4px;
+  --spazio-2: 8px;
+  --spazio-3: 12px;
+  --spazio-4: 16px;
+  --spazio-5: 20px;
+  --spazio-6: 24px;
+  --spazio-8: 32px;
+  --spazio-10: 40px;
+  --raggio-controllo: 10px;
+  --raggio-riquadro: 14px;
+  --raggio-casella: 5px;
+  --font-titoli: "Space Grotesk", system-ui, sans-serif;
+  --font-testo: "Inter", system-ui, sans-serif;
+}
+
+.titolo-grande { font-family: var(--font-titoli); font-size: 28px; line-height: 34px; font-weight: 700; }
+.titolo { font-family: var(--font-titoli); font-size: 22px; line-height: 28px; font-weight: 700; }
+.titolo-piccolo { font-family: var(--font-titoli); font-size: 18px; line-height: 24px; font-weight: 700; }
+.corpo { font-family: var(--font-testo); font-size: 16px; line-height: 24px; font-weight: 400; }
+.corpo-piccolo { font-family: var(--font-testo); font-size: 14px; line-height: 20px; font-weight: 400; }
+.etichetta { font-family: var(--font-testo); font-size: 13px; line-height: 18px; font-weight: 500; }
+.nota { font-family: var(--font-testo); font-size: 12px; line-height: 16px; font-weight: 400; }
+.pulsante { font-family: var(--font-testo); font-size: 15px; line-height: 20px; font-weight: 600; }
+.numero { font-family: var(--font-testo); font-size: 16px; line-height: 24px; font-weight: 600; }

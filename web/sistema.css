@@ -1,0 +1,130 @@
+/* ===========================================================================
+   SISTEMA DI DESIGN DI LENA: l'UNICO posto dove stanno colori, font, spazi e forme del sito.
+   Copia di lavoro di design-sistema/tokens.css (la fonte è il sistema di design, non questo file):
+   se cambia un colore o un font, si cambia prima il sistema e poi si riporta qui.
+   Le pagine leggono SOLO queste variabili: nessun colore o font scritto a mano altrove
+   (la scheda del cliente, per ora, usa ancora tema.css: avrà i suoi quattro mood).
+   =========================================================================== */
+@font-face { font-family: "Space Grotesk"; src: url("/fonts/space-grotesk-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Space Grotesk"; src: url("/fonts/space-grotesk-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("/fonts/inter-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("/fonts/inter-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("/fonts/inter-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+
+/* Modalità scura: la principale. Vale anche quando l'utente la sceglie (data-theme="scura"). */
+:root, [data-theme="scura"] {
+  color-scheme: dark;
+  --sfondo: #0b0d10;
+  --superficie: #15191e;
+  --superficie-alta: #1e232a;
+  --testo: #eef1f4;
+  --testo-secondario: #8b939d;
+  --bordo-campo: #626a74;
+  --bordo-superficie: #252b33;
+  --divisorio: #1e232a;
+  --brace: #e84800;
+  --su-brace: #0b0d10;
+  --testo-brace: #e84800;
+  --errore: #ff5c7a;
+  --anello-attivo: var(--brace);
+  /* PROPOSTA (da approvare nel sistema): colore delle conferme ("Salvato", "Si allena"). Contrasto su sfondo, superficie e superficie-alta: 8,9:1 o più. */
+  --conferma: #3ddc97;
+}
+
+/* Modalità chiara: scelta dall'utente... */
+[data-theme="chiara"] {
+  color-scheme: light;
+  --sfondo: #f2f3f0;
+  --superficie: #ffffff;
+  --superficie-alta: #e4e6e0;
+  --testo: #0b0d10;
+  --testo-secondario: #5c636b;
+  --bordo-campo: #878d82;
+  --bordo-superficie: #dcded8;
+  --divisorio: #e1e3dd;
+  --testo-brace: #c23c00;
+  --errore: #c8203f;
+  --conferma: #17603b;   /* PROPOSTA: 6,0:1 o più su sfondo, superficie e superficie-alta */
+}
+
+/* ...oppure automatica: quando l'utente non ha scelto, si segue il telefono o il computer. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --sfondo: #f2f3f0;
+    --superficie: #ffffff;
+    --superficie-alta: #e4e6e0;
+    --testo: #0b0d10;
+    --testo-secondario: #5c636b;
+    --bordo-campo: #878d82;
+    --bordo-superficie: #dcded8;
+    --divisorio: #e1e3dd;
+    --testo-brace: #c23c00;
+    --errore: #c8203f;
+    --conferma: #17603b;
+  }
+}
+
+:root {
+  --spazio-1: 4px;
+  --spazio-2: 8px;
+  --spazio-3: 12px;
+  --spazio-4: 16px;
+  --spazio-5: 20px;
+  --spazio-6: 24px;
+  --spazio-8: 32px;
+  --spazio-10: 40px;
+  --raggio-controllo: 10px;
+  --raggio-riquadro: 14px;
+  --raggio-casella: 5px;
+  --font-titoli: "Space Grotesk", system-ui, sans-serif;
+  --font-testo: "Inter", system-ui, sans-serif;
+}
+
+/* Stili di testo del sistema (con prefisso t-, per non scontrarsi con i nomi usati dalla scheda del cliente) */
+.t-titolo-grande { font-family: var(--font-titoli); font-size: 28px; line-height: 34px; font-weight: 700; }
+.t-titolo { font-family: var(--font-titoli); font-size: 22px; line-height: 28px; font-weight: 700; }
+.t-titolo-piccolo { font-family: var(--font-titoli); font-size: 18px; line-height: 24px; font-weight: 700; }
+.t-corpo { font-family: var(--font-testo); font-size: 16px; line-height: 24px; font-weight: 400; }
+.t-corpo-piccolo { font-family: var(--font-testo); font-size: 14px; line-height: 20px; font-weight: 400; }
+.t-etichetta { font-family: var(--font-testo); font-size: 13px; line-height: 18px; font-weight: 500; }
+.t-nota { font-family: var(--font-testo); font-size: 12px; line-height: 16px; font-weight: 400; }
+.t-pulsante { font-family: var(--font-testo); font-size: 15px; line-height: 20px; font-weight: 600; }
+.t-numero { font-family: var(--font-testo); font-size: 16px; line-height: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---- cose di base che servono a tutte le pagine ---- */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+.solo-lettori{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---- icone: file SVG nostri (Phosphor Bold, licenza MIT), colorati con il colore del testo ---- */
+.icona{display:inline-block;flex:none;width:1.25em;height:1.25em;background:currentColor;
+  -webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat}
+.i-sole{--i:url("/icone/sun.svg")}
+.i-luna{--i:url("/icone/moon.svg")}
+.i-auto{--i:url("/icone/circle-half.svg")}
+.i-occhio{--i:url("/icone/eye.svg")}
+.i-attenzione{--i:url("/icone/warning.svg")}
+.i-errore{--i:url("/icone/warning-circle.svg")}
+.i-ok{--i:url("/icone/check-circle.svg")}
+.i-orologio{--i:url("/icone/clock.svg")}
+.i-indietro{--i:url("/icone/arrow-left.svg")}
+.i-piu{--i:url("/icone/plus.svg")}
+.i-carica{--i:url("/icone/upload-simple.svg")}
+.i-copia{--i:url("/icone/copy.svg")}
+.i-cestino{--i:url("/icone/trash.svg")}
+.i-scarica{--i:url("/icone/download-simple.svg")}
+.i-cerca{--i:url("/icone/magnifying-glass.svg")}
+.i-esci{--i:url("/icone/sign-out.svg")}
+.i-info{--i:url("/icone/info.svg")}
+.i-avanti{--i:url("/icone/caret-right.svg")}
+
+/* ---- controllo del tema (lo costruisce tema.js dentro [data-tema-controllo]) ---- */
+.tema-bottone{display:inline-flex;align-items:center;gap:var(--spazio-2);min-height:44px;min-width:44px;padding:0 var(--spazio-3);
+  font-family:var(--font-testo);font-size:13px;line-height:18px;font-weight:500;color:var(--testo);cursor:pointer;
+  background:transparent;border:1px solid var(--bordo-campo);border-radius:var(--raggio-controllo)}
+.tema-bottone:hover{background:var(--superficie-alta)}
+.tema-bottone:focus-visible{outline:2px solid var(--anello-attivo);outline-offset:2px}
+@media (max-width:480px){.tema-bottone .tema-testo{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}

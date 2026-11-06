@@ -1,7 +1,8 @@
 /* ===========================================================================
-   TEMA DI LENA: l'UNICO posto dove stanno colori e font.
-   Tutte le pagine (login, registrazione, scheda...) leggono da qui.
-   Per cambiare l'aspetto di tutta l'app basta cambiare questi valori.
+   TEMA DELLA SCHEDA DEL CLIENTE (provvisorio).
+   Colori e font della scheda di allenamento (e della scheda scaricabile) stanno qui.
+   Le altre pagine del sito NON usano questo file: leggono il sistema di design in sistema.css.
+   Questo file sparirà quando la scheda avrà i suoi quattro mood, che partiranno dagli stessi token del sistema.
    =========================================================================== */
 :root {
   /* --- colori di base --- */
@@ -34,6 +35,6 @@
   --colore-errore-testo: #7A2E2E;
 
   /* --- font (solo font di sistema: nessun font scaricato da siti esterni) --- */
-  --font-titoli: Georgia, "Noto Serif", "Times New Roman", serif;
-  --font-testo: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --scheda-font-titoli: Georgia, "Noto Serif", "Times New Roman", serif;
+  --scheda-font-testo: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 }

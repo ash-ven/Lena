@@ -1,0 +1,12 @@
+<!-- @dsCard group="Azioni" height=110 subtitle="Normale, attivo da tastiera, in attesa" -->
+<style>
+body{margin:0;background:var(--sfondo);font-family:var(--font-testo)}
+.w{display:flex;flex-wrap:wrap;gap:var(--spazio-4);padding:var(--spazio-6);align-items:center}
+.b{background:var(--brace);color:var(--su-brace);border:0;border-radius:var(--raggio-controllo);min-height:44px;padding:var(--spazio-3) var(--spazio-6);font:600 15px/20px var(--font-testo);min-width:180px}
+.f{outline:2px solid var(--anello-attivo);outline-offset:2px}
+</style>
+<div class="w">
+<button class="b" type="button">Accedi</button>
+<button class="b f" type="button">Crea accesso</button>
+<button class="b" type="button" aria-busy="true">Accesso…</button>
+</div>

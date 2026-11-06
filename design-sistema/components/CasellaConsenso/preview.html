@@ -1,0 +1,13 @@
+<!-- @dsCard group="Moduli" height=150 subtitle="Da spuntare e spuntata" -->
+<style>
+body{margin:0;background:var(--sfondo);color:var(--testo);font-family:var(--font-testo)}
+.w{display:grid;gap:var(--spazio-5);padding:var(--spazio-6);max-width:420px}
+.k{display:flex;gap:var(--spazio-3);align-items:flex-start;font:400 14px/20px var(--font-testo)}
+.x{flex:none;width:20px;height:20px;box-sizing:border-box;border:2px solid var(--bordo-campo);border-radius:var(--raggio-casella);margin-top:0;display:flex;align-items:center;justify-content:center}
+.on .x{background:var(--brace);border-color:var(--brace)}
+a{color:var(--testo-brace)}
+</style>
+<div class="w">
+<div class="k"><span class="x" role="checkbox" aria-checked="false"></span><span>Ho letto l'<a href="#">informativa privacy</a> e acconsento al trattamento dei miei dati di allenamento.</span></div>
+<div class="k on"><span class="x" role="checkbox" aria-checked="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--su-brace)" stroke-width="4"><path d="M4 12l5 5L20 6"/></svg></span><span>Ho letto l'<a href="#">informativa privacy</a> e acconsento al trattamento dei miei dati di allenamento.</span></div>
+</div>
