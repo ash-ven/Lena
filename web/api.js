@@ -29,9 +29,18 @@
     return null;
   }
 
-  async function esci() {
-    await chiama("POST", "/api/auth/logout");
+  // Esce. Il cookie di sessione si può togliere SOLO dal server: se il server non risponde (niente rete) la sessione resta
+  // aperta su questo dispositivo, e lo diciamo chiaramente invece di fingere di essere usciti (su un dispositivo condiviso
+  // la persona dopo potrebbe entrare nel tuo account). "dopo" (facoltativa) parte solo quando il server ha chiuso la sessione.
+  async function esci(dopo) {
+    const r = await chiama("POST", "/api/auth/logout");
+    if (r.stato === 0) {
+      window.alert("Non riesco a uscire: manca la connessione, quindi su questo dispositivo la sessione resta aperta. Riprova quando torna la rete.");
+      return false;
+    }
+    if (dopo) dopo();
     location.replace("/login.html");
+    return true;
   }
 
   window.Lena = { chiama, messaggioComune, esci };

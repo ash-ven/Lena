@@ -161,6 +161,15 @@
         return daInviare().size === 0;
       },
 
+      // Si esce da questo account su un dispositivo che può essere condiviso: niente più invii, e la copia locale delle
+      // modifiche in sospeso viene CANCELLATA (le modifiche non inviate si perdono, la persona lo ha confermato).
+      dimentica() {
+        fermo = true;
+        if (idTimer !== null) { timer.clearTimeout(idTimer); idTimer = null; }
+        attuale = new Map(confermato);
+        try { op.memoria.scrivi(null); } catch (e) { /* memoria bloccata */ }
+      },
+
       inSospeso: () => daInviare().size,
     };
   }

@@ -98,15 +98,26 @@
     document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") sync.sincronizzaOra(); });
     window.addEventListener("pagehide", () => sync.sincronizzaOra());
 
-    // Esci: prima prova a inviare tutto; se non ci riesce, chiede conferma (le modifiche restano su questo dispositivo)
+    // Tutte le copie locali dei progressi di QUESTO utente (una chiave per scheda): su un dispositivo condiviso non devono restare
+    function cancellaCopieLocali() {
+      try {
+        for (const k of Object.keys(localStorage)) if (k.startsWith(`lena:coda:${utente.id}:`)) localStorage.removeItem(k);
+      } catch (e) { /* memoria bloccata */ }
+    }
+
+    // Esci: prima prova a inviare tutto. Se ci riesce, esce e cancella la copia locale. Se NON ci riesce (offline) avvisa che le
+    // modifiche si perdono e lascia scegliere: restare (e riprovare) o uscire. Dopo l'uscita la copia locale non c'è più.
     async function uscire() {
       const tuttoInviato = await sync.sincronizzaOra();
-      const domanda =
-        "Alcune modifiche non sono ancora state salvate sul server (manca la connessione?).\n\n" +
-        "Restano su questo dispositivo e partiranno quando rientri con questo stesso account.\n\n" +
-        "Vuoi uscire lo stesso?";
-      if (!tuttoInviato && !window.confirm(domanda)) return;
-      await Lena.esci();
+      if (!tuttoInviato) {
+        const domanda =
+          "Hai modifiche non salvate: se esci ora si perdono.\n\n" +
+          "OK = esci e perdi le modifiche\nAnnulla = resta qui (riproverò a salvarle)";
+        if (!window.confirm(domanda)) return;
+      }
+      // La copia locale si cancella solo quando il server ha davvero chiuso la sessione: se non c'è rete e l'uscita non
+      // riesce, la persona resta dentro e non ha perso niente.
+      await Lena.esci(() => { sync.dimentica(); cancellaCopieLocali(); });
     }
 
     return {
