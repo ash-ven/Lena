@@ -23,3 +23,6 @@ Prima nel design system (`../design-sistema/tokens.json`), poi in `sistema.css`.
 - La bozza si ricorda in `localStorage` (`lena:bozza:<id cliente>`) finché la scheda non viene inviata.
 - Il nome di un esercizio si completa dalla libreria (`GET /api/pt/esercizi?q=`) e ricompila il video già usato.
 - Per ora si crea solo da zero: modificare una scheda esistente e copiare da modelli sono passi successivi.
+
+## Il logo
+Le pagine usano due immagini per ogni logo (`su-scuro` e `su-chiaro`): `sistema.css` mostra quella giusta in base al tema. I file sono in `web/logo/` (copia di `design-sistema/assets/Logos/`). Nella home c'è solo la scritta, perché il simbolo è già nella composizione; nelle intestazioni c'è simbolo + scritta. L'icona del browser è `favicon.svg`.

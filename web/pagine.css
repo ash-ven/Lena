@@ -13,8 +13,9 @@ body.semplice a{color:var(--testo-brace)}
 .riquadro{width:100%;max-width:420px;background:var(--superficie);border:1px solid var(--bordo-superficie);
   border-radius:var(--raggio-riquadro);padding:var(--spazio-6)}
 
-/* LOGO PROVVISORIO: scritta in Space Grotesk Bold. Quando ci saranno i file del logo (design-sistema/assets/Logos) va sostituita con l'immagine. */
-.logo{margin:0 0 var(--spazio-10);font-family:var(--font-titoli);font-weight:700;font-size:20px;line-height:24px;letter-spacing:.24em;text-transform:uppercase;color:var(--testo)}
+/* il logo (immagini: vedi sistema.css) */
+.logo{margin:0 0 var(--spazio-10);line-height:0}
+.logo .logo-img{height:32px;width:auto}
 .riquadro h1{font-family:var(--font-titoli);font-weight:700;font-size:28px;line-height:34px;margin:0 0 var(--spazio-2)}
 .testo-tenue{color:var(--testo-secondario);margin:0 0 var(--spazio-6)}
 
@@ -77,13 +78,14 @@ body.semplice a:focus-visible, body.semplice button:focus-visible, body.semplice
   padding:max(80px,calc(env(safe-area-inset-top) + 64px)) var(--spazio-4) var(--spazio-10)}
 .home-testa{width:100%;max-width:960px;display:grid;gap:var(--spazio-6);justify-items:center;text-align:center}
 .composizione{width:min(100%,380px);height:auto;display:block}
-/* LOGO PROVVISORIO (come .logo): sostituire con l'immagine quando ci sono i file in design-sistema/assets/Logos */
-.logo-grande{margin:0;font-family:var(--font-titoli);font-weight:700;font-size:clamp(64px,22vw,120px);line-height:.92;letter-spacing:-.01em;color:var(--testo)}
+/* la scritta grande della home (il simbolo è già nella composizione) */
+.logo-grande{margin:0;line-height:0}
+.logo-grande .logo-img{width:clamp(220px,70vw,420px);height:auto}
 .home-frase{margin:var(--spazio-3) 0 0;font-size:18px;line-height:26px;color:var(--testo-secondario)}
 @media (min-width:600px){
   .home-testa{grid-template-columns:1fr 1fr;align-items:center;text-align:left;justify-items:stretch;gap:var(--spazio-8)}
   .composizione{order:2;width:100%;justify-self:end}
-  .logo-grande{font-size:clamp(64px,13vw,120px)}
+  .logo-grande .logo-img{width:100%;max-width:420px}
 }
 .b-brace{fill:var(--brace)}
 .b-testo{fill:var(--testo)}

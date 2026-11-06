@@ -20,5 +20,5 @@ Cose che nel sito servono ma il sistema "Performance lab" non ha ancora. Sono st
 
 ## Ancora da fare (non dipende da te)
 
-- **Logo**: i file SVG (simbolo "Gradi" + LENA) non erano leggibili da qui. Il logo è provvisorio (testo) e anche `web/favicon.svg`. Scarica i 7 SVG del gruppo "Logos" del design system in `design-sistema/assets/Logos/` e li sostituisco.
+- **Logo**: gli SVG sono stati ricostruiti a mano dalle immagini del logo (simbolo Gradi + LENA con la A a chevron), non sono i file originali del sistema: se hai gli originali, sostituiscili in `design-sistema/assets/Logos/` e in `web/logo/` (stessi nomi).
 - **Scheda del cliente**: resta con il suo tema (`web/tema.css`, `web/scheda.css`), identico a quella scaricabile. Va ridisegnata in un secondo momento, insieme alla scheda scaricabile.

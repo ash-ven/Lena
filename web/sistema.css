@@ -131,3 +131,13 @@ html{-webkit-text-size-adjust:100%}
 .tema-bottone:focus-visible{outline:2px solid var(--anello-attivo);outline-offset:2px}
 @media (max-width:480px){.tema-bottone .tema-testo{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* Il logo: due immagini, una per fondo scuro e una per fondo chiaro; si vede quella giusta per il tema (stessa logica dei colori). I file sono in /logo e in design-sistema/assets/Logos. */
+.logo-img{display:block;height:auto}
+.logo-img.su-chiaro{display:none}
+[data-theme="chiara"] .logo-img.su-scuro{display:none}
+[data-theme="chiara"] .logo-img.su-chiaro{display:block}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .logo-img.su-scuro{display:none}
+  :root:not([data-theme]) .logo-img.su-chiaro{display:block}
+}
