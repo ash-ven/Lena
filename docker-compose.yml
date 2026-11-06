@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16
+    container_name: lena-db
+    environment:
+      POSTGRES_USER: lena
+      POSTGRES_PASSWORD: ${LENA_DB_PASSWORD}
+      POSTGRES_DB: lena
+    ports:
+      - "5433:5432"
+    volumes:
+      - lena_dati:/var/lib/postgresql/data
+      - ./db/initdb:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lena -d lena"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  lena_dati:
