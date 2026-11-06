@@ -58,3 +58,7 @@ body.semplice{margin:0;background:var(--colore-sfondo);color:var(--colore-testo)
 .riquadro input:focus-visible{outline-offset:0}
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* link a piè di pagina (informativa, condizioni) */
+.piede-legale{padding:8px 16px 28px;font-size:14px;color:var(--colore-testo-secondario);text-align:center}
+.piede-legale a{color:var(--colore-azione)}

@@ -108,3 +108,10 @@ select.scelta{min-height:48px;padding:8px 12px;font:inherit;font-size:16px;borde
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
 .separatore{border:0;border-top:1px solid var(--colore-linea);margin:16px 0}
+
+/* testi legali segnaposto: i campi da compilare devono SALTARE all'occhio */
+.segnaposto{background:var(--colore-avviso-sfondo);color:var(--colore-avviso-testo);border:1px dashed var(--colore-avviso-bordo);border-radius:6px;padding:0 6px;font-weight:600}
+.testo-legale h2{margin-top:18px}
+.testo-legale h2:first-child{margin-top:0}
+.piede-legale{max-width:960px;margin:0 auto;padding:8px 16px 28px;font-size:14px;color:var(--colore-testo-secondario);text-align:center}
+.piede-legale a{color:var(--colore-azione)}
