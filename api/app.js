@@ -10,6 +10,7 @@ const { router: rottaAuth } = require("./auth");
 const rottaClienti = require("./clienti");
 const { router: rottaSchede } = require("./schede");
 const creaRotteMe = require("./me");
+const { registraErrore } = require("./log");
 const rottaPrivacy = require("./privacy");
 
 // La cartella con le pagine (HTML, CSS, JavaScript) che il browser scarica
@@ -72,7 +73,7 @@ function creaApp(opzioni = {}) {
       const r = await db.query("SELECT count(*)::int AS utenti FROM utente");
       res.json({ ok: true, utenti: r.rows[0].utenti });
     } catch (err) {
-      console.error(err);
+      registraErrore(req, err);
       res.status(500).json({ ok: false, errore: "database non raggiungibile" });
     }
   });
@@ -95,7 +96,7 @@ function creaApp(opzioni = {}) {
   app.use((err, req, res, next) => {
     if (err.type === "entity.parse.failed") return res.status(400).json({ errore: "Il corpo della richiesta non è JSON valido" });
     if (err.type === "entity.too.large") return res.status(413).json({ errore: "Richiesta troppo grande" });
-    console.error(`[errore] ${req.method} ${req.originalUrl}`, err);
+    registraErrore(req, err);   // solo tipo di errore e punto del codice: mai dati delle persone (vedi log.js)
     if (res.headersSent) return next(err);
     res.status(500).json({ errore: "Errore del server" });
   });

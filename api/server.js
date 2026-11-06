@@ -21,7 +21,7 @@ server.on("error", (err) => {
   if (err.code === "EADDRINUSE") {
     console.error(`La porta ${PORTA} è già occupata da un altro programma. Chiudilo e riprova.`);
   } else {
-    console.error(err);
+    console.error("Il server non è partito:", (err && err.code) || (err && err.name));
   }
   process.exit(1);
 });

@@ -4,9 +4,9 @@
    { dati, avvisi }. "dati" è null se la scheda non si può costruire (es. manca la data di inizio).
    Per leggere un file .xlsx si usa la libreria SheetJS (web/vendor/xlsx.full.min.js): vedi convertiXlsx. */
 (function (radice, fabbrica) {
-  if (typeof module === "object" && module.exports) module.exports = fabbrica();
-  else radice.LenaConvertitore = fabbrica();
-})(typeof self !== "undefined" ? self : this, function () {
+  if (typeof module === "object" && module.exports) module.exports = fabbrica(require("./parole-salute.js"));
+  else radice.LenaConvertitore = fabbrica(radice.LenaParoleSalute);
+})(typeof self !== "undefined" ? self : this, function (ParoleSalute) {
 
 // ---------- piccoli aiuti ----------
 function testo(v) { return v == null ? "" : String(v).trim(); }
@@ -229,6 +229,8 @@ function convertiExcel(righe, merges) {
     riscaldamento,
     giorni,
   };
+  // Controllo morbido sui dati di salute: se un testo sembra contenerne, un avviso NON bloccante (vedi parole-salute.js)
+  if (ParoleSalute) avvisi.push(...ParoleSalute.avvisi(dati));
   return { dati, avvisi };
 }
 
