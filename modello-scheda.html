@@ -332,7 +332,7 @@ function campo(tipo, k, etichetta, segnaposto, serie){
 
 // ---------- serie fatte + recupero ----------
 function rigaSerie(k, e){
-  const tot = parseInt(e.serie, 10); if (!tot) return null;
+  const tot = /^\d{1,2}$/.test(String(e.serie).trim()) ? parseInt(e.serie, 10) : 0; if (!tot) return null;   // pallini solo se la serie è un numero (1-99)
   const c = chiave(stato.settimana, k), fatte = mem.serie[c] || 0;
   const pallini = el("span",{class:"puntini", "aria-label":`${fatte} serie su ${tot}`},
     Array.from({length:tot}, (_,i) => el("i",{class: i < fatte ? "on" : null})));
@@ -425,8 +425,9 @@ function cardCircuito(g, i, c){
 }
 
 function cardStretching(g){
+  if (!g.stretching) return [];   // se l'Excel non ha lo stretching di questo giorno, non lo inventiamo
   const k = `${g.id}|S`;
-  return [el("h3",{class:"sezione"}, DATI.stretching[0], el("span",{}, DATI.stretching[1])),
+  return [el("h3",{class:"sezione"}, g.stretching[0], el("span",{}, g.stretching[1])),
     el("section",{class:"card stretch" + (fatto(k) ? " fatto" : "")}, el("b",{class:"nome"}, "Fine allenamento"), spunta(k,"spunta"))];
 }
 
@@ -435,7 +436,7 @@ function passi(g){
   return [() => cardRiscaldamento(g),
     ...g.blocchi.map((b,i) => () => [el("h3",{class:"sezione"}, i === 0 ? "Allenamento" : `Blocco ${i+1} di ${g.blocchi.length}`,
       el("span",{}, `${i+1}/${g.blocchi.length}`)), b.tipo === "esercizio" ? cardEsercizio(g, i+1, b) : cardCircuito(g, i+1, b)]),
-    () => cardStretching(g)];
+    ...(g.stretching ? [() => cardStretching(g)] : [])];
 }
 
 function disegna(){

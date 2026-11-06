@@ -7,7 +7,7 @@
 </head>
 <body>
   <h1>Lena · Convertitore Excel → scheda</h1>
-  <p><b>Versione 4 · con pulsante Scarica</b></p>
+  <p><b>Versione 6 · stretching per giorno</b></p>
   <input type="file" id="file" accept=".xlsx">
   <p><button id="scarica" disabled>Scarica scheda</button></p>
 
@@ -23,8 +23,10 @@ function testo(v) { return v == null ? "" : String(v).trim(); }
 function èLink(v) { return /^https?:\/\//i.test(testo(v)); }
 function rigaVuota(r) { return r.every(c => testo(c) === ""); }
 
-// Trasforma una data di Excel in testo "2026-10-26", leggendo l'ora locale
+// Trasforma una data di Excel in testo "2026-10-26", leggendo l'ora locale.
+// Se la cella è vuota o contiene testo (non una vera data) restituisce null.
 function dataInTesto(d) {
+  if (!(d instanceof Date) || isNaN(d)) return null;
   const x = new Date(d.getTime() + 12 * 3600 * 1000);
   const mm = String(x.getMonth() + 1).padStart(2, "0");
   const gg = String(x.getDate()).padStart(2, "0");
@@ -56,14 +58,22 @@ function leggiInfo(righe) {
 function trovaGiorni(righe) {
   const giorni = [];
   for (let i = 0; i < righe.length; i++) {
-    const a = typeof righe[i][0] === "string" ? righe[i][0].trim() : "";
+    const a = testo(righe[i][0]);
     const m = a.match(/^GIORNO\s+(\w+)\s*\((.+)\)$/i);
     if (!m) continue;
 
-    let fine = -1;
+    // il giorno finisce alla riga "Stretching"; se manca, si ferma al giorno
+    // successivo, alla "Routine riscaldamento" o alla fine del foglio
+    let fine = righe.length, senzaStretching = true, stretching = null;
     for (let j = i + 1; j < righe.length; j++) {
-      const b = typeof righe[j][0] === "string" ? righe[j][0].trim() : "";
-      if (b.toLowerCase() === "stretching") { fine = j; break; }
+      const b = testo(righe[j][0]).toLowerCase();
+      if (b === "stretching") {
+        fine = j;
+        senzaStretching = false;
+        stretching = [testo(righe[j][0]), testo(righe[j][2])];   // nome e durata, es. ["Stretching", "5-10'"]
+        break;
+      }
+      if (/^giorno\s+\w+\s*\(/.test(b) || b.startsWith("*routine")) { fine = j; break; }
     }
 
     const focus = m[2].toLowerCase();
@@ -73,13 +83,16 @@ function trovaGiorni(righe) {
       focus: focus.charAt(0).toUpperCase() + focus.slice(1),
       rigaInizio: i + 1,
       rigaFine: fine + 1,
+      senzaStretching,
+      stretching,
     });
   }
   return giorni;
 }
 
 // ---------- esercizi e circuiti ----------
-function leggiBlocchi(righe, giorno, avvisi) {
+// "progressioni" = insieme delle righe in cui F:L è una cella unita (il testo della progressione)
+function leggiBlocchi(righe, giorno, avvisi, progressioni) {
   const blocchi = [];
   const ultima = giorno.rigaFine - 1;
   let i = giorno.rigaInizio;
@@ -103,6 +116,13 @@ function leggiBlocchi(righe, giorno, avvisi) {
       continue;
     }
 
+    // riga con del contenuto ma senza il nome dell'esercizio: la salto e lo segnalo
+    if (!testo(r[0])) {
+      avvisi.push(`Riga ${i + 1}: c'è del contenuto ma manca il nome dell'esercizio, l'ho saltata`);
+      i++;
+      continue;
+    }
+
     // esercizio normale
     const e = {
       tipo: "esercizio", nome: testo(r[0]), serie: testo(r[1]), rip: testo(r[2]), rec: testo(r[3]),
@@ -112,15 +132,20 @@ function leggiBlocchi(righe, giorno, avvisi) {
     r.forEach((cella, col) => {
       const t = testo(cella);
       if (col < 4 || !t) return;
-      if (èLink(t)) e.video = t;
-      else if (/^\d+\s*x\s*\d+$/i.test(t)) schema.push(t.replace(/\s/g, ""));
-      else if (col >= 5 && col <= 11) e.progressione = t;
-      else if (col >= 12) note.push(t);
+      if (col === 4 && /^[\d.,]+$/.test(t)) return;                     // E = Kg: un numero non è una nota
+      if (èLink(t)) e.video = t;                                         // un link vale come video, ovunque sia
+      else if (/^\d+\s*x\s*\d+$/i.test(t)) schema.push(t.replace(/\s/g, ""));   // "4x5"
+      else if (col === 5 && progressioni.has(i)) e.progressione = t;     // testo nella cella unita F:L
+      else note.push(t);                                                 // qualsiasi altro testo è una nota
     });
     e.schema = schema.length ? schema : null;
     e.note = note.length ? note.join(" ") : null;
 
-    if (!e.serie || !e.rip) avvisi.push(`Riga ${i + 1}: "${e.nome}" non ha serie o ripetizioni`);
+    if (!e.serie || !e.rip) {
+      avvisi.push(`Riga ${i + 1}: "${e.nome}" non ha serie o ripetizioni`);
+    } else if (!/^\d+$/.test(e.serie)) {
+      avvisi.push(`Riga ${i + 1}: "${e.nome}" ha come serie «${e.serie}», che non è un numero: la scheda non mostrerà i pallini delle serie`);
+    }
     blocchi.push(e);
     i++;
   }
@@ -151,11 +176,26 @@ function leggiRoutine(righe) {
   return { istruzione, esercizi };
 }
 
-function convertiExcel(righe) {
+function convertiExcel(righe, merges) {
   const avvisi = [];
   const info = leggiInfo(righe);
+
+  // senza data di inizio la scheda non si può costruire
+  if (!info.inizio) {
+    avvisi.push("Non trovo la data di inizio («Data inizio scheda:», colonna B). In Excel deve essere una data vera, non un testo.");
+    return { dati: null, avvisi };
+  }
+
   const giorni = trovaGiorni(righe);
   if (giorni.length === 0) avvisi.push("Non trovo nessun giorno (cerco righe tipo «GIORNO A (...)»)");
+  if (info.sedute && giorni.length && info.sedute !== giorni.length) {
+    avvisi.push(`L'Excel dice ${info.sedute} sedute a settimana, ma ho trovato ${giorni.length} giorni`);
+  }
+
+  // righe (indice da 0) in cui F:L è una cella unita: lì sta il testo della progressione
+  const progressioni = new Set((merges || [])
+    .filter(m => m.s.c === 5 && m.e.c === 11 && m.s.r === m.e.r)
+    .map(m => m.s.r));
 
   const rigaRisc = righe.find(r => testo(r[0]).toLowerCase().startsWith("riscaldamento"));
   const routine = leggiRoutine(righe);
@@ -165,9 +205,6 @@ function convertiExcel(righe) {
     istruzione: routine.istruzione,
     esercizi: routine.esercizi,
   };
-
-  const rigaStretch = giorni.length ? righe[giorni[0].rigaFine - 1] : null;
-  const stretching = rigaStretch ? [testo(rigaStretch[0]), testo(rigaStretch[2])] : ["Stretching", ""];
 
   const intestazione = righe.find(r => testo(r[0]).toLowerCase() === "esercizio") || [];
   const colonneSettimana = intestazione.filter(c => /settimana/i.test(testo(c))).length;
@@ -182,13 +219,14 @@ function convertiExcel(righe) {
   }
 
   giorni.forEach((g, n) => {
-    if (g.rigaFine < 1) avvisi.push(`Giorno ${g.id}: non trovo la riga «Stretching» che lo chiude`);
-    g.blocchi = leggiBlocchi(righe, g, avvisi);
+    if (g.senzaStretching) avvisi.push(`Giorno ${g.id}: manca la riga «Stretching» che lo chiude (l'ho chiuso prima della riga ${g.rigaFine})`);
+    g.blocchi = leggiBlocchi(righe, g, avvisi, progressioni);
     g.blocchi.forEach(b => delete b.riga);
     g.titolo = "Giorno " + g.id;
     Object.assign(g, PALETTE[n % PALETTE.length]);
     delete g.rigaInizio;
     delete g.rigaFine;
+    delete g.senzaStretching;
   });
 
   const dati = {
@@ -200,7 +238,6 @@ function convertiExcel(righe) {
     },
     riscaldamento,
     giorni,
-    stretching,
   };
   return { dati, avvisi };
 }
@@ -212,16 +249,27 @@ document.getElementById("file").addEventListener("change", async (ev) => {
   const file = ev.target.files[0];
   if (!file) return;
 
-  const byte = await file.arrayBuffer();
-  const cartella = XLSX.read(byte, { cellDates: true });
-  const foglio = cartella.Sheets[cartella.SheetNames[0]];
-  const righe = XLSX.utils.sheet_to_json(foglio, { header: 1, blankrows: true, defval: null });
+  ultimiDati = null;
+  document.getElementById("scarica").disabled = true;
+  let avvisi = [];
 
-  const { dati, avvisi } = convertiExcel(righe);
-  ultimiDati = dati;
-  document.getElementById("codice").value = "const DATI = " + JSON.stringify(dati) + ";";
+  try {
+    const byte = await file.arrayBuffer();
+    const cartella = XLSX.read(byte, { cellDates: true });
+    const foglio = cartella.Sheets[cartella.SheetNames[0]];
+    const righe = XLSX.utils.sheet_to_json(foglio, { header: 1, blankrows: true, defval: null });
+
+    const risultato = convertiExcel(righe, foglio["!merges"]);
+    ultimiDati = risultato.dati;
+    avvisi = risultato.avvisi;
+  } catch (err) {
+    // rete di sicurezza: qualunque errore imprevisto diventa un messaggio leggibile
+    avvisi = ["Non riesco a leggere questo file: " + err.message];
+  }
+
+  document.getElementById("codice").value = ultimiDati ? "const DATI = " + JSON.stringify(ultimiDati) + ";" : "";
   document.getElementById("avvisi").textContent = avvisi.length ? avvisi.join("\n") : "Nessun avviso";
-  document.getElementById("scarica").disabled = false;
+  document.getElementById("scarica").disabled = !ultimiDati;
   ev.target.value = "";
 });
 
