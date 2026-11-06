@@ -93,4 +93,16 @@ router.post("/:id/schede", async (req, res) => {
   res.status(201).json({ id: r.rows[0].id });
 });
 
+// GET /api/clienti/:id/schede: l'elenco delle schede del cliente, senza il JSON pesante
+router.get("/:id/schede", async (req, res) => {
+  const r = await db.query(
+    `SELECT s.id, s.inizio, s.settimane, s.dati -> 'info' ->> 'titolo' AS titolo, s.creata_il, s.aggiornata_il,
+            (SELECT count(*)::int FROM registrazione g WHERE g.scheda_id = s.id) AS registrazioni
+       FROM scheda s WHERE s.cliente_id = $1
+      ORDER BY s.creata_il DESC, s.id DESC`,
+    [req.cliente.id]
+  );
+  res.json(r.rows);
+});
+
 module.exports = router;

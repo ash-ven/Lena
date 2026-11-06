@@ -1,4 +1,9 @@
-const { Pool } = require("pg");
+const { Pool, types } = require("pg");
+
+// Le colonne DATE (es. scheda.inizio) arrivano come testo "2026-10-26", non come oggetto Date.
+// Senza questa riga diventerebbero "2026-10-25T23:00:00.000Z" (mezzanotte italiana in ora UTC):
+// il giorno prima!
+types.setTypeParser(types.builtins.DATE, (testo) => testo);
 
 const db = new Pool({ connectionString: process.env.DATABASE_URL });
 

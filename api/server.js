@@ -4,6 +4,8 @@ const cookieParser = require("cookie-parser");
 const db = require("./db");
 const { router: rottaAuth } = require("./auth");
 const rottaClienti = require("./clienti");
+const { router: rottaSchede } = require("./schede");
+const rottaMe = require("./me");
 
 const app = express();
 
@@ -11,6 +13,8 @@ app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 app.use("/api/auth", rottaAuth);
 app.use("/api/clienti", rottaClienti);
+app.use("/api/schede", rottaSchede);
+app.use("/api/me", rottaMe);
 
 // controllo: il server è acceso e vede il database?
 app.get("/api/salute", async (req, res) => {
