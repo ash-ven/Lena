@@ -3,12 +3,14 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const db = require("./db");
 const { router: rottaAuth } = require("./auth");
+const rottaClienti = require("./clienti");
 
 const app = express();
 
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 app.use("/api/auth", rottaAuth);
+app.use("/api/clienti", rottaClienti);
 
 // controllo: il server è acceso e vede il database?
 app.get("/api/salute", async (req, res) => {
@@ -22,16 +24,16 @@ app.get("/api/salute", async (req, res) => {
 });
 
 const PORTA = process.env.PORT || 3001;
-// In Express 5 questa funzione viene chiamata anche se l'avvio fallisce,
-// e in quel caso riceve l'errore: lo controlliamo invece di dire "tutto ok".
-app.listen(PORTA, (err) => {
-  if (err) {
-    if (err.code === "EADDRINUSE") {
-      console.error(`La porta ${PORTA} è già occupata da un altro programma (forse un vecchio server ancora acceso). Chiudilo e riprova.`);
-    } else {
-      console.error("Il server non è partito:", err.message);
-    }
-    process.exit(1);
-  }
+const server = app.listen(PORTA, () => {
   console.log(`API Lena su http://localhost:${PORTA}`);
+});
+
+// Se la porta è occupata (o c'è un altro errore all'avvio), lo dice chiaramente e si ferma
+server.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(`La porta ${PORTA} è già occupata da un altro programma. Chiudilo e riprova.`);
+  } else {
+    console.error(err);
+  }
+  process.exit(1);
 });
