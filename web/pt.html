@@ -23,9 +23,12 @@
 </header>
 
 <main class="contenitore" id="contenuto">
-  <div class="intestazione-pagina">
+  <div class="testata-pt">
     <div>
-      <h1 class="titolo">Clienti</h1>
+      <div class="testata-titolo">
+        <h1 class="titolo">Clienti</h1>
+        <svg class="gradi-testata" viewBox="0 0 56 56" aria-hidden="true" focusable="false"><path d="M8 18 L28 4 L48 18"/><path d="M8 32 L28 18 L48 32"/><path d="M8 46 L28 32 L48 46"/></svg>
+      </div>
       <p class="sotto-titolo">Carica le schede e invita i tuoi clienti a vederle.</p>
     </div>
     <button class="bottone" type="button" id="apri-nuovo" aria-expanded="false" aria-controls="modulo-nuovo"><span class="icona i-piu" aria-hidden="true"></span>Nuovo cliente</button>
@@ -55,17 +58,17 @@
   <ul class="riepilogo" id="riepilogo" aria-label="Riepilogo dei clienti" hidden></ul>
 
   <section id="in-scadenza" aria-labelledby="titolo-scadenze" hidden>
-    <h2 class="sezione-pt" id="titolo-scadenze">Schede in scadenza</h2>
+    <h2 class="etichetta-sezione" id="titolo-scadenze">Schede in scadenza</h2>
     <ul class="elenco-clienti" id="elenco-scadenze"></ul>
   </section>
 
   <section aria-labelledby="titolo-elenco">
-    <h2 class="sezione-pt" id="titolo-elenco">Elenco</h2>
-    <div class="campo-pt">
-      <label for="cerca">Cerca un cliente</label>
-      <input id="cerca" type="search" autocomplete="off" placeholder="Nome o cognome">
+    <h2 class="etichetta-sezione" id="titolo-elenco">Elenco<span class="conteggio" id="conteggio" role="status"></span></h2>
+    <div class="ricerca">
+      <label class="solo-lettori" for="cerca">Cerca un cliente</label>
+      <span class="icona i-cerca" aria-hidden="true"></span>
+      <input id="cerca" type="search" autocomplete="off" placeholder="Cerca per nome o cognome">
     </div>
-    <p class="conteggio" id="conteggio" role="status"></p>
     <div id="stato-elenco" aria-live="polite"></div>
     <ul class="elenco-clienti" id="elenco"></ul>
   </section>

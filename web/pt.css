@@ -84,24 +84,60 @@ body.pt a.bottone{color:var(--su-brace)}
 .avviso-pt.ok li,.avviso-pt.errore li{color:var(--testo)}
 .attesa-pt{color:var(--testo-secondario);padding:var(--spazio-4) 0}
 
-/* ---------- riepilogo in numeri (PROPOSTA) ---------- */
-.riepilogo{list-style:none;margin:0 0 var(--spazio-6);padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--spazio-3)}
-.riepilogo li{background:var(--superficie);border:1px solid var(--bordo-superficie);border-radius:var(--raggio-riquadro);padding:var(--spazio-4)}
-.riepilogo .cifra{display:block;font-family:var(--font-titoli);font-weight:700;font-size:28px;line-height:34px;font-variant-numeric:tabular-nums}
-.riepilogo .dida{display:block;font-size:14px;line-height:20px;color:var(--testo-secondario)}
+/* ---------- testata della pagina e riepilogo in numeri (PROPOSTA: ripresa dalla home, con i gradi arancio) ---------- */
+.testata-pt{position:relative;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--spazio-4);margin:var(--spazio-4) 0 var(--spazio-8);padding-bottom:var(--spazio-6);border-bottom:1px solid var(--divisorio)}
+.testata-pt::after{content:"";position:absolute;left:0;bottom:-1px;width:96px;height:3px;background:var(--brace)}
+.testata-titolo{display:flex;align-items:flex-end;gap:var(--spazio-5)}
+.testata-pt h1.titolo{font-size:clamp(44px,10vw,72px);line-height:1;letter-spacing:-.01em;margin:0}
+.testata-pt .sotto-titolo{margin:var(--spazio-3) 0 0}
+.gradi-testata{flex:none;width:44px;height:44px;display:block;margin-bottom:6px}
+.gradi-testata path{fill:none;stroke:var(--brace);stroke-width:6;opacity:.3;animation:sale-t 3.6s ease-in-out infinite;transform-box:fill-box}
+.gradi-testata path:nth-child(3){animation-delay:1s}.gradi-testata path:nth-child(2){animation-delay:1.3s}.gradi-testata path:nth-child(1){animation-delay:1.6s}
+@keyframes sale-t{0%{opacity:.3;transform:translateY(5px)}18%,46%{opacity:1;transform:none}70%,100%{opacity:.3;transform:translateY(-3px)}}
+@media (prefers-reduced-motion:reduce){.gradi-testata path{animation:none;opacity:1}}
+.riepilogo{list-style:none;margin:0 0 var(--spazio-10);padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.riepilogo li{padding:0 var(--spazio-4);border-left:1px solid var(--divisorio)}
+.riepilogo li:first-child{padding-left:0;border-left:0}
+.riepilogo .cifra{display:block;font-family:var(--font-titoli);font-weight:700;font-size:clamp(36px,7vw,56px);line-height:1;font-variant-numeric:tabular-nums}
+.riepilogo .dida{display:block;margin-top:var(--spazio-2);font-size:14px;line-height:20px;color:var(--testo-secondario)}
+@media (max-width:600px){
+  .riepilogo{grid-template-columns:1fr 1fr;row-gap:var(--spazio-5)}
+  .riepilogo li:nth-child(odd){padding-left:0;border-left:0}
+}
+/* titolo di sezione piccolo, in maiuscolo, con il conteggio a destra */
+.etichetta-sezione{display:flex;justify-content:space-between;align-items:baseline;gap:var(--spazio-3);margin:0 0 var(--spazio-3);
+  font-family:var(--font-titoli);font-weight:700;font-size:13px;line-height:18px;letter-spacing:.16em;text-transform:uppercase;color:var(--testo-secondario)}
+.etichetta-sezione .conteggio{margin:0;letter-spacing:0;text-transform:none;font-family:var(--font-testo);font-weight:400}
+#in-scadenza{margin:0 0 var(--spazio-10)}
 
 /* ---------- elenco clienti ---------- */
-.intestazione-pagina{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--spazio-4);margin:0 0 var(--spazio-6)}
-.intestazione-pagina .sotto-titolo{margin:0}
-.elenco-clienti{list-style:none;margin:0;padding:0;display:grid;gap:var(--spazio-3)}
-.elenco-clienti a{display:flex;align-items:center;gap:var(--spazio-4);padding:var(--spazio-4);background:var(--superficie);border:1px solid var(--bordo-superficie);
-  border-radius:var(--raggio-riquadro);text-decoration:none;color:var(--testo)}
+.elenco-clienti{list-style:none;margin:0;padding:0}
+.elenco-clienti a{display:flex;align-items:center;gap:var(--spazio-4);padding:var(--spazio-3) var(--spazio-4);text-decoration:none;color:var(--testo)}
 body.pt .elenco-clienti a{color:var(--testo)}
-.elenco-clienti a:hover{border-color:var(--bordo-campo)}
-.elenco-clienti .corpo-cliente{flex:1 1 auto;min-width:0;display:grid;gap:var(--spazio-1);justify-items:start}
+.elenco-clienti .corpo-cliente{flex:1 1 auto;min-width:0;display:grid;gap:2px;justify-items:start}
 .elenco-clienti .nome-cliente{font-family:var(--font-titoli);font-weight:700;font-size:18px;line-height:24px;overflow-wrap:anywhere}
 .elenco-clienti .dettaglio{font-size:14px;line-height:20px;color:var(--testo-secondario)}
 .elenco-clienti .vai{color:var(--testo-secondario)}
+.elenco-clienti .stato{flex:none;margin:0}
+/* l'elenco completo: un unico riquadro con righe separate */
+#elenco{background:var(--superficie);border:1px solid var(--bordo-superficie);border-radius:var(--raggio-riquadro);overflow:hidden}
+#elenco:empty{display:none}
+#elenco li+li{border-top:1px solid var(--divisorio)}
+#elenco a:hover,#elenco a:focus-visible{background:var(--superficie-alta)}
+#elenco .avatar{width:48px;height:48px;font-size:17px}
+@media (max-width:600px){#elenco .stato.neutro{display:none}}
+/* le schede in scadenza: più grandi, con una barra arancio e il conto alla rovescia */
+#elenco-scadenze{display:grid;gap:var(--spazio-3)}
+#elenco-scadenze a{background:var(--superficie);border:1px solid var(--bordo-superficie);border-left:4px solid var(--brace);border-radius:var(--raggio-riquadro);padding:var(--spazio-4)}
+#elenco-scadenze a:hover{background:var(--superficie-alta)}
+.conto{flex:none;text-align:right;font-family:var(--font-titoli);font-weight:700;color:var(--testo-brace);font-variant-numeric:tabular-nums}
+.conto b{display:block;font-size:40px;line-height:1}
+.conto small{display:block;margin-top:2px;font-size:12px;line-height:16px;letter-spacing:.12em;text-transform:uppercase}
+/* ricerca con la lente dentro il campo */
+.ricerca{position:relative;margin:0 0 var(--spazio-3)}
+.ricerca .icona{position:absolute;left:var(--spazio-4);top:50%;transform:translateY(-50%);color:var(--testo-secondario);pointer-events:none}
+.ricerca input[type="search"]{width:100%;min-height:48px;padding:var(--spazio-3) var(--spazio-4) var(--spazio-3) 48px;font:inherit;font-size:16px;line-height:24px;color:var(--testo);
+  background:var(--superficie);border:1px solid var(--bordo-campo);border-radius:var(--raggio-controllo)}
 .conteggio{color:var(--testo-secondario);font-size:14px;line-height:20px;margin:var(--spazio-2) 0}
 
 /* chip di stato (PROPOSTA): parole + icona, il colore da solo non basta */

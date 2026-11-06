@@ -24,12 +24,12 @@
         avatar(c),
         el("span", { class: "corpo-cliente" },
           el("span", { class: "nome-cliente" }, `${c.cognome} ${c.nome}`),
-          el("span", { class: `stato ${s.tipo}` }, s.breve),
           el("span", { class: "dettaglio" }, s.dettaglio)),
-        el("span", { class: "icona i-avanti", "aria-hidden": "true" })));
+        el("span", { class: `stato ${s.tipo}` }, s.breve),
+        el("span", { class: "icona i-avanti vai", "aria-hidden": "true" })));
     }));
     $("conteggio").textContent = !clienti.length ? "" : q
-      ? `${visibili.length} ${visibili.length === 1 ? "cliente trovato" : "clienti trovati"} su ${clienti.length}`
+      ? `${visibili.length} su ${clienti.length}`
       : `${clienti.length} ${clienti.length === 1 ? "cliente" : "clienti"}`;
     const vuoto = $("stato-elenco");
     vuoto.replaceChildren();
@@ -46,9 +46,11 @@
       avatar(c),
       el("span", { class: "corpo-cliente" },
         el("span", { class: "nome-cliente" }, `${c.cognome} ${c.nome}`),
-        el("span", { class: `stato ${s.scaduta ? "nessuna" : "invito"}` }, s.testo),
         el("span", { class: "dettaglio" }, `La scheda finisce il ${LenaPt.dataBreve(s.data)}.`)),
-      el("span", { class: "icona i-avanti", "aria-hidden": "true" })))));
+      el("span", { class: "conto" }, el("span", { class: "solo-lettori" }, s.testo),
+        el("b", { "aria-hidden": "true" }, s.giorni === 0 ? "Oggi" : String(Math.abs(s.giorni))),
+        el("small", { "aria-hidden": "true" }, s.giorni === 0 ? "" : s.giorni > 0 ? (s.giorni === 1 ? "giorno" : "giorni") : "giorni fa · scaduta")),
+      el("span", { class: "icona i-avanti vai", "aria-hidden": "true" })))));
   }
 
   // ---------- riepilogo in numeri ----------
