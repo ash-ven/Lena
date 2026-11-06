@@ -1,16 +1,20 @@
 # API di Lena
 
-Il "motore" di Lena: un server Node/Express che parla con il database Postgres e risponde
-in JSON alle richieste del frontend. Due ruoli: **PT** (personal trainer) e **cliente**.
+Il "motore" di Lena: un server Node/Express che parla con il database Postgres, risponde
+in JSON alle richieste del frontend **e serve anche le pagine web** (cartella `web/`).
+Due ruoli: **PT** (personal trainer) e **cliente**.
 
 ## Indice
 
 1. [Avviare tutto da zero](#avviare-tutto-da-zero)
-2. [Le tabelle](#le-tabelle)
-3. [Gli endpoint](#gli-endpoint)
-4. [Esempi in PowerShell](#esempi-in-powershell)
-5. [Regole di sicurezza già attive](#regole-di-sicurezza-già-attive)
-6. [Prima di andare online (checklist)](#prima-di-andare-online-checklist-sicurezza)
+2. [Provare tutto a mano: dal cliente alla scheda](#provare-tutto-a-mano-dal-cliente-alla-scheda)
+3. [Le pagine del sito (cartella web/)](#le-pagine-del-sito-cartella-web)
+4. [Come cambiare colori e font](#come-cambiare-colori-e-font)
+5. [Le tabelle](#le-tabelle)
+6. [Gli endpoint](#gli-endpoint)
+7. [Esempi in PowerShell](#esempi-in-powershell)
+8. [Regole di sicurezza già attive](#regole-di-sicurezza-già-attive)
+9. [Prima di andare online (checklist)](#prima-di-andare-online-checklist-sicurezza)
 
 ---
 
@@ -50,7 +54,8 @@ npm test
 node --watch server.js
 ```
 
-Il server risponde su `http://localhost:3001`. Prova veloce: `Invoke-RestMethod http://localhost:3001/api/salute`.
+Il server risponde su `http://localhost:3001`. Prova veloce: `Invoke-RestMethod http://localhost:3001/api/salute`,
+oppure apri `http://localhost:3001` nel browser (ti manda al login).
 
 **Database già esistente e nuove tabelle.** I file in `db/initdb` girano da soli **solo la prima volta**
 (con il volume vuoto). Quando si aggiunge un file nuovo (es. `03_inviti.sql`) va applicato a mano,
@@ -68,6 +73,183 @@ Non usare mai `docker compose down -v`: il `-v` cancella il volume, cioè **tutt
 
 **I test** (`npm test`) avviano una loro copia del server su una porta libera e usano il database di
 sviluppo: creano utenti con email `...@test.lena` e alla fine li cancellano. I tuoi dati non vengono toccati.
+Sono tre gruppi: `test/e2e.test.js` (l'API, con il database), `test/web.test.js` (pagine e sicurezza del sito)
+e `test/sincronizza.test.js` (il salvataggio dei progressi, senza rete né database: sono istantanei).
+
+**Script a riga di comando** (da lanciare dalla cartella `api`):
+
+| Comando | Cosa fa |
+|---|---|
+| `node crea-pt.js email password "Nome"` | crea un account da PT |
+| `node carica-scheda.js <id-cliente> <file.json>` | carica una scheda (il JSON del convertitore) per un cliente |
+| `node crea-invito.js <id-cliente>` | crea l'invito e stampa il link `.../registrati.html?codice=...` |
+
+Sono provvisori: quando ci sarà l'area del PT (elenco clienti, carica Excel, crea invito) si faranno dal sito.
+Dentro usano lo stesso codice delle rotte dell'API (`operazioni.js`), quindi gli stessi controlli.
+Per cambiare l'indirizzo scritto nei link (es. quando sarai online) aggiungi in `api/.env` una riga `URL_BASE=https://il-tuo-dominio.it`.
+
+---
+
+## Provare tutto a mano: dal cliente alla scheda
+
+Serve il database acceso e il server avviato (`node --watch server.js` nella cartella `api`).
+Lo facciamo con il cliente di prova **"Asiha Venturi" (id 1)**, che esiste già; per crearne uno nuovo vedi il punto 1.
+
+**1. (Facoltativo) Crea un nuovo cliente.** Serve il login da PT; l'`id` che compare è quello da usare dopo.
+
+```powershell
+$API = "http://localhost:3001"; $JSON = "application/json; charset=utf-8"
+Invoke-RestMethod "$API/api/auth/login" -Method Post -ContentType $JSON -SessionVariable pt -Body (@{ email = "tua@email.it"; password = "LaTuaPassword" } | ConvertTo-Json)
+Invoke-RestMethod "$API/api/clienti" -Method Post -ContentType $JSON -WebSession $pt -Body (@{ nome = "Mario"; cognome = "Rossi" } | ConvertTo-Json)
+```
+
+**2. Prepara la scheda (un file `.json`).** Due modi:
+
+- *Subito:* usa quella d'esempio, `api/esempio/scheda-esempio.json` (3 giorni, 5 settimane dal 2 novembre 2026).
+- *Dal tuo Excel:* nella cartella principale lancia `npx serve .`, apri `http://localhost:3000/convertitore-test.html`
+  (la porta la scrive il comando), carica l'Excel e premi **"Scarica dati (JSON)"** (oppure "Copia dati (JSON)" e incolla in un file).
+  Il pulsante "Scarica scheda" invece fa il file `.html` autonomo, come prima.
+
+**3. Carica la scheda sul cliente.**
+
+```powershell
+cd C:\Users\a.venturi\progetti\schede-pt\api
+node carica-scheda.js 1 esempio\scheda-esempio.json
+```
+
+Se la scheda ha qualcosa che non va, dice cosa (per esempio «settimane fuori range»). Se ne carichi più di una, il cliente vede l'ultima.
+
+**4. Crea l'invito.**
+
+```powershell
+node crea-invito.js 1
+```
+
+Stampa un link lungo, tipo `http://localhost:3001/registrati.html?codice=...`. Vale 7 giorni e si usa **una volta sola**.
+
+**5. Apri il link.** Meglio in una **finestra privata** (Ctrl+Maiusc+N), così non si mescola con altri accessi.
+Scegli email e password (almeno 10 caratteri): finisci direttamente sulla scheda.
+
+**6. Prova il salvataggio.**
+
+- Scrivi un peso nel primo esercizio: in alto a destra passa da *Salvo…* a *Salvato ✓* dopo circa un secondo.
+- Ricarica la pagina (F5): il valore c'è ancora.
+- Guarda il database: `docker exec lena-db psql -U lena -d lena -c "SELECT * FROM registrazione"`.
+- Metti la finestra di DevTools (F12) su **Network → Offline** e scrivi un altro valore: compare *Non salvato, riprovo…*;
+  togli Offline e dopo qualche secondo diventa *Salvato ✓*.
+- Premi **Esci** (in fondo alla pagina) e rientra da `http://localhost:3001/login.html`.
+
+**Dal telefono?** Sul PC va tutto bene con `http://localhost:3001`. Dal **telefono sul Wi‑Fi di casa** (`http://192.168.x.x:3001`)
+oggi il sito **non si carica**: la regola di sicurezza (CSP) di `helmet` contiene `upgrade-insecure-requests`, che costringe
+il browser a chiedere stile e script via `https`, e il tuo server in locale parla solo `http`. Succede solo fuori da `localhost`
+(l'ho provato). Per vedere l'aspetto da telefono, per ora usa la modalità telefono del browser (F12 → icona del telefono).
+Quando metteremo https (obbligatorio comunque prima di andare online) il problema sparisce da solo.
+
+**7. Per ripetere la prova con lo stesso cliente** cancella l'account di prova (il cliente e la sua scheda restano) e crea un nuovo invito:
+
+```powershell
+docker exec lena-db psql -U lena -d lena -c "DELETE FROM utente WHERE email = 'la-tua-email-di-prova'"
+node crea-invito.js 1
+```
+
+(Per cancellare invece **tutto** di un cliente, account e schede compresi, c'è `DELETE /api/clienti/:id`.)
+
+---
+
+## Le pagine del sito (cartella web/)
+
+Express le serve così come sono (`express.static`), **dopo** le rotte `/api`: un indirizzo `/api/...` che non esiste
+risponde sempre con un errore JSON, mai con una pagina.
+
+| Indirizzo | File | Cosa fa |
+|---|---|---|
+| `/` | `index.html`, `index.js` | ti manda alla pagina giusta: scheda (cliente), area PT, oppure login |
+| `/login.html` | `login.html`, `login.js` | accesso con email e password; dopo: cliente → scheda, PT → area PT |
+| `/registrati.html?codice=...` | `registrati.html`, `registrati.js` | il cliente crea l'accesso con il codice dell'invito; poi va alla scheda |
+| `/scheda.html` | `scheda.html`, `scheda-server.js` | la scheda del cliente, letta dal server (401 → login, 404 → "non c'è ancora una scheda") |
+| `/pt.html` | `pt.html`, `pt.js` | segnaposto "Area PT in arrivo" con il pulsante Esci |
+| (indirizzo inesistente) | `404.html` | pagina "non trovato" |
+
+File usati da più pagine:
+
+| File | A cosa serve |
+|---|---|
+| `tema.css` | **tutti i colori e i font** (vedi la sezione dopo) |
+| `pagine.css` | stile di login, registrazione, area PT, 404 e dei messaggi di stato |
+| `scheda.css`, `scheda.js` | **l'unica copia** di stile e logica della scheda (vedi sotto) |
+| `api.js` | piccolo aiuto per chiamare l'API, uscire, mostrare gli errori comuni |
+| `registrazioni.js` | traduce i progressi tra il formato del database e quello della scheda |
+| `sincronizza.js` | il "motore" che manda i progressi al server (vedi sotto) |
+
+**Una sola fonte per la scheda.** `scheda.css` e `scheda.js` li usano sia il sito sia la scheda scaricabile dal convertitore.
+`modello-scheda.html` contiene solo i riferimenti; quando scarichi, il convertitore **incorpora** i file dentro un unico `.html`
+autonomo. Se cambi `tema.css`, `scheda.css` o `scheda.js`, le schede già scaricate non cambiano: vanno riscaricate.
+La scheda scaricata continua a salvare solo sul telefono (localStorage), come prima; quella del sito salva nel database.
+
+**Come funziona il salvataggio nel database** (`sincronizza.js`):
+
+- Dopo ogni modifica aspetta **1 secondo** senza altre modifiche e poi invia in una richiesta sola (al massimo 200 voci per volta).
+- L'indicatore in alto a destra dice: *Salvato ✓* · *Salvo…* · *Non salvato, riprovo…*.
+- Senza rete o con il server in errore: la modifica resta **sul dispositivo** (localStorage, chiave `lena:coda:<utente>:<scheda>`)
+  e il sito riprova da solo dopo 2, 4, 8, 16, 32 secondi (poi ogni 60), e subito appena torna la rete.
+- Se la sessione scade (401): niente si perde, ti porta al login con un messaggio, e dopo l'accesso le modifiche partono.
+- Chiudendo la pagina subito dopo una modifica, l'invio parte comunque.
+- **Esci** prova prima a inviare tutto; se non ci riesce chiede conferma, e le modifiche restano sul dispositivo.
+- Se due dispositivi cambiano lo stesso valore, vince l'ultimo che arriva al server.
+- Valori accettati: kg e ripetizioni fino a 40 caratteri (i campi non ne accettano di più).
+
+**Perché serve la Content-Security-Policy (CSP).** È una regola che il server manda al browser: "esegui solo gli script
+che arrivano da questo stesso sito". Se qualcuno riuscisse a infilare del codice in una pagina (per esempio in un nome o
+in una nota di una scheda), il browser lo rifiuterebbe: senza questa regola potrebbe rubare i dati di salute o agire al posto
+del cliente. Per questo nelle pagine **non ci sono script scritti dentro l'HTML** (stanno in file `.js`) e la regola
+di `helmet` non va allentata: un test (`test/web.test.js`) fa fallire `npm test` se qualcuno ci prova.
+
+---
+
+## Come cambiare colori e font
+
+Tutto sta in **un solo file: `web/tema.css`**. Sono "variabili" CSS: dai un nome a un colore o a un font,
+e tutte le pagine lo usano. Cambi il valore in un punto, cambia dappertutto.
+
+| Variabile | Cosa colora |
+|---|---|
+| `--colore-sfondo` | il fondo delle pagine (crema) |
+| `--colore-carta` | riquadri, schede e campi (bianco) |
+| `--colore-testo` | il testo principale |
+| `--colore-testo-tenue` | testo secondario, etichette |
+| `--colore-linea` | bordi e righe sottili |
+| `--colore-accento`, `--colore-accento-chiaro`, `--colore-accento-scuro` | il colore "di marca": pulsanti, titoli colorati |
+| `--colore-su-accento` | il testo sopra i pulsanti pieni |
+| `--colore-ok-...`, `--colore-avviso-...`, `--colore-errore-...` | i messaggi verdi, arancio e rossi (`sfondo`, `bordo`, `testo`) |
+| `--font-titoli` | i titoli (oggi un carattere con le grazie, Georgia) |
+| `--font-testo` | tutto il resto (oggi il carattere di sistema) |
+
+**Esempio.** Per un tema azzurro, in `web/tema.css` cambia (le altre righe restano):
+
+```css
+--colore-accento: #8FB3D9;
+--colore-accento-chiaro: #E6EFF8;
+--colore-accento-scuro: #3F6A99;
+```
+
+Ricarica la pagina nel browser (Ctrl+F5) e vedi subito il risultato.
+
+**Cose da sapere:**
+
+- **Nella scheda, ogni giorno ha il suo colore** (il rosa del Giorno A, il verde del B...). Quei colori vengono dai
+  *dati* della scheda (`colore`, `chiaro`, `scuro` di ogni giorno), che il convertitore sceglie dalla sua lista `PALETTE`.
+  `--colore-accento...` sono solo il colore di partenza e quello delle pagine fuori dalla scheda.
+- **Restano alcuni colori scritti a mano dentro `scheda.css`** (il bianco sopra i pulsanti, il grigio caldo del testo sul giorno
+  selezionato, le ombre, il colore dei segnaposto): sono una decina di righe da portare in `tema.css` quando faremo i temi.
+- **I font** sono solo quelli già presenti sul telefono o sul computer: nessun font viene scaricato da siti esterni
+  (il motivo è la privacy: ogni richiesta a Google Fonts comunicherebbe a Google chi apre la scheda).
+  Per usare un font tuo: scarica il file `.woff2` (con licenza che lo permette), mettilo in `web/font/` e in `tema.css`
+  aggiungi sopra `:root`:
+  ```css
+  @font-face { font-family: "NomeDelFont"; src: url("/font/nome-del-font.woff2") format("woff2"); font-display: swap; }
+  ```
+  poi scrivi `--font-titoli: "NomeDelFont", Georgia, serif;`. La CSP lascia caricare font dal tuo sito.
+- Le schede **già scaricate** come file `.html` hanno i colori di quando sono state scaricate: vanno riscaricate dal convertitore.
 
 ---
 
@@ -254,7 +436,12 @@ Invoke-RestMethod "$API/api/auth/logout" -Method Post -WebSession $pt
 - **Limite tentativi** (per IP, ogni 15 minuti):
   - login e registrazione: 10 tentativi **sbagliati**;
   - tutte le altre richieste: 600 in totale.
-- **helmet**: aggiunge le intestazioni di sicurezza standard.
+- **helmet** (CSP e altre intestazioni): il browser esegue solo script dello stesso sito, niente script nell'HTML,
+  niente caricamenti da siti esterni. Non va allentata (vedi "Perché serve la CSP" sopra).
+- **Pagine**: il sito serve **solo** la cartella `web/`; nessun file fuori da lì (`.env`, codice, database) è raggiungibile
+  (c'è un test con i tentativi classici di "risalire" le cartelle).
+- **Dati di salute mai in cache**: ogni risposta di `/api` ha `Cache-Control: no-store`.
+- **Niente richieste a terzi**: le pagine non usano CDN, font o librerie esterne; un test controlla che non compaia nessun indirizzo esterno nei file di `web/`.
 - **Errori**: un gestore centrale. Al client arriva solo un messaggio generico, i dettagli vanno nel log del server.
 - **Avvio**: senza `JWT_SECRET` (o con `CAMBIAMI`, o più corto di 32 caratteri) il server non parte.
 
@@ -272,3 +459,10 @@ Oggi tutto è pensato per girare sul tuo PC. Prima di mettere Lena su un server 
 5. **Proxy davanti (nginx, Caddy, ecc.).** Se il server sta dietro un proxy, aggiungi `app.set("trust proxy", 1)` in `app.js`: altrimenti il limite di tentativi vede tutti con lo stesso IP (quello del proxy) e blocca tutti insieme.
 6. **CORS** solo se il frontend sta su un **dominio diverso** dall'API. Se frontend e API sono sullo stesso dominio (consigliato) non serve niente. Se servono domini diversi: pacchetto `cors` con `origin` = il dominio esatto del frontend e `credentials: true`, e il cookie dovrà diventare `sameSite: "none"` + `secure`.
 7. **Backup del database** (sono dati di salute): un `pg_dump` automatico, cifrato, conservato fuori dal server.
+8. **Link di invito**: in `api/.env` metti `URL_BASE=https://il-tuo-dominio.it`, così `crea-invito.js` stampa link con l'indirizzo vero.
+9. **Il convertitore usa una libreria di terzi.** `convertitore-test.html` carica la libreria per leggere l'Excel da `cdn.sheetjs.com`.
+   Oggi gira solo sul tuo PC (e non manda l'Excel a nessuno: la libreria lavora nel tuo browser), ma il giorno in cui sarà
+   una pagina del sito va **scaricata e servita da noi** (file in `web/`), sia per la privacy sia perché la CSP la bloccherebbe.
+10. **Dispositivi condivisi.** Dopo "Esci", se c'erano modifiche non ancora inviate, restano nel `localStorage` di quel browser
+    (solo kg, ripetizioni, serie e spunte, senza nomi). Per un telefono condiviso conviene aggiungere "svuota tutto al logout"
+    quando si decide come comportarsi.
