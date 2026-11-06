@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B0D10">
+<title>Il tuo profilo · Lena</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script src="/tema.js"></script>
+<link rel="stylesheet" href="/sistema.css">
+<link rel="stylesheet" href="/pt.css">
+</head>
+<body class="pt">
+<header class="barra-pt">
+  <div class="dentro">
+    <div><a class="logo-pt" href="/pt.html">Lena</a><span class="area-pt">Area trainer</span></div>
+    <div class="destra">
+      <div data-tema-controllo></div>
+      <button class="bottone secondario piccolo" type="button" id="esci"><span class="icona i-esci" aria-hidden="true"></span>Esci</button>
+    </div>
+  </div>
+</header>
+
+<main class="contenitore" id="contenuto">
+  <a class="indietro" href="/pt.html"><span class="icona i-indietro" aria-hidden="true"></span>Tutti i clienti</a>
+  <h1 class="titolo">Il tuo profilo</h1>
+  <p class="sotto-titolo">Lo vedono solo i tuoi clienti, nella loro area.</p>
+
+  <div id="stato-pagina" aria-live="polite"></div>
+
+  <div id="pagina" hidden>
+    <section class="pannello" aria-labelledby="t-foto">
+      <h2 class="sezione-pt" id="t-foto">Foto</h2>
+      <div class="foto-riga">
+        <div class="avatar avatar-grande" id="avatar" role="img" aria-label="La tua foto"></div>
+        <div>
+          <div class="campo-pt">
+            <label for="p-foto">Scegli una foto</label>
+            <input id="p-foto" type="file" accept="image/jpeg,image/png,image/webp">
+            <span class="aiuto-pt">JPEG, PNG o WebP. La ritaglio quadrata e la riduco io.</span>
+          </div>
+          <div class="azioni-pt"><button class="bottone secondario piccolo" type="button" id="rimuovi-foto" hidden>Rimuovi la foto</button></div>
+        </div>
+      </div>
+      <div id="esito-foto" role="status"></div>
+    </section>
+
+    <form class="pannello" id="modulo-profilo" novalidate aria-labelledby="t-dati">
+      <h2 class="sezione-pt" id="t-dati">Presentazione</h2>
+      <div class="campo-pt">
+        <label for="p-nome">Nome da mostrare</label>
+        <input id="p-nome" type="text" maxlength="100" autocomplete="name" required>
+      </div>
+      <div class="campo-pt">
+        <label for="p-bio">Chi sei, in poche righe</label>
+        <textarea id="p-bio" rows="4" maxlength="500"></textarea>
+        <span class="aiuto-pt" id="conta-bio">0 su 500</span>
+      </div>
+      <div class="campo-pt">
+        <label for="p-contatto">Come contattarti</label>
+        <input id="p-contatto" type="text" maxlength="100" placeholder="Email o telefono">
+        <span class="aiuto-pt">Lo vedono i tuoi clienti. Se lo lasci vuoto non compare.</span>
+      </div>
+      <div id="esito-profilo" role="alert"></div>
+      <div class="azioni-pt"><button class="bottone" type="submit" id="salva-profilo">Salva</button></div>
+    </form>
+
+    <section aria-labelledby="t-anteprima">
+      <h2 class="sezione-pt" id="t-anteprima">Come ti vede un cliente</h2>
+      <div class="pannello scheda-trainer" id="anteprima"></div>
+    </section>
+  </div>
+</main>
+<footer class="piede-legale"><a href="/privacy.html">Informativa privacy</a> · <a href="/condizioni-pt.html">Condizioni d'uso per i professionisti</a></footer>
+<noscript><p>Per usare Lena serve JavaScript attivo nel browser.</p></noscript>
+<script src="/api.js"></script>
+<script src="/pt-comune.js"></script>
+<script src="/profilo-comune.js"></script>
+<script src="/pt-profilo.js"></script>
+</body>
+</html>

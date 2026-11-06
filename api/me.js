@@ -6,6 +6,7 @@ const { richiediLogin, richiediRuolo } = require("./auth");
 const { leggiRegistrazioni } = require("./schede");
 const { NOME_COOKIE, opzioniCookie } = require("./aiuti");
 const { esportaCliente, cancellaCliente } = require("./operazioni");
+const { vista } = require("./profilo-trainer");
 
 // Le rotte del cliente su se stesso. È una funzione per poter scegliere il limite dei tentativi (i test lo alzano o lo abbassano).
 function creaRotteMe({ limiteRiconferma = 5, finestraMinuti = 15 } = {}) {
@@ -24,6 +25,22 @@ function creaRotteMe({ limiteRiconferma = 5, finestraMinuti = 15 } = {}) {
     );
     if (!r.rows[0]) return res.status(404).json({ errore: "Non hai ancora una scheda" });
     res.json({ scheda: r.rows[0], registrazioni: await leggiRegistrazioni(r.rows[0].id) });
+  });
+
+  // ---------- il mio trainer: solo il SUO profilo, mai quello di un altro ----------
+  // GET /api/me/trainer
+  router.get("/trainer", async (req, res) => {
+    const r = await db.query(
+      `SELECT p.nome, p.bio, p.contatto, (p.foto IS NOT NULL) AS ha_foto, p.foto_aggiornata_il
+         FROM pt p JOIN cliente c ON c.pt_id = p.id WHERE c.utente_id = $1`, [req.utente.id]);
+    if (!r.rows[0]) return res.status(404).json({ errore: "Non ho trovato il tuo trainer" });
+    res.json(vista(r.rows[0]));
+  });
+  // GET /api/me/trainer/foto
+  router.get("/trainer/foto", async (req, res) => {
+    const r = await db.query("SELECT p.foto FROM pt p JOIN cliente c ON c.pt_id = p.id WHERE c.utente_id = $1", [req.utente.id]);
+    if (!r.rows[0] || !r.rows[0].foto) return res.status(404).json({ errore: "Nessuna foto" });
+    res.type("image/jpeg").send(r.rows[0].foto);
   });
 
   // ---------- i miei diritti: scaricare i miei dati e cancellare il mio account ----------

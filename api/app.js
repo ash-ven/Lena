@@ -12,6 +12,7 @@ const { router: rottaSchede } = require("./schede");
 const creaRotteMe = require("./me");
 const { registraErrore } = require("./log");
 const rottaPrivacy = require("./privacy");
+const { router: rottaProfiloTrainer } = require("./profilo-trainer");
 
 // La cartella con le pagine (HTML, CSS, JavaScript) che il browser scarica
 const CARTELLA_WEB = path.join(__dirname, "..", "web");
@@ -64,6 +65,7 @@ function creaApp(opzioni = {}) {
   app.use("/api/auth", rottaAuth);
   app.use("/api/clienti", rottaClienti);
   app.use("/api/schede", rottaSchede);
+  app.use("/api/pt", rottaProfiloTrainer);
   app.use("/api/me", creaRotteMe({ limiteRiconferma, finestraMinuti }));
   app.use("/api/privacy", rottaPrivacy);
 

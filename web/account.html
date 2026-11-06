@@ -29,6 +29,11 @@
   <div id="stato-pagina" aria-live="polite"></div>
 
   <div id="pagina" hidden>
+    <section aria-labelledby="t-trainer" id="sezione-trainer" hidden>
+      <h2 class="sezione-pt" id="t-trainer">Il tuo trainer</h2>
+      <div class="pannello scheda-trainer" id="scheda-trainer"></div>
+    </section>
+
     <section class="pannello" aria-labelledby="t-dati">
       <h2 class="sezione-pt" id="t-dati">Scarica i miei dati</h2>
       <p>Ricevi un file con tutto ciò che Lena ha su di te: nome, email, le tue schede, i valori che hai segnato (kg, ripetizioni, serie, esercizi completati) e le date in cui hai accettato i testi.</p>
@@ -58,6 +63,7 @@
 <footer class="piede-legale"><a href="/privacy.html">Informativa privacy</a></footer>
 <noscript><p>Per usare Lena serve JavaScript attivo nel browser.</p></noscript>
 <script src="/api.js"></script>
+<script src="/profilo-comune.js"></script>
 <script src="/account.js"></script>
 </body>
 </html>

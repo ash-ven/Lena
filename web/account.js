@@ -77,5 +77,8 @@
     utente = me.json;
     $("chi").textContent = `Sei dentro come ${utente.email}.`;
     $("pagina").hidden = false;
+    // Il profilo del mio trainer (se non si carica, la pagina funziona lo stesso)
+    const t = await Lena.chiama("GET", "/api/me/trainer");
+    if (t.stato === 200) { $("sezione-trainer").hidden = false; LenaProfilo.disegnaScheda($("scheda-trainer"), t.json, "/api/me/trainer/foto"); }
   })();
 })();

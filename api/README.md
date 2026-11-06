@@ -281,6 +281,19 @@ dati di prova; e il link d'invito mostrato dal sito PT usa l'indirizzo con cui h
 
 ---
 
+## Il profilo del trainer (foto, presentazione, contatto)
+
+- **Database:** `db/initdb/05_profilo_trainer.sql` aggiunge le colonne a `pt`. Su un database già in funzione:
+  `docker exec -i lena-db psql -U lena -d lena < db/initdb/05_profilo_trainer.sql`
+- **API del trainer** (`api/profilo-trainer.js`): `GET/PUT /api/pt/profilo` (nome, bio fino a 500 caratteri, contatto fino a 100),
+  `GET/PUT/DELETE /api/pt/foto`. La foto è un JPEG (massimo 400 KB) salvato nel database; il browser la ritaglia quadrata e la riduce a 512 px prima di inviarla.
+  Il server controlla che sia davvero un JPEG (inizio e fine del file), non solo il tipo dichiarato.
+- **API del cliente** (`api/me.js`): `GET /api/me/trainer` e `GET /api/me/trainer/foto`: solo il profilo del SUO trainer.
+- **Pagine:** `web/pt-profilo.html` (il trainer lo modifica, con anteprima «Come ti vede un cliente»); il cliente lo vede in `web/account.html`.
+- **Privacy:** foto e presentazione sono scelte dal trainer e le vedono solo i suoi clienti. Da citare nelle condizioni d'uso dei professionisti quando passerà dal consulente.
+
+---
+
 ## Le pagine del sito (cartella web/)
 
 Express le serve così come sono (`express.static`), **dopo** le rotte `/api`: un indirizzo `/api/...` che non esiste

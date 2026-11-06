@@ -119,6 +119,7 @@ html{-webkit-text-size-adjust:100%}
 .i-esci{--i:url("/icone/sign-out.svg")}
 .i-info{--i:url("/icone/info.svg")}
 .i-avanti{--i:url("/icone/caret-right.svg")}
+.i-utente{--i:url("/icone/user-circle.svg")}
 
 /* ---- controllo del tema (lo costruisce tema.js dentro [data-tema-controllo]) ---- */
 .tema-bottone{display:inline-flex;align-items:center;gap:var(--spazio-2);min-height:44px;min-width:44px;padding:0 var(--spazio-3);
