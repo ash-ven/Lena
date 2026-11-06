@@ -6,7 +6,7 @@ const { richiediLogin, richiediRuolo } = require("./auth");
 const { leggiRegistrazioni } = require("./schede");
 const { NOME_COOKIE, opzioniCookie } = require("./aiuti");
 const { esportaCliente, cancellaCliente } = require("./operazioni");
-const { vista } = require("./profilo-trainer");
+const { vista, èJpeg, MAX_FOTO } = require("./profilo-trainer");
 
 // Le rotte del cliente su se stesso. È una funzione per poter scegliere il limite dei tentativi (i test lo alzano o lo abbassano).
 function creaRotteMe({ limiteRiconferma = 5, finestraMinuti = 15 } = {}) {
@@ -25,6 +25,35 @@ function creaRotteMe({ limiteRiconferma = 5, finestraMinuti = 15 } = {}) {
     );
     if (!r.rows[0]) return res.status(404).json({ errore: "Non hai ancora una scheda" });
     res.json({ scheda: r.rows[0], registrazioni: await leggiRegistrazioni(r.rows[0].id) });
+  });
+
+  // ---------- il mio profilo: nome (lo scrive il trainer), foto (la scelgo io), da quando mi alleno ----------
+  const COLONNE_PROFILO = `c.nome, c.cognome, (c.foto IS NOT NULL) AS ha_foto, c.foto_aggiornata_il,
+         (SELECT min(s.inizio) FROM scheda s WHERE s.cliente_id = c.id) AS in_allenamento_dal`;
+  const vistaProfilo = (r) => ({ nome: r.nome, cognome: r.cognome, haFoto: !!r.ha_foto, fotoAggiornataIl: r.foto_aggiornata_il, inizio: r.in_allenamento_dal });
+  // GET /api/me/profilo
+  router.get("/profilo", async (req, res) => {
+    const r = await db.query(`SELECT ${COLONNE_PROFILO} FROM cliente c WHERE c.utente_id = $1`, [req.utente.id]);
+    if (!r.rows[0]) return res.status(404).json({ errore: "Non ho trovato il tuo profilo" });
+    res.json(vistaProfilo(r.rows[0]));
+  });
+  // GET /api/me/foto: la mia foto
+  router.get("/foto", async (req, res) => {
+    const r = await db.query("SELECT foto FROM cliente WHERE utente_id = $1", [req.utente.id]);
+    if (!r.rows[0] || !r.rows[0].foto) return res.status(404).json({ errore: "Nessuna foto" });
+    res.type("image/jpeg").send(r.rows[0].foto);
+  });
+  // PUT /api/me/foto (corpo = i byte di un JPEG) e DELETE /api/me/foto
+  router.put("/foto", express.raw({ type: "image/jpeg", limit: MAX_FOTO }), async (req, res) => {
+    if (!èJpeg(req.body)) return res.status(415).json({ errore: "La foto deve essere un'immagine JPEG" });
+    const r = await db.query("UPDATE cliente c SET foto = $2, foto_aggiornata_il = now() WHERE c.utente_id = $1 RETURNING " + COLONNE_PROFILO, [req.utente.id, req.body]);
+    if (!r.rows[0]) return res.status(404).json({ errore: "Non ho trovato il tuo profilo" });
+    res.json(vistaProfilo(r.rows[0]));
+  });
+  router.delete("/foto", async (req, res) => {
+    const r = await db.query("UPDATE cliente c SET foto = NULL, foto_aggiornata_il = NULL WHERE c.utente_id = $1 RETURNING " + COLONNE_PROFILO, [req.utente.id]);
+    if (!r.rows[0]) return res.status(404).json({ errore: "Non ho trovato il tuo profilo" });
+    res.json(vistaProfilo(r.rows[0]));
   });
 
   // ---------- il mio trainer: solo il SUO profilo, mai quello di un altro ----------

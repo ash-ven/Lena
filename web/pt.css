@@ -180,3 +180,10 @@ select.scelta{min-height:48px;padding:var(--spazio-2) var(--spazio-3);font:inher
 .nome-trainer{font-family:var(--font-titoli);font-weight:700;font-size:20px;line-height:26px}
 .bio-trainer{white-space:pre-line;overflow-wrap:anywhere}
 .contatto-trainer{overflow-wrap:anywhere}
+.intestazione-cliente{display:flex;align-items:center;gap:var(--spazio-4);margin:0 0 var(--spazio-2)}
+.intestazione-cliente .titolo{margin:0;min-width:0;overflow-wrap:anywhere}
+/* su telefono il pulsante «Profilo» resta solo con l'icona (il testo c'è per chi usa lo screen reader) */
+@media (max-width:479px){
+  .barra-pt .testo-largo{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .barra-pt .area-pt{display:none}
+}

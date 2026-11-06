@@ -289,6 +289,7 @@ dati di prova; e il link d'invito mostrato dal sito PT usa l'indirizzo con cui h
   `GET/PUT/DELETE /api/pt/foto`. La foto è un JPEG (massimo 400 KB) salvato nel database; il browser la ritaglia quadrata e la riduce a 512 px prima di inviarla.
   Il server controlla che sia davvero un JPEG (inizio e fine del file), non solo il tipo dichiarato.
 - **API del cliente** (`api/me.js`): `GET /api/me/trainer` e `GET /api/me/trainer/foto`: solo il profilo del SUO trainer.
+- **Profilo del cliente** (`db/initdb/06_profilo_cliente.sql`, stessa procedura): `GET /api/me/profilo`, `GET/PUT/DELETE /api/me/foto`. Il trainer vede la foto dei SUOI clienti con `GET /api/clienti/:id/foto`; l'elenco dice solo se c'è (`ha_foto`). La foto è nei dati esportati (`cliente.foto_jpeg_base64`) e sparisce con la cancellazione del cliente. Nome e cognome li scrive il trainer, il cliente non li cambia.
 - **Pagine:** `web/pt-profilo.html` (il trainer lo modifica, con anteprima «Come ti vede un cliente»); il cliente lo vede in `web/account.html`.
 - **Privacy:** foto e presentazione sono scelte dal trainer e le vedono solo i suoi clienti. Da citare nelle condizioni d'uso dei professionisti quando passerà dal consulente.
 

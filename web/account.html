@@ -29,6 +29,24 @@
   <div id="stato-pagina" aria-live="polite"></div>
 
   <div id="pagina" hidden>
+    <section class="pannello" aria-labelledby="t-profilo">
+      <h2 class="sezione-pt" id="t-profilo">Il mio profilo</h2>
+      <div class="foto-riga">
+        <div class="avatar avatar-grande" id="avatar" role="img" aria-label="La tua foto"></div>
+        <div>
+          <p class="nome-trainer" id="mio-nome"></p>
+          <p class="nota" id="mio-inizio"></p>
+          <div class="campo-pt">
+            <label for="mia-foto">Scegli una foto</label>
+            <input id="mia-foto" type="file" accept="image/jpeg,image/png,image/webp">
+            <span class="aiuto-pt">JPEG, PNG o WebP. La ritaglio quadrata e la riduco io. La vede solo il tuo trainer.</span>
+          </div>
+          <div class="azioni-pt"><button class="bottone secondario piccolo" type="button" id="rimuovi-foto" hidden>Rimuovi la foto</button></div>
+        </div>
+      </div>
+      <div id="esito-foto" role="status"></div>
+    </section>
+
     <section aria-labelledby="t-trainer" id="sezione-trainer" hidden>
       <h2 class="sezione-pt" id="t-trainer">Il tuo trainer</h2>
       <div class="pannello scheda-trainer" id="scheda-trainer"></div>

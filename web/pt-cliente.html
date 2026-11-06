@@ -15,7 +15,7 @@
   <div class="dentro">
     <div><a class="logo-pt" href="/pt.html">Lena</a><span class="area-pt">Area trainer</span></div>
     <div class="destra">
-      <a class="bottone secondario piccolo" href="/pt-profilo.html"><span class="icona i-utente" aria-hidden="true"></span>Profilo</a>
+      <a class="bottone secondario piccolo" href="/pt-profilo.html"><span class="icona i-utente" aria-hidden="true"></span><span class="testo-largo">Profilo</span></a>
       <div data-tema-controllo></div>
       <button class="bottone secondario piccolo" type="button" id="esci"><span class="icona i-esci" aria-hidden="true"></span>Esci</button>
     </div>
@@ -29,7 +29,10 @@
   <div id="stato-pagina" aria-live="polite"></div>
 
   <div id="pagina" hidden>
-    <h1 class="titolo" id="nome-cliente"></h1>
+    <div class="intestazione-cliente">
+      <div class="avatar avatar-grande" id="avatar-cliente" role="img" aria-label="Foto del cliente"></div>
+      <h1 class="titolo" id="nome-cliente"></h1>
+    </div>
     <p class="riga-cliente" id="riga-stato"></p>
     <div id="prossimo-passo"></div>
 
@@ -129,6 +132,7 @@
 <script src="/parole-salute.js"></script>
 <script src="/convertitore.js"></script>
 <script src="/pt-comune.js"></script>
+<script src="/profilo-comune.js"></script>
 <script src="/pt-converti.js"></script>
 <script src="/pt-progressi.js"></script>
 <script src="/pt-cliente.js"></script>

@@ -6,6 +6,13 @@
 
   $("esci").addEventListener("click", () => Lena.esci());
 
+  // La foto del cliente (o le sue iniziali)
+  function avatar(c) {
+    const a = el("span", { class: "avatar" });
+    LenaProfilo.disegnaAvatar(a, { nome: `${c.nome} ${c.cognome}`, haFoto: c.ha_foto, fotoAggiornataIl: c.foto_aggiornata_il }, `/api/clienti/${c.id}/foto`);
+    return a;
+  }
+
   // ---------- elenco e ricerca ----------
   function disegnaElenco() {
     const q = normalizza($("cerca").value);
@@ -14,6 +21,7 @@
     ul.replaceChildren(...visibili.map((c) => {
       const s = statoCliente(c);
       return el("li", {}, el("a", { href: `/pt-cliente.html?id=${c.id}` },
+        avatar(c),
         el("span", { class: "corpo-cliente" },
           el("span", { class: "nome-cliente" }, `${c.cognome} ${c.nome}`),
           el("span", { class: `stato ${s.tipo}` }, s.breve),

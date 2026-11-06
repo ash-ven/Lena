@@ -80,4 +80,4 @@ router.get("/foto", async (req, res) => {
   res.type("image/jpeg").send(r.rows[0].foto);
 });
 
-module.exports = { router, vista, COLONNE };
+module.exports = { router, vista, COLONNE, èJpeg, MAX_FOTO };

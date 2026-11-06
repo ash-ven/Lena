@@ -23,6 +23,7 @@
     const s = statoCliente(cliente);
     document.title = `${cliente.nome} ${cliente.cognome} · Lena`;
     $("nome-cliente").textContent = `${cliente.nome} ${cliente.cognome}`;
+    LenaProfilo.disegnaAvatar($("avatar-cliente"), { nome: `${cliente.nome} ${cliente.cognome}`, haFoto: cliente.ha_foto, fotoAggiornataIl: cliente.foto_aggiornata_il }, `/api/clienti/${id}/foto`);
     $("riga-stato").replaceChildren(el("span", { class: `stato ${s.tipo}` }, s.testo), " ",
       cliente.registrato ? "Ha creato il suo accesso." : "Non ha ancora creato il suo accesso.");
     $("nome-da-scrivere").textContent = `${cliente.nome} ${cliente.cognome}`;

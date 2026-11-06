@@ -49,6 +49,7 @@ async function esportaCliente(clienteId, conn = db) {
   const [anagrafica, schede, registrazioni, inviti] = await Promise.all([
     conn.query(
       `SELECT c.id, c.nome, c.cognome, c.creato_il, c.ultima_attivita, c.rapporto_finito_il, p.nome AS professionista,
+              encode(c.foto, 'base64') AS foto_jpeg_base64,
               u.email, u.creato_il AS account_creato_il
          FROM cliente c JOIN pt p ON p.id = c.pt_id LEFT JOIN utente u ON u.id = c.utente_id
         WHERE c.id = $1`, [id]),

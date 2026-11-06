@@ -3,7 +3,6 @@
   const $ = (id) => document.getElementById(id);
   const { messaggio, testoErrore } = LenaPt;
   const FOTO = "/api/pt/foto";
-  const LATO = 512, MAX_BYTE = 380 * 1024;   // il server accetta fino a 400 KB
   let profilo = null;
 
   $("esci").addEventListener("click", () => Lena.esci());
@@ -38,47 +37,14 @@
     else esito.append(messaggio("errore", testoErrore(r, "salvare il profilo")));
   });
 
-  // ---------- foto: si ritaglia quadrata e si riduce QUI, nel browser (toglie anche i dati nascosti della fotocamera, come la posizione) ----------
-  async function apriImmagine(file) {
-    if (window.createImageBitmap) {
-      try { return await createImageBitmap(file, { imageOrientation: "from-image" }); } catch (e) { /* si prova l'altra strada */ }
-    }
-    const url = await new Promise((ok, no) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.onerror = no; fr.readAsDataURL(file); });
-    return await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = url; });
-  }
-  async function ridimensiona(file) {
-    const img = await apriImmagine(file);
-    const w = img.width || img.naturalWidth, h = img.height || img.naturalHeight;
-    const lato = Math.min(w, h);
-    const c = document.createElement("canvas");
-    c.width = c.height = Math.min(LATO, lato);
-    const g = c.getContext("2d");
-    g.fillStyle = "white";   // dietro le parti trasparenti dei PNG: il JPEG non le ha
-    g.fillRect(0, 0, c.width, c.height);
-    g.drawImage(img, (w - lato) / 2, (h - lato) / 2, lato, lato, 0, 0, c.width, c.height);
-    for (const q of [0.85, 0.7, 0.55]) {
-      const blob = await new Promise((ok) => c.toBlob(ok, "image/jpeg", q));
-      if (blob && blob.size <= MAX_BYTE) return blob;
-    }
-    return null;
-  }
-
+  // ---------- foto ----------
   $("p-foto").addEventListener("change", async (ev) => {
-    const file = ev.target.files[0];
     const esito = $("esito-foto");
     esito.replaceChildren();
-    if (!file) return;
-    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) { esito.append(messaggio("errore", "Scegli un file JPEG, PNG o WebP.")); ev.target.value = ""; return; }
-    let blob;
-    try { blob = await ridimensiona(file); } catch (e) { blob = null; }
-    if (!blob) { esito.append(messaggio("errore", "Non riesco a leggere questa foto. Provane un'altra.")); ev.target.value = ""; return; }
-    let r;
-    try {
-      const res = await fetch(FOTO, { method: "PUT", headers: { "Content-Type": "image/jpeg" }, body: blob, credentials: "same-origin" });
-      let json = null; try { json = await res.json(); } catch (e) { /* senza corpo */ }
-      r = { stato: res.status, json };
-    } catch (e) { r = { stato: 0, json: null }; }
+    const { errore, r } = await LenaProfilo.caricaFoto(ev.target.files[0], FOTO);
     ev.target.value = "";
+    if (errore) { esito.append(messaggio("errore", errore)); return; }
+    if (!r) return;
     if (r.stato === 200) { profilo = { ...profilo, ...r.json }; disegna(); esito.append(messaggio("ok", "Foto aggiornata.")); }
     else if (r.stato === 401) location.replace("/login.html?sessione=scaduta");
     else esito.append(messaggio("errore", testoErrore(r, "caricare la foto")));

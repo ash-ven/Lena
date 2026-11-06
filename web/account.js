@@ -65,6 +65,34 @@
     else esito.append(msg("errore", "Non ho cancellato niente. ", Lena.messaggioComune(r) || (r.json && r.json.errore) || "Riprova."));
   });
 
+  // ---------- il mio profilo ----------
+  let profilo = null;
+  function disegnaProfilo() {
+    const nomeCompleto = `${profilo.nome} ${profilo.cognome}`;
+    LenaProfilo.disegnaAvatar($("avatar"), { ...profilo, nome: nomeCompleto }, "/api/me/foto");
+    $("mio-nome").textContent = nomeCompleto;
+    $("mio-inizio").textContent = profilo.inizio ? `In allenamento dal ${new Date(`${String(profilo.inizio).slice(0, 10)}T12:00:00`).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" })}.` : "";
+    $("rimuovi-foto").hidden = !profilo.haFoto;
+  }
+  $("mia-foto").addEventListener("change", async (ev) => {
+    const esito = $("esito-foto");
+    esito.replaceChildren();
+    const { errore, r } = await LenaProfilo.caricaFoto(ev.target.files[0], "/api/me/foto");
+    ev.target.value = "";
+    if (errore) { esito.append(msg("errore", errore, "")); return; }
+    if (!r) return;
+    if (r.stato === 200) { profilo = r.json; disegnaProfilo(); esito.append(msg("ok", "Foto aggiornata.", "")); }
+    else if (r.stato === 401) location.replace("/login.html?sessione=scaduta");
+    else esito.append(msg("errore", "Non sono riuscito a caricare la foto. ", Lena.messaggioComune(r) || (r.json && r.json.errore) || "Riprova."));
+  });
+  $("rimuovi-foto").addEventListener("click", async () => {
+    const esito = $("esito-foto");
+    esito.replaceChildren();
+    const r = await Lena.chiama("DELETE", "/api/me/foto");
+    if (r.stato === 200) { profilo = r.json; disegnaProfilo(); esito.append(msg("ok", "Foto rimossa.", "")); }
+    else esito.append(msg("errore", "Non sono riuscito a rimuovere la foto. ", Lena.messaggioComune(r) || "Riprova."));
+  });
+
   // ---------- avvio ----------
   (async () => {
     const me = await Lena.chiama("GET", "/api/auth/me");
@@ -77,6 +105,9 @@
     utente = me.json;
     $("chi").textContent = `Sei dentro come ${utente.email}.`;
     $("pagina").hidden = false;
+    // Il mio profilo (foto, nome, da quando mi alleno)
+    const p = await Lena.chiama("GET", "/api/me/profilo");
+    if (p.stato === 200) { profilo = p.json; disegnaProfilo(); }
     // Il profilo del mio trainer (se non si carica, la pagina funziona lo stesso)
     const t = await Lena.chiama("GET", "/api/me/trainer");
     if (t.stato === 200) { $("sezione-trainer").hidden = false; LenaProfilo.disegnaScheda($("scheda-trainer"), t.json, "/api/me/trainer/foto"); }
