@@ -142,7 +142,7 @@ body.pt .elenco-clienti a{color:var(--testo)}
 .stato.neutro{background:var(--superficie-alta);border-color:transparent}
 
 /* ---------- pagina del cliente ---------- */
-.prossimo{display:flex;gap:var(--spazio-3);align-items:flex-start;background:var(--superficie-alta);border-radius:var(--raggio-riquadro);padding:var(--spazio-4);margin:0 0 var(--spazio-4)}
+.prossimo{display:flex;gap:var(--spazio-3);align-items:flex-start;background:var(--superficie);border:1px solid var(--bordo-superficie);border-left:4px solid var(--brace);border-radius:var(--raggio-riquadro);padding:var(--spazio-4);margin:0 0 var(--spazio-6)}
 .prossimo .icona{margin-top:2px}
 .prossimo p{margin:0}
 .prossimo strong{display:block;font-family:var(--font-titoli);font-size:18px;line-height:24px}
@@ -150,6 +150,7 @@ body.pt .elenco-clienti a{color:var(--testo)}
 .schede-lista{list-style:none;margin:0 0 var(--spazio-2);padding:0}
 .schede-lista li{padding:var(--spazio-3) 0;border-bottom:1px solid var(--divisorio)}
 .schede-lista li:last-child{border-bottom:0}
+.schede-lista li:first-child{border-left:3px solid var(--brace);padding-left:var(--spazio-3)}
 .schede-lista .titolo-scheda{font-weight:600}
 .schede-lista .nota{margin:var(--spazio-1) 0 0;font-variant-numeric:tabular-nums}
 /* PROPOSTA: etichetta neutra accanto al titolo di una scheda */
@@ -207,8 +208,12 @@ select.scelta{min-height:48px;padding:var(--spazio-2) var(--spazio-3);font:inher
 .nome-trainer{font-family:var(--font-titoli);font-weight:700;font-size:20px;line-height:26px}
 .bio-trainer{white-space:pre-line;overflow-wrap:anywhere}
 .contatto-trainer{overflow-wrap:anywhere}
-.intestazione-cliente{display:flex;align-items:center;gap:var(--spazio-4);margin:0 0 var(--spazio-2)}
+.intestazione-cliente{display:flex;align-items:center;gap:var(--spazio-5);min-width:0}
 .intestazione-cliente .titolo{margin:0;min-width:0;overflow-wrap:anywhere}
+.testata-cliente h1.titolo{font-size:clamp(30px,7vw,52px);line-height:1.05}
+.testata-cliente .riga-cliente{margin:var(--spazio-3) 0 0}
+.testata-cliente .avatar-grande{width:88px;height:88px;box-shadow:0 0 0 3px var(--sfondo),0 0 0 5px var(--brace);margin:5px}
+@media (max-width:480px){.testata-cliente .avatar-grande{width:64px;height:64px;font-size:22px}.intestazione-cliente{gap:var(--spazio-4)}}
 /* su telefono il pulsante «Profilo» resta solo con l'icona (il testo c'è per chi usa lo screen reader) */
 @media (max-width:479px){
   .barra-pt .testo-largo{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -242,3 +247,7 @@ select.scelta{min-height:48px;padding:var(--spazio-2) var(--spazio-3);font:inher
   .griglia-campi{grid-template-columns:1fr 1fr}
   .griglia-campi .doppio{grid-column:span 2}
 }
+
+/* titoli dei riquadri: piccoli, in maiuscolo, come nell'elenco clienti */
+.pannello > h2.sezione-pt{font-size:13px;line-height:18px;letter-spacing:.16em;text-transform:uppercase;color:var(--testo-secondario);margin:0 0 var(--spazio-3)}
+.pannello.zona-pericolo > h2.sezione-pt{color:var(--errore)}

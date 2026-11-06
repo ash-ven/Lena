@@ -32,11 +32,11 @@
   // ---------- "cosa fare adesso": un solo pulsante arancio per volta ----------
   function passoSuccessivo() {
     if (cliente.rapporto_finito_il) return null;
-    if (!cliente.schede) return { testo: "Carica la prima scheda di questo cliente.", principale: "apri-convertitore" };
+    if (!cliente.schede) return { testo: "Crea la prima scheda di questo cliente.", principale: "crea-scheda" };
     if (!cliente.registrato && !cliente.invito_attivo) return { testo: "La scheda c'è: crea l'invito per far entrare il cliente.", principale: "crea-invito" };
     if (!cliente.registrato) return { testo: "Il cliente non ha ancora usato l'invito. Se ha perso il link, creane uno nuovo.", principale: null };
     const sc = LenaPt.scadenza(cliente);
-    if (sc) return { testo: `La scheda ${sc.testo} (finisce il ${LenaPt.dataBreve(sc.data)}). Carica la prossima.`, principale: "apri-convertitore" };
+    if (sc) return { testo: `La scheda ${sc.testo} (finisce il ${LenaPt.dataBreve(sc.data)}). Prepara la prossima.`, principale: "crea-scheda" };
     return null;
   }
   function aggiornaPrincipale() {
@@ -44,7 +44,7 @@
     const passo = passoSuccessivo();
     const convAperto = !$("convertitore").hidden;
     const principale = convAperto ? "conv-invia" : (passo && passo.principale);
-    for (const b of ["apri-convertitore", "conv-invia", "crea-invito"]) $(b).classList.toggle("secondario", b !== principale);
+    for (const b of ["crea-scheda", "apri-convertitore", "conv-invia", "crea-invito"]) $(b).classList.toggle("secondario", b !== principale);
     $("prossimo-passo").replaceChildren(...(passo && !convAperto
       ? [el("div", { class: "prossimo" }, el("span", { class: "icona i-info", "aria-hidden": "true" }), el("p", {}, el("strong", {}, "Cosa fare adesso"), passo.testo))] : []));
   }
