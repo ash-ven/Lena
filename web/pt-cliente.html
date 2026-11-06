@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FBF8F3">
+<title>Cliente · Lena</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/tema.css">
+<link rel="stylesheet" href="/pt.css">
+</head>
+<body class="pt">
+<header class="barra-pt">
+  <div class="dentro">
+    <p class="marchio-pt">Lena<small>Area PT</small></p>
+    <button class="bottone secondario piccolo" type="button" id="esci">Esci</button>
+  </div>
+</header>
+
+<main class="contenitore" id="contenuto">
+  <a class="indietro" href="/pt.html">← Tutti i clienti</a>
+
+  <!-- caricamento / errori della pagina intera -->
+  <div id="stato-pagina" aria-live="polite"></div>
+
+  <div id="pagina" hidden>
+    <h1 class="titolo" id="nome-cliente"></h1>
+    <p class="sotto-titolo" id="riga-stato"></p>
+
+    <!-- ===== Schede e caricamento dell'Excel ===== -->
+    <section class="pannello" aria-labelledby="t-schede">
+      <h2 class="sezione-pt" id="t-schede">Schede</h2>
+      <p class="nota">Il cliente vede sempre la scheda caricata per ultima.</p>
+      <ul class="schede-lista" id="schede-lista"></ul>
+      <p class="attesa-pt" id="schede-vuoto" hidden>Nessuna scheda caricata per ora.</p>
+      <div class="azioni-pt"><button class="bottone" type="button" id="apri-convertitore" aria-expanded="false" aria-controls="convertitore">Carica scheda da Excel</button></div>
+
+      <div id="convertitore" hidden>
+        <hr class="separatore">
+        <h3 class="sezione-pt" id="t-conv">Carica un file Excel</h3>
+        <p class="nota">Il file viene letto qui, nel tuo browser: al server arriva solo la scheda già convertita.</p>
+        <div class="campo-pt">
+          <label for="conv-file">Scegli il file Excel (.xlsx)</label>
+          <input id="conv-file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+        </div>
+        <div id="conv-messaggi" role="alert" aria-live="assertive"></div>
+        <div id="conv-conferma" hidden>
+          <label class="spunta-pt"><input type="checkbox" id="conv-ok"><span id="conv-ok-testo">Ho letto gli avvisi e voglio inviare lo stesso</span></label>
+        </div>
+        <div id="conv-anteprima" class="telefono-pt" hidden></div>
+        <div class="azioni-pt">
+          <button class="bottone" type="button" id="conv-invia" disabled>Invia al cliente</button>
+          <button class="bottone secondario" type="button" id="conv-annulla">Annulla</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Invito ===== -->
+    <section class="pannello" aria-labelledby="t-invito">
+      <h2 class="sezione-pt" id="t-invito">Invito</h2>
+      <p id="invito-stato"></p>
+      <div id="invito-nuovo" role="status" aria-live="polite"></div>
+      <div class="azioni-pt"><button class="bottone" type="button" id="crea-invito">Crea invito</button></div>
+    </section>
+
+    <!-- ===== Progressi ===== -->
+    <section class="pannello" aria-labelledby="t-progressi">
+      <h2 class="sezione-pt" id="t-progressi">Progressi</h2>
+      <p class="attesa-pt" id="progressi-vuoto" hidden></p>
+      <div id="progressi" hidden>
+        <div class="campo-pt" id="scelta-scheda-riga" hidden>
+          <label for="scelta-scheda">Scheda</label>
+          <select id="scelta-scheda" class="scelta"></select>
+        </div>
+        <p class="nota" id="progressi-aggiornati"></p>
+        <div class="progressi-dentro">
+          <div>
+            <p class="totale-progressi" id="progressi-totale"></p>
+            <ul class="settimane" id="progressi-settimane"></ul>
+            <p class="nota">Un allenamento conta come completato quando ogni esercizio ha la sua spunta. Nella scheda qui a fianco puoi scegliere settimana e giorno per vedere i kg e le ripetizioni segnati: si può solo guardare.</p>
+            <div class="azioni-pt"><button class="bottone secondario piccolo" type="button" id="aggiorna-progressi">Aggiorna</button></div>
+          </div>
+          <div id="progressi-scheda" class="telefono-pt"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Dati personali ===== -->
+    <section class="pannello zona-pericolo" aria-labelledby="t-dati">
+      <h2 class="sezione-pt" id="t-dati">Dati personali del cliente</h2>
+      <p>Sono dati sulla salute, quindi protetti in modo particolare. Il cliente ha diritto a riceverli e a farli cancellare.</p>
+      <div class="azioni-pt"><button class="bottone secondario" type="button" id="esporta">Esporta dati (JSON)</button></div>
+      <div id="esporta-esito" role="status"></div>
+      <hr class="separatore">
+      <p><strong>Cancella cliente.</strong> Vengono cancellati <strong>per sempre</strong>: il cliente, tutte le sue schede, tutti i suoi progressi (kg, ripetizioni, spunte) e il suo account per entrare. Non si può annullare.</p>
+      <div class="campo-pt">
+        <label for="conferma-nome">Per confermare scrivi nome e cognome: <strong id="nome-da-scrivere"></strong></label>
+        <input id="conferma-nome" type="text" autocomplete="off">
+      </div>
+      <div id="cancella-esito" role="alert"></div>
+      <div class="azioni-pt"><button class="bottone pericolo" type="button" id="cancella" disabled>Cancella cliente</button></div>
+    </section>
+  </div>
+</main>
+<noscript><p>Per usare Lena serve JavaScript attivo nel browser.</p></noscript>
+<script src="/api.js"></script>
+<script src="/valida-scheda.js"></script>
+<script src="/progressi.js"></script>
+<script src="/registrazioni.js"></script>
+<script src="/vendor/xlsx.full.min.js"></script>
+<script src="/convertitore.js"></script>
+<script src="/pt-comune.js"></script>
+<script src="/pt-converti.js"></script>
+<script src="/pt-progressi.js"></script>
+<script src="/pt-cliente.js"></script>
+</body>
+</html>

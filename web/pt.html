@@ -4,22 +4,61 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#FBF8F3">
-<title>Area PT · Lena</title>
+<title>I tuoi clienti · Lena</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/tema.css">
-<link rel="stylesheet" href="/pagine.css">
+<link rel="stylesheet" href="/pt.css">
 </head>
-<body class="semplice">
-<main class="pagina">
-  <div class="riquadro">
-    <p class="marchio">Lena</p>
-    <h1>Area PT in arrivo</h1>
-    <p class="testo-tenue">Qui troverai i tuoi clienti, potrai caricare le schede e mandare gli inviti. Per ora non c'è ancora niente da fare.</p>
-    <button class="pulsante" type="button" id="esci">Esci</button>
+<body class="pt">
+<header class="barra-pt">
+  <div class="dentro">
+    <p class="marchio-pt">Lena<small>Area PT</small></p>
+    <button class="bottone secondario piccolo" type="button" id="esci">Esci</button>
   </div>
+</header>
+
+<main class="contenitore" id="contenuto">
+  <h1 class="titolo">I tuoi clienti</h1>
+  <p class="sotto-titolo">Qui trovi le persone che segui, le loro schede e i loro progressi.</p>
+
+  <div id="messaggio-pagina" role="status"></div>
+
+  <section class="pannello" aria-labelledby="titolo-nuovo">
+    <h2 class="sezione-pt" id="titolo-nuovo">Nuovo cliente</h2>
+    <button class="bottone" type="button" id="apri-nuovo" aria-expanded="false" aria-controls="modulo-nuovo">Nuovo cliente</button>
+    <form id="modulo-nuovo" novalidate hidden>
+      <div class="riga-campi">
+        <div class="campo-pt">
+          <label for="nuovo-nome">Nome</label>
+          <input id="nuovo-nome" type="text" autocomplete="off" maxlength="100" required>
+        </div>
+        <div class="campo-pt">
+          <label for="nuovo-cognome">Cognome</label>
+          <input id="nuovo-cognome" type="text" autocomplete="off" maxlength="100" required>
+        </div>
+      </div>
+      <div id="errore-nuovo" role="alert"></div>
+      <div class="azioni-pt">
+        <button class="bottone" type="submit" id="crea-cliente">Crea cliente</button>
+        <button class="bottone secondario" type="button" id="annulla-nuovo">Annulla</button>
+      </div>
+    </form>
+  </section>
+
+  <section aria-labelledby="titolo-elenco">
+    <h2 class="sezione-pt" id="titolo-elenco">Elenco</h2>
+    <div class="campo-pt">
+      <label for="cerca">Cerca un cliente</label>
+      <input id="cerca" type="search" autocomplete="off" placeholder="Nome o cognome">
+    </div>
+    <p class="conteggio" id="conteggio" role="status"></p>
+    <div id="stato-elenco" aria-live="polite"></div>
+    <ul class="elenco-clienti" id="elenco"></ul>
+  </section>
 </main>
-<noscript><p style="text-align:center">Per usare Lena serve JavaScript attivo nel browser.</p></noscript>
+<noscript><p>Per usare Lena serve JavaScript attivo nel browser.</p></noscript>
 <script src="/api.js"></script>
+<script src="/pt-comune.js"></script>
 <script src="/pt.js"></script>
 </body>
 </html>

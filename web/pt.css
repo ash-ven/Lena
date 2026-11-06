@@ -1,0 +1,110 @@
+/* Stile dell'area del PT (pt.html e pt-cliente.html).
+   Nessun colore e nessun font scritto a mano: tutto arriva da tema.css (variabili --colore-... e --font-...).
+   Pensato prima per il telefono, e allargato sui PC (da 900px in su). */
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body.pt{margin:0;background:var(--colore-sfondo);color:var(--colore-testo);font-family:var(--font-testo);font-size:16px;line-height:1.5;min-height:100vh}
+[hidden]{display:none!important}
+.solo-lettori{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- barra in alto ---------- */
+.barra-pt{background:var(--colore-carta);border-bottom:1px solid var(--colore-linea);position:sticky;top:0;z-index:5}
+.barra-pt .dentro{max-width:960px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;justify-content:space-between}
+.marchio-pt{font-family:var(--font-titoli);font-size:20px;margin:0}
+.marchio-pt small{font-family:var(--font-testo);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--colore-testo-secondario);margin-left:8px}
+.contenitore{max-width:960px;margin:0 auto;padding:18px 16px 64px}
+
+h1.titolo{font-family:var(--font-titoli);font-weight:400;font-size:30px;line-height:1.15;margin:6px 0 4px}
+h2.sezione-pt{font-family:var(--font-titoli);font-weight:400;font-size:22px;margin:0 0 8px}
+.sotto-titolo{color:var(--colore-testo-secondario);margin:0 0 16px}
+.indietro{display:inline-flex;align-items:center;min-height:44px;color:var(--colore-azione);text-decoration:none;font-size:15px}
+.indietro:hover{text-decoration:underline}
+
+/* ---------- riquadri ---------- */
+.pannello{background:var(--colore-carta);border:1px solid var(--colore-linea);border-radius:18px;padding:18px 16px;margin:0 0 16px}
+.pannello > :last-child{margin-bottom:0}
+.pannello p{margin:0 0 10px}
+.nota{color:var(--colore-testo-secondario);font-size:14px}
+
+/* ---------- pulsanti, campi ---------- */
+.bottone{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:10px 20px;font:inherit;font-size:16px;
+  text-decoration:none;cursor:pointer;border-radius:999px;border:1.5px solid var(--colore-azione);background:var(--colore-azione);color:var(--colore-su-accento)}
+.bottone.secondario{background:var(--colore-carta);color:var(--colore-azione)}
+.bottone.pericolo{background:var(--colore-pericolo);border-color:var(--colore-pericolo);color:var(--colore-su-accento)}
+.bottone.piccolo{min-height:44px;padding:6px 16px;font-size:15px}
+.bottone:disabled{opacity:.5;cursor:default}
+.azioni-pt{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 0}
+
+.campo-pt{margin:0 0 14px}
+.campo-pt label{display:block;font-size:15px;margin:0 0 6px}
+.campo-pt input[type="text"],.campo-pt input[type="search"],.campo-pt input[type="file"]{
+  width:100%;min-height:48px;padding:10px 14px;font:inherit;font-size:16px;color:var(--colore-testo);
+  background:var(--colore-sfondo);border:1.5px solid var(--colore-linea);border-radius:14px}
+.campo-pt input[type="file"]{padding:9px 12px}
+.campo-pt .aiuto-pt{display:block;font-size:14px;color:var(--colore-testo-secondario);margin-top:6px}
+.riga-campi{display:grid;gap:0 12px;grid-template-columns:1fr}
+.spunta-pt{display:flex;align-items:flex-start;gap:12px;margin:12px 0;min-height:44px}
+.spunta-pt input{width:24px;height:24px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--colore-azione)}
+
+/* il cursore da tastiera si deve vedere sempre */
+.pt a:focus-visible,.pt button:focus-visible,.pt input:focus-visible,.pt select:focus-visible,.pt summary:focus-visible,.pt iframe:focus-visible{
+  outline:3px solid var(--colore-azione);outline-offset:2px}
+
+/* ---------- messaggi ---------- */
+.avviso-pt{border-radius:12px;padding:12px 14px;margin:0 0 14px;border:1.5px solid transparent;font-size:15px}
+.avviso-pt strong{display:block;margin-bottom:4px}
+.avviso-pt ul{margin:6px 0 0;padding-left:20px}
+.avviso-pt li{margin:0 0 4px}
+.avviso-pt.errore{background:var(--colore-errore-sfondo);border-color:var(--colore-errore-bordo);color:var(--colore-errore-testo)}
+.avviso-pt.avviso{background:var(--colore-avviso-sfondo);border-color:var(--colore-avviso-bordo);color:var(--colore-avviso-testo)}
+.avviso-pt.ok{background:var(--colore-ok-sfondo);border-color:var(--colore-ok-bordo);color:var(--colore-ok-testo)}
+.avviso-pt.info{background:var(--colore-accento-chiaro);border-color:var(--colore-accento);color:var(--colore-testo)}
+.attesa-pt{color:var(--colore-testo-secondario);padding:14px 0}
+
+/* ---------- elenco clienti ---------- */
+.elenco-clienti{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.elenco-clienti a{display:block;padding:14px 16px;background:var(--colore-carta);border:1px solid var(--colore-linea);border-radius:16px;text-decoration:none;color:var(--colore-testo)}
+.elenco-clienti a:hover{border-color:var(--colore-azione)}
+.elenco-clienti .nome-cliente{font-family:var(--font-titoli);font-size:19px;display:block}
+.stato{display:inline-block;margin-top:6px;padding:3px 12px;border-radius:999px;font-size:14px;border:1px solid transparent}
+.stato.nessuna{background:var(--colore-avviso-sfondo);border-color:var(--colore-avviso-bordo);color:var(--colore-avviso-testo)}
+.stato.invito{background:var(--colore-accento-chiaro);border-color:var(--colore-accento);color:var(--colore-testo)}
+.stato.attivo{background:var(--colore-ok-sfondo);border-color:var(--colore-ok-bordo);color:var(--colore-ok-testo)}
+.stato.neutro{background:var(--colore-sfondo);border-color:var(--colore-linea);color:var(--colore-testo-secondario)}
+.conteggio{color:var(--colore-testo-secondario);font-size:14px;margin:8px 0}
+
+/* ---------- pagina del cliente ---------- */
+.schede-lista{list-style:none;margin:0 0 6px;padding:0}
+.schede-lista li{padding:10px 0;border-bottom:1px solid var(--colore-linea)}
+.schede-lista li:last-child{border-bottom:0}
+.schede-lista .titolo-scheda{font-weight:600}
+.etichetta{display:inline-block;margin-left:6px;padding:1px 10px;border-radius:999px;font-size:13px;background:var(--colore-ok-sfondo);color:var(--colore-ok-testo);border:1px solid var(--colore-ok-bordo)}
+
+.link-invito{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.link-invito input{flex:1 1 260px;min-width:0;min-height:48px;padding:10px 12px;font:inherit;font-size:14px;color:var(--colore-testo);background:var(--colore-sfondo);border:1.5px solid var(--colore-linea);border-radius:14px}
+
+/* la cornice a forma di telefono per l'anteprima e per la scheda del cliente */
+.telefono-pt{width:100%;max-width:390px;height:720px;border:10px solid var(--colore-testo);border-radius:36px;overflow:hidden;background:var(--colore-sfondo);margin:12px auto 0;box-sizing:content-box}
+.telefono-pt iframe{width:100%;height:100%;border:0;display:block}
+
+/* progressi */
+.settimane{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+.settimane li{padding:10px 12px;border:1px solid var(--colore-linea);border-radius:12px;background:var(--colore-sfondo)}
+.settimane .testo-sett{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.settimane progress{width:100%;height:10px;margin-top:6px;accent-color:var(--colore-azione)}
+.totale-progressi{font-weight:600;margin:8px 0}
+
+.zona-pericolo{border-color:var(--colore-errore-bordo)}
+.zona-pericolo h2{color:var(--colore-errore-testo)}
+
+select.scelta{min-height:48px;padding:8px 12px;font:inherit;font-size:16px;border:1.5px solid var(--colore-linea);border-radius:14px;background:var(--colore-sfondo);color:var(--colore-testo);max-width:100%}
+
+@media (min-width:900px){
+  .riga-campi{grid-template-columns:1fr 1fr}
+  .progressi-dentro{display:grid;grid-template-columns:1fr 430px;gap:24px;align-items:start}
+  .progressi-dentro .telefono-pt{margin-top:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.separatore{border:0;border-top:1px solid var(--colore-linea);margin:16px 0}

@@ -17,6 +17,11 @@
   --colore-accento-scuro: #A86A6B;   /* pulsanti principali, titoli colorati */
   --colore-su-accento: #FFFFFF;      /* testo sopra i pulsanti pieni */
 
+  /* --- per l'area del PT (contrasto con lo sfondo bianco di almeno 4,5:1, come chiedono le regole di accessibilità) --- */
+  --colore-azione: #9B5F60;            /* pulsanti principali e link: testo bianco sopra = contrasto 5:1 */
+  --colore-testo-secondario: #6B6661;  /* testo secondario (più scuro del "tenue", che sul bianco arriva solo a 3,7:1) */
+  --colore-pericolo: #A33636;          /* pulsanti che cancellano: testo bianco sopra = contrasto 6,7:1 */
+
   /* --- messaggi --- */
   --colore-ok-sfondo: #E2F1E6;
   --colore-ok-bordo: #5E9B6E;

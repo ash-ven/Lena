@@ -146,7 +146,10 @@ function barra(){
       title: fmt(giornoSett(n)), onclick:()=>{ stato.settimana=n; disegna(); }},
       n < DATI.settimane ? `Sett. ${n}` : "Scarico"));
   }
-  const attivo = s.querySelector('[aria-pressed="true"]'); if (attivo) attivo.scrollIntoView({inline:"center", block:"nearest"});
+  // Centra la settimana attiva scorrendo SOLO la barra delle settimane. (Non scrollIntoView: dentro una cornice
+  // farebbe scorrere anche la pagina che la contiene, per esempio quella del PT.)
+  const attivo = s.querySelector('[aria-pressed="true"]');
+  if (attivo) s.scrollLeft = attivo.offsetLeft - (s.clientWidth - attivo.offsetWidth) / 2;
 }
 
 function spunta(k, classe){
