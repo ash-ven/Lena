@@ -38,6 +38,19 @@
   }
   $("cerca").addEventListener("input", disegnaElenco);
 
+  // ---------- schede in scadenza (entro 14 giorni, o già scadute): le più urgenti per prime ----------
+  function disegnaScadenze() {
+    const urgenti = clienti.map((c) => ({ c, s: LenaPt.scadenza(c) })).filter((x) => x.s).sort((a, b) => a.s.giorni - b.s.giorni);
+    $("in-scadenza").hidden = !urgenti.length;
+    $("elenco-scadenze").replaceChildren(...urgenti.map(({ c, s }) => el("li", {}, el("a", { href: `/pt-cliente.html?id=${c.id}` },
+      avatar(c),
+      el("span", { class: "corpo-cliente" },
+        el("span", { class: "nome-cliente" }, `${c.cognome} ${c.nome}`),
+        el("span", { class: `stato ${s.scaduta ? "nessuna" : "invito"}` }, s.testo),
+        el("span", { class: "dettaglio" }, `La scheda finisce il ${LenaPt.dataBreve(s.data)}.`)),
+      el("span", { class: "icona i-avanti", "aria-hidden": "true" })))));
+  }
+
   // ---------- riepilogo in numeri ----------
   function disegnaRiepilogo() {
     const ul = $("riepilogo");
@@ -66,6 +79,7 @@
     }
     clienti = r.json;
     disegnaRiepilogo();
+    disegnaScadenze();
     disegnaElenco();
   }
 

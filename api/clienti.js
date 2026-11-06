@@ -40,6 +40,9 @@ async function riassuntoClienti(ptId, clienteId) {
     `SELECT c.id, c.nome, c.cognome, c.creato_il, c.ultima_attivita, c.rapporto_finito_il,
             (c.utente_id IS NOT NULL) AS registrato, (c.foto IS NOT NULL) AS ha_foto, c.foto_aggiornata_il,
             (SELECT min(s.inizio) FROM scheda s WHERE s.cliente_id = c.id) AS in_allenamento_dal,
+            -- l'ultimo giorno della scheda più recente (quella che vede il cliente) e quanti giorni mancano, contando "oggi" in Italia
+            (SELECT s.inizio + s.settimane * 7 - 1 FROM scheda s WHERE s.cliente_id = c.id ORDER BY s.creata_il DESC, s.id DESC LIMIT 1) AS scheda_scade_il,
+            (SELECT s.inizio + s.settimane * 7 - 1 - (now() AT TIME ZONE 'Europe/Rome')::date FROM scheda s WHERE s.cliente_id = c.id ORDER BY s.creata_il DESC, s.id DESC LIMIT 1) AS giorni_alla_scadenza,
             (SELECT count(*)::int FROM scheda s WHERE s.cliente_id = c.id) AS schede,
             (SELECT s.id FROM scheda s WHERE s.cliente_id = c.id ORDER BY s.creata_il DESC, s.id DESC LIMIT 1) AS scheda_recente_id,
             (SELECT max(g.aggiornata_il) FROM registrazione g JOIN scheda s ON s.id = g.scheda_id WHERE s.cliente_id = c.id) AS ultimo_progresso,

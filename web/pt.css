@@ -187,3 +187,4 @@ select.scelta{min-height:48px;padding:var(--spazio-2) var(--spazio-3);font:inher
   .barra-pt .testo-largo{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   .barra-pt .area-pt{display:none}
 }
+#in-scadenza{margin:0 0 var(--spazio-6)}

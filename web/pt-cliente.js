@@ -35,6 +35,8 @@
     if (!cliente.schede) return { testo: "Carica la prima scheda di questo cliente.", principale: "apri-convertitore" };
     if (!cliente.registrato && !cliente.invito_attivo) return { testo: "La scheda c'è: crea l'invito per far entrare il cliente.", principale: "crea-invito" };
     if (!cliente.registrato) return { testo: "Il cliente non ha ancora usato l'invito. Se ha perso il link, creane uno nuovo.", principale: null };
+    const sc = LenaPt.scadenza(cliente);
+    if (sc) return { testo: `La scheda ${sc.testo} (finisce il ${LenaPt.dataBreve(sc.data)}). Carica la prossima.`, principale: "apri-convertitore" };
     return null;
   }
   function aggiornaPrincipale() {

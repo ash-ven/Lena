@@ -47,6 +47,16 @@
       : { testo: "Registrato, non ha ancora segnato nulla", tipo: "neutro", breve: "Registrato", dettaglio: "Non ha ancora segnato nulla" };
   }
 
+  // Quando scade la scheda di un cliente: serve solo se mancano al massimo SOGLIA_SCADENZA giorni (o è già scaduta).
+  const SOGLIA_SCADENZA = 14;
+  function scadenza(c) {
+    if (!c.schede || c.rapporto_finito_il || c.giorni_alla_scadenza == null || c.giorni_alla_scadenza > SOGLIA_SCADENZA) return null;
+    const g = c.giorni_alla_scadenza;
+    const giorni = (n) => `${n} ${n === 1 ? "giorno" : "giorni"}`;
+    const testo = g < 0 ? `scaduta da ${giorni(-g)}` : g === 0 ? "scade oggi" : g === 1 ? "scade domani" : `scade tra ${giorni(g)}`;
+    return { giorni: g, scaduta: g < 0, testo, data: c.scheda_scade_il };
+  }
+
   // ---------- costruire pezzi di pagina SEMPRE come testo (mai come HTML) ----------
   function el(tag, attrs, ...figli) {
     const e = document.createElement(tag);
@@ -98,5 +108,5 @@
     try { const t = sessionStorage.getItem("lena:messaggio"); sessionStorage.removeItem("lena:messaggio"); return t; } catch (e) { return null; }
   }
 
-  window.LenaPt = { verificaPt, chiama, vaiAlLogin, dataBreve, dataOra, normalizza, statoCliente, el, messaggio, testoErrore, cornice, ricordaMessaggio, prendiMessaggio };
+  window.LenaPt = { verificaPt, chiama, vaiAlLogin, dataBreve, dataOra, normalizza, statoCliente, scadenza, el, messaggio, testoErrore, cornice, ricordaMessaggio, prendiMessaggio };
 })();

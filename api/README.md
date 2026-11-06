@@ -290,6 +290,7 @@ dati di prova; e il link d'invito mostrato dal sito PT usa l'indirizzo con cui h
   Il server controlla che sia davvero un JPEG (inizio e fine del file), non solo il tipo dichiarato.
 - **API del cliente** (`api/me.js`): `GET /api/me/trainer` e `GET /api/me/trainer/foto`: solo il profilo del SUO trainer.
 - **Profilo del cliente** (`db/initdb/06_profilo_cliente.sql`, stessa procedura): `GET /api/me/profilo`, `GET/PUT/DELETE /api/me/foto`. Il trainer vede la foto dei SUOI clienti con `GET /api/clienti/:id/foto`; l'elenco dice solo se c'è (`ha_foto`). La foto è nei dati esportati (`cliente.foto_jpeg_base64`) e sparisce con la cancellazione del cliente. Nome e cognome li scrive il trainer, il cliente non li cambia.
+- **Scadenze delle schede:** l'ultimo giorno di una scheda è `inizio + settimane × 7 − 1`. L'elenco clienti (`/api/clienti`) include `scheda_scade_il` e `giorni_alla_scadenza` (oggi contato in ora italiana). L'area trainer mostra «Schede in scadenza» per le schede che finiscono entro 14 giorni o sono già finite (soglia in `web/pt-comune.js`, `SOGLIA_SCADENZA`), e il riquadro «Cosa fare adesso» nella pagina del cliente. Niente email per ora.
 - **Pagine:** `web/pt-profilo.html` (il trainer lo modifica, con anteprima «Come ti vede un cliente»); il cliente lo vede in `web/account.html`.
 - **Privacy:** foto e presentazione sono scelte dal trainer e le vedono solo i suoi clienti. Da citare nelle condizioni d'uso dei professionisti quando passerà dal consulente.
 
