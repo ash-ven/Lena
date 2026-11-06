@@ -1,0 +1,54 @@
+/* Stile delle pagine semplici (login, registrazione, area PT, 404).
+   Non contiene nessun colore o font scritto a mano: legge tutto da tema.css. */
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--colore-sfondo);color:var(--colore-testo);font-family:var(--font-testo);
+  font-size:16px;line-height:1.45;min-height:100vh}
+
+.pagina{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:max(20px,env(safe-area-inset-top)) 16px max(20px,env(safe-area-inset-bottom))}
+.riquadro{width:100%;max-width:420px;background:var(--colore-carta);border:1px solid var(--colore-linea);
+  border-radius:20px;padding:26px 22px}
+
+.marchio{margin:0 0 6px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--colore-testo-tenue)}
+h1{font-family:var(--font-titoli);font-weight:400;font-size:28px;line-height:1.15;margin:0 0 8px}
+.testo-tenue{color:var(--colore-testo-tenue);margin:0 0 18px}
+
+/* campi */
+.campo-modulo{margin:0 0 16px}
+.campo-modulo label{display:block;font-size:14px;margin:0 0 6px}
+.campo-modulo input[type="email"],
+.campo-modulo input[type="password"],
+.campo-modulo input[type="text"]{
+  width:100%;min-height:52px;padding:10px 14px;font:inherit;font-size:17px;color:var(--colore-testo);
+  background:var(--colore-sfondo);border:1.5px solid var(--colore-linea);border-radius:14px}
+.campo-modulo input:focus{border-color:var(--colore-accento-scuro)}
+.aiuto{display:block;font-size:13px;color:var(--colore-testo-tenue);margin-top:6px}
+.mostra{display:flex;align-items:center;gap:10px;font-size:14px;margin:-4px 0 18px;min-height:44px}
+.mostra input{width:22px;height:22px;accent-color:var(--colore-accento-scuro)}
+
+/* pulsanti */
+.pulsante,button.pulsante{display:flex;align-items:center;justify-content:center;width:100%;min-height:54px;padding:12px 18px;
+  font:inherit;font-size:17px;text-decoration:none;cursor:pointer;color:var(--colore-su-accento);
+  background:var(--colore-accento-scuro);border:1px solid var(--colore-accento-scuro);border-radius:999px}
+.pulsante.secondario{background:transparent;color:var(--colore-accento-scuro)}
+.pulsante:disabled{opacity:.5;cursor:default}
+.pulsante + .pulsante{margin-top:10px}
+
+/* messaggi */
+.messaggio{border-radius:12px;padding:11px 13px;margin:0 0 16px;font-size:15px;border:1px solid transparent}
+.messaggio[hidden]{display:none}
+.messaggio.errore{background:var(--colore-errore-sfondo);border-color:var(--colore-errore-bordo);color:var(--colore-errore-testo)}
+.messaggio.avviso{background:var(--colore-avviso-sfondo);border-color:var(--colore-avviso-bordo);color:var(--colore-avviso-testo)}
+.messaggio.ok{background:var(--colore-ok-sfondo);border-color:var(--colore-ok-bordo);color:var(--colore-ok-testo)}
+
+.sotto{margin:18px 0 0;font-size:15px;text-align:center}
+.sotto a{color:var(--colore-accento-scuro)}
+
+/* il cursore da tastiera deve vedersi sempre */
+a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible{
+  outline:3px solid var(--colore-accento-scuro);outline-offset:2px}
+input:focus-visible{outline-offset:0}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}

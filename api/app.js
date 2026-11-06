@@ -1,5 +1,6 @@
 // Costruisce l'applicazione (rotte + protezioni) senza avviarla.
 // La usa server.js per partire davvero, e i test per avviarne una loro copia.
+const path = require("node:path");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
@@ -9,6 +10,9 @@ const { router: rottaAuth } = require("./auth");
 const rottaClienti = require("./clienti");
 const { router: rottaSchede } = require("./schede");
 const rottaMe = require("./me");
+
+// La cartella con le pagine (HTML, CSS, JavaScript) che il browser scarica
+const CARTELLA_WEB = path.join(__dirname, "..", "web");
 
 // Prima di partire: la configurazione indispensabile c'è?
 // Restituisce l'elenco dei problemi (vuoto = tutto ok). Non stampa mai il valore del segreto.
@@ -45,6 +49,8 @@ function creaApp(opzioni = {}) {
     standardHeaders: "draft-8", legacyHeaders: false, message: risposta429,
   });
 
+  // Le risposte dell'API contengono dati personali e di salute: il browser non deve tenerne copie
+  app.use("/api", (req, res, next) => { res.set("Cache-Control", "no-store"); next(); });
   app.use("/api", generale);
   app.use(["/api/auth/login", "/api/auth/registra-cliente"], accesso);
 
@@ -64,8 +70,18 @@ function creaApp(opzioni = {}) {
     }
   });
 
-  // Indirizzo che non esiste
-  app.use((req, res) => res.status(404).json({ errore: "Indirizzo non trovato" }));
+  // Un indirizzo /api che non esiste risponde sempre in JSON (mai con una pagina web)
+  app.use("/api", (req, res) => res.status(404).json({ errore: "Indirizzo non trovato" }));
+
+  // Le pagine del sito. Sta DOPO le rotte /api, così nessun file può "coprire" un'API.
+  app.use(express.static(CARTELLA_WEB));
+
+  // Tutto il resto non esiste: una persona col browser vede una pagina gentile, un programma riceve JSON
+  app.use((req, res) => {
+    res.status(404);
+    if (req.method === "GET" && req.accepts(["html", "json"]) === "html") return res.sendFile(path.join(CARTELLA_WEB, "404.html"));
+    res.json({ errore: "Indirizzo non trovato" });
+  });
 
   // Il gestore centrale degli errori: in Express 5 ogni errore (anche nelle funzioni async)
   // arriva qui. Al client va un messaggio generico; i dettagli restano nel log del server.
