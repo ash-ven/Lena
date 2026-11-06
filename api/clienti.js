@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const db = require("./db");
 const { richiediLogin, richiediRuolo, hashCodice } = require("./auth");
 const { idDa } = require("./aiuti");
+const { erroreScheda } = require("./valida-scheda");
 
 const router = express.Router();
 const DURATA_INVITO_GIORNI = 7;
@@ -79,16 +80,12 @@ router.post("/:id/invito", async (req, res) => {
 // POST /api/clienti/:id/schede  { dati }   (dati = l'oggetto prodotto dal convertitore)
 router.post("/:id/schede", async (req, res) => {
   const dati = (req.body || {}).dati;
-  const inizio = dati && dati.inizio;
-  const settimane = dati && dati.settimane;
-  if (typeof inizio !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(inizio))
-    return res.status(400).json({ errore: "Scheda non valida: manca la data di inizio" });
-  if (!Number.isInteger(settimane) || settimane < 1 || settimane > 52)
-    return res.status(400).json({ errore: "Scheda non valida: settimane fuori range" });
+  const errore = erroreScheda(dati);
+  if (errore) return res.status(400).json({ errore: `Scheda non valida: ${errore}` });
 
   const r = await db.query(
     "INSERT INTO scheda (cliente_id, inizio, settimane, dati) VALUES ($1, $2, $3, $4) RETURNING id",
-    [req.cliente.id, inizio, settimane, dati]
+    [req.cliente.id, dati.inizio, dati.settimane, dati]
   );
   res.status(201).json({ id: r.rows[0].id });
 });
