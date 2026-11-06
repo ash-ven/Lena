@@ -30,11 +30,15 @@ function creaApp(opzioni = {}) {
     limiteAccesso = 10,     // tentativi SBAGLIATI di login/registrazione per IP...
     limiteGenerale = 600,   // ...e richieste in totale per IP...
     finestraMinuti = 15,    // ...ogni 15 minuti
+    produzione = process.env.NODE_ENV === "production",
   } = opzioni;
 
   const app = express();
 
-  app.use(helmet());                         // intestazioni di sicurezza standard (e toglie "X-Powered-By")
+  // Intestazioni di sicurezza standard (e toglie "X-Powered-By"). Unica differenza in sviluppo: senza la direttiva
+  // "upgrade-insecure-requests" (che obbliga il browser a chiedere tutto in https), così il sito si apre anche dal
+  // telefono su http://IP-del-PC:3001. Tutte le regole sugli script restano identiche. In produzione c'è sempre.
+  app.use(helmet(produzione ? {} : { contentSecurityPolicy: { directives: { "upgrade-insecure-requests": null } } }));
   app.use(express.json({ limit: "1mb" }));   // legge il corpo JSON (massimo 1 MB)
   app.use(cookieParser());
 

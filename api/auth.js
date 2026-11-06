@@ -93,13 +93,19 @@ router.post("/logout", (req, res) => {
 });
 
 // Il "guardiano": lascia passare solo chi ha un pass valido
-function richiediLogin(req, res, next) {
+// Oltre alla firma del pass controlla nel database che l'utente esista ancora (una query in più a richiesta):
+// così, dopo una cancellazione, il vecchio cookie smette subito di valere. Il ruolo lo prende dal database,
+// non dal pass: se un ruolo cambia, vale subito quello nuovo.
+async function richiediLogin(req, res, next) {
+  let dati;
   try {
-    const dati = jwt.verify(req.cookies[NOME_COOKIE], process.env.JWT_SECRET, { algorithms: ["HS256"] });
-    req.utente = { id: dati.id, ruolo: dati.ruolo };
+    dati = jwt.verify(req.cookies[NOME_COOKIE], process.env.JWT_SECRET, { algorithms: ["HS256"] });
   } catch (err) {
     return res.status(401).json({ errore: "Devi fare il login" });
   }
+  const r = await db.query("SELECT id, ruolo FROM utente WHERE id = $1", [dati.id]);
+  if (!r.rows[0]) return res.status(401).json({ errore: "Devi fare il login" });
+  req.utente = { id: r.rows[0].id, ruolo: r.rows[0].ruolo };
   next();
 }
 

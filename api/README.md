@@ -8,6 +8,7 @@ Due ruoli: **PT** (personal trainer) e **cliente**.
 
 1. [Avviare tutto da zero](#avviare-tutto-da-zero)
 2. [Provare tutto a mano: dal cliente alla scheda](#provare-tutto-a-mano-dal-cliente-alla-scheda)
+3. [Aprire il sito dal telefono](#aprire-il-sito-dal-telefono-wifi-di-casa)
 3. [Le pagine del sito (cartella web/)](#le-pagine-del-sito-cartella-web)
 4. [Come cambiare colori e font](#come-cambiare-colori-e-font)
 5. [Le tabelle](#le-tabelle)
@@ -139,11 +140,7 @@ Scegli email e password (almeno 10 caratteri): finisci direttamente sulla scheda
   togli Offline e dopo qualche secondo diventa *Salvato ✓*.
 - Premi **Esci** (in fondo alla pagina) e rientra da `http://localhost:3001/login.html`.
 
-**Dal telefono?** Sul PC va tutto bene con `http://localhost:3001`. Dal **telefono sul Wi‑Fi di casa** (`http://192.168.x.x:3001`)
-oggi il sito **non si carica**: la regola di sicurezza (CSP) di `helmet` contiene `upgrade-insecure-requests`, che costringe
-il browser a chiedere stile e script via `https`, e il tuo server in locale parla solo `http`. Succede solo fuori da `localhost`
-(l'ho provato). Per vedere l'aspetto da telefono, per ora usa la modalità telefono del browser (F12 → icona del telefono).
-Quando metteremo https (obbligatorio comunque prima di andare online) il problema sparisce da solo.
+**Dal telefono?** Vedi la sezione "Aprire il sito dal telefono" qui sotto.
 
 **7. Per ripetere la prova con lo stesso cliente** cancella l'account di prova (il cliente e la sua scheda restano) e crea un nuovo invito:
 
@@ -153,6 +150,31 @@ node crea-invito.js 1
 ```
 
 (Per cancellare invece **tutto** di un cliente, account e schede compresi, c'è `DELETE /api/clienti/:id`.)
+
+---
+
+## Aprire il sito dal telefono (Wi‑Fi di casa)
+
+Serve per vedere e provare Lena sul telefono vero. In sviluppo (`NODE_ENV` diverso da `production`, cioè sempre, a meno che
+tu non lo imposti) il server lavora in http e **non** chiede al browser di passare a https: per questo funziona.
+
+1. **PC e telefono sulla stessa rete Wi‑Fi** (non la rete "ospiti" del router: spesso isola i dispositivi).
+2. **Trova l'indirizzo del PC.** In PowerShell scrivi `ipconfig` e cerca la scheda **"Scheda LAN wireless Wi‑Fi"** (o "Ethernet" se sei col cavo):
+   la riga **"Indirizzo IPv4"**, tipo `192.168.1.23`. Ignora quelle chiamate `vEthernet` o `WSL`: sono reti interne al PC.
+3. **Avvia il server** come sempre (`node --watch server.js` nella cartella `api`).
+4. **Firewall di Windows.** La prima volta che Node parte, Windows chiede "Consentire l'accesso?": scegli **"Reti private"**.
+   Se non l'hai visto o hai detto di no, apri PowerShell **come amministratore** e scrivi (una riga):
+   ```powershell
+   New-NetFirewallRule -DisplayName "Lena (sviluppo)" -Direction Inbound -Protocol TCP -LocalPort 3001 -Action Allow -Profile Private
+   ```
+   Per togliere la regola quando non serve più: `Remove-NetFirewallRule -DisplayName "Lena (sviluppo)"`.
+   Se la tua rete Wi‑Fi è segnata come "Pubblica" (Impostazioni → Rete e Internet → Wi‑Fi → proprietà), mettila su "Privata", altrimenti Windows blocca comunque.
+5. **Sul telefono** apri il browser e scrivi `http://192.168.1.23:3001` (con il TUO indirizzo). Vedi il login di Lena.
+
+Cose da sapere: l'indirizzo del PC può cambiare quando riavvii il router; la connessione **non è cifrata** (http), quindi usa solo
+dati di prova; e il link d'invito mostrato dal sito PT usa l'indirizzo con cui hai aperto la pagina, quindi se apri il sito PT dal PC con
+`localhost` il link non si apre dal telefono (apri il sito PT usando `http://192.168.1.23:3001` anche dal PC).
+**Online (produzione) tutto questo non vale**: lì serve https, e il server dice al browser di usare sempre https.
 
 ---
 

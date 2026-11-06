@@ -31,14 +31,35 @@ router.param("id", async (req, res, next, valore) => {
   next();
 });
 
-// GET /api/clienti: i MIEI clienti
-router.get("/", async (req, res) => {
+// La scheda riassuntiva di un cliente (o di tutti i miei clienti): è la stessa per l'elenco e per la pagina del cliente.
+// Una sola query: i conteggi e le date si calcolano nel database.
+async function riassuntoClienti(ptId, clienteId) {
   const r = await db.query(
-    `SELECT id, nome, cognome, (utente_id IS NOT NULL) AS registrato
-       FROM cliente WHERE pt_id = $1 ORDER BY cognome, nome`,
-    [req.ptId]
+    `SELECT c.id, c.nome, c.cognome, c.creato_il,
+            (c.utente_id IS NOT NULL) AS registrato,
+            (SELECT count(*)::int FROM scheda s WHERE s.cliente_id = c.id) AS schede,
+            (SELECT s.id FROM scheda s WHERE s.cliente_id = c.id ORDER BY s.creata_il DESC, s.id DESC LIMIT 1) AS scheda_recente_id,
+            (SELECT max(g.aggiornata_il) FROM registrazione g JOIN scheda s ON s.id = g.scheda_id WHERE s.cliente_id = c.id) AS ultimo_progresso,
+            (SELECT i.scade_il FROM invito i WHERE i.cliente_id = c.id AND i.usato_il IS NULL AND i.scade_il > now()
+              ORDER BY i.id DESC LIMIT 1) AS invito_scade_il
+       FROM cliente c
+      WHERE c.pt_id = $1 AND ($2::int IS NULL OR c.id = $2)
+      ORDER BY c.cognome, c.nome, c.id`,
+    [ptId, clienteId || null]
   );
-  res.json(r.rows);
+  // "invito_attivo" = esiste un invito non usato e non scaduto
+  return r.rows.map((c) => ({ ...c, invito_attivo: c.invito_scade_il !== null }));
+}
+
+// GET /api/clienti: i MIEI clienti, con lo stato di ognuno
+router.get("/", async (req, res) => {
+  res.json(await riassuntoClienti(req.ptId));
+});
+
+// GET /api/clienti/:id: un cliente mio, con lo stesso riassunto dell'elenco (404 se non è mio: lo decide router.param)
+router.get("/:id", async (req, res) => {
+  const [cliente] = await riassuntoClienti(req.ptId, req.cliente.id);
+  res.json(cliente);
 });
 
 // POST /api/clienti  { nome, cognome }

@@ -427,7 +427,7 @@ test("cancellazione del cliente: spariscono cliente, account, schede, registrazi
   assert.equal(await conta("SELECT count(*)::int AS n FROM invito WHERE cliente_id = $1", [id]), 0);
 
   assert.equal((await cliente("GET", "/api/auth/me")).stato, 401, "il vecchio cookie non porta più a nessun account");
-  assert.equal((await cliente("GET", "/api/me/scheda")).stato, 404);
+  assert.equal((await cliente("GET", "/api/me/scheda")).stato, 401, "l'account non esiste più: il cookie non vale");
   assert.equal((await cliente("POST", "/api/auth/login", { email: email("anna"), password: PASSWORD_CLIENTE })).stato, 401);
   assert.equal((await ptA("DELETE", `/api/clienti/${id}`)).stato, 404, "una seconda volta: non esiste più");
   assert.equal(await conta("SELECT count(*)::int AS n FROM cliente WHERE id = $1", [stato.clienteB1]), 1, "il cliente di B non è toccato");
