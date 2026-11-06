@@ -115,6 +115,9 @@
     $("stato-pagina").replaceChildren();
     $("pagina").hidden = false;
     disegnaDati();
+    $("crea-scheda").href = `/pt-editor.html?cliente=${id}`;
+    const msgInviata = LenaPt.prendiMessaggio();
+    if (msgInviata) $("stato-pagina").replaceChildren(messaggio("ok", msgInviata));
     disegnaSchede(s.json);
     disegnaInvito();
     disegnaRapporto();

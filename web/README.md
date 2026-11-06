@@ -16,3 +16,10 @@
 
 ## Cambiare colori o font
 Prima nel design system (`../design-sistema/tokens.json`), poi in `sistema.css`. Poi `npm test` in `api`: controlla i contrasti in entrambe le modalità.
+
+## L'editor delle schede (`pt-editor.html?cliente=ID`)
+- Il trainer compila giorni, esercizi, circuiti EMOM/AMRAP, riscaldamento, stretching, schema per settimana e progressione. `pt-editor.js` costruisce **lo stesso oggetto «dati»** del convertitore Excel, lo controlla con `valida-scheda.js` e lo invia a `POST /api/clienti/:id/schede`: la scheda del cliente non cambia.
+- `settimane` = totale comprese quelle di scarico; lo schema di un esercizio ha una voce per ogni settimana di lavoro (le ultime settimane, di scarico, restano senza voce: è così che `scheda.js` le riconosce).
+- La bozza si ricorda in `localStorage` (`lena:bozza:<id cliente>`) finché la scheda non viene inviata.
+- Il nome di un esercizio si completa dalla libreria (`GET /api/pt/esercizi?q=`) e ricompila il video già usato.
+- Per ora si crea solo da zero: modificare una scheda esistente e copiare da modelli sono passi successivi.

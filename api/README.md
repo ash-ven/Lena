@@ -639,3 +639,9 @@ Oggi tutto è pensato per girare sul tuo PC. Prima di mettere Lena su un server 
 10. **Dispositivi condivisi.** Dopo "Esci", se c'erano modifiche non ancora inviate, restano nel `localStorage` di quel browser
     (solo kg, ripetizioni, serie e spunte, senza nomi). Per un telefono condiviso conviene aggiungere "svuota tutto al logout"
     quando si decide come comportarsi.
+
+## La libreria degli esercizi
+- Tabella `esercizio_libreria` (migrazione `db/initdb/07_libreria_esercizi.sql`): per ogni trainer, nome normalizzato, nome come scritto, ultimo video, numero di usi. Solo nomi e link: nessun dato dei clienti. Sparisce con il trainer.
+- Si riempie da sola: `creaScheda` (in `operazioni.js`) chiama `imparaDallaScheda` (in `libreria.js`) per **ogni** scheda salvata, quindi vale sia per l'editor sia per gli Excel. Un video nuovo sostituisce il vecchio; se manca, resta quello ricordato. Se l'apprendimento fallisce, la scheda è salvata comunque.
+- `GET /api/pt/esercizi?q=testo` (solo trainer): fino a 8 esercizi suoi che contengono il testo, i più usati per primi. Senza testo restituisce `[]`.
+- Test: `api/test/libreria.test.js`.

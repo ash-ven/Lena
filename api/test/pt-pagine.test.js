@@ -13,7 +13,7 @@ before(async () => { server = await avvia(creaApp()); BASE = `http://localhost:$
 after(async () => { await new Promise((ok) => server.close(ok)); await db.end(); });
 
 test("le pagine e i file dell'area del PT rispondono 200", async () => {
-  for (const [url, tipo] of [["/pt.html", "text/html"], ["/pt-cliente.html", "text/html"], ["/pt-cliente.html?id=1", "text/html"], ["/pt.css", "text/css"],
+  for (const [url, tipo] of [["/pt.html", "text/html"], ["/pt-editor.html?cliente=1", "text/html"], ["/pt-editor.js", "javascript"], ["/pt-cliente.html", "text/html"], ["/pt-cliente.html?id=1", "text/html"], ["/pt.css", "text/css"],
     ["/pt.js", "javascript"], ["/pt-cliente.js", "javascript"], ["/pt-comune.js", "javascript"], ["/pt-converti.js", "javascript"],
     ["/pt-progressi.js", "javascript"], ["/progressi.js", "javascript"]]) {
     const r = await fetch(BASE + url);
@@ -27,12 +27,12 @@ test("area del PT: colori e font solo come variabili; i testi si inseriscono sem
   const colore = /#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(/;
   assert.doesNotMatch(leggi("pt.css"), colore, "pt.css ha un colore scritto a mano");
   assert.doesNotMatch(leggi("pt.css"), /font-family\s*:\s*(?!var\()/, "pt.css ha un font scritto a mano");
-  for (const f of ["pt.js", "pt-cliente.js", "pt-comune.js", "pt-converti.js", "pt-progressi.js", "progressi.js"]) {
+  for (const f of ["pt-editor.js", "pt.js", "pt-cliente.js", "pt-comune.js", "pt-converti.js", "pt-progressi.js", "progressi.js"]) {
     const js = leggi(f).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
     assert.doesNotMatch(js, colore, `${f}: colore scritto a mano`);
     assert.doesNotMatch(js, /innerHTML|outerHTML|insertAdjacentHTML|document\.write|eval\(|new Function/, `${f}: i testi vanno sempre inseriti come testo`);
   }
-  for (const f of ["pt.html", "pt-cliente.html"]) {
+  for (const f of ["pt.html", "pt-cliente.html", "pt-editor.html"]) {
     const html = leggi(f).replace(/<meta name="theme-color"[^>]*>/g, "");
     assert.doesNotMatch(html, colore, `${f}: colore scritto a mano`);
     assert.doesNotMatch(html, /style="/, `${f}: stile scritto nella pagina`);
@@ -40,7 +40,7 @@ test("area del PT: colori e font solo come variabili; i testi si inseriscono sem
 });
 
 test("accessibilità: ogni campo ha la sua etichetta, ogni pulsante un testo, lingua e viewport dichiarati", () => {
-  for (const f of ["pt.html", "pt-cliente.html", "login.html", "registrati.html"]) {
+  for (const f of ["pt.html", "pt-cliente.html", "pt-editor.html", "login.html", "registrati.html"]) {
     const html = leggi(f);
     for (const m of html.matchAll(/<input\b([^>]*)>/g)) {
       if (/type="(hidden|submit|button)"/.test(m[1])) continue;

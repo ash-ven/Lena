@@ -188,3 +188,30 @@ select.scelta{min-height:48px;padding:var(--spazio-2) var(--spazio-3);font:inher
   .barra-pt .area-pt{display:none}
 }
 #in-scadenza{margin:0 0 var(--spazio-6)}
+
+/* ---------- editor delle schede (pt-editor.html) ---------- */
+.griglia-campi{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 var(--spazio-3)}
+.griglia-campi .doppio{grid-column:span 2}
+.griglia-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 var(--spazio-2)}
+.griglia-schema{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:0 var(--spazio-2)}
+.campo-pt select{width:100%;min-height:48px;padding:var(--spazio-3);font:inherit;font-size:16px;line-height:24px;color:var(--testo);
+  background:var(--superficie);border:1px solid var(--bordo-campo);border-radius:var(--raggio-controllo)}
+.campo-pt input[type="url"],.campo-pt input[type="number"],.campo-pt input[type="date"]{width:100%;min-height:48px;padding:var(--spazio-3);font:inherit;font-size:16px;line-height:24px;color:var(--testo);
+  background:var(--superficie);border:1px solid var(--bordo-campo);border-radius:var(--raggio-controllo)}
+.elenco-editor{list-style:none;margin:0 0 var(--spazio-3);padding:0}
+.elenco-editor .voce,.elenco-editor .blocco{border:1px solid var(--bordo-superficie);border-radius:var(--raggio-controllo);padding:var(--spazio-3) var(--spazio-3) 0;margin:0 0 var(--spazio-3);background:var(--sfondo)}
+.elenco-editor .blocco{border-left:4px solid var(--giorno, var(--bordo-campo))}
+.elenco-editor .voce .voce{border:0;padding:0;background:transparent}
+.testa-voce{display:flex;align-items:center;justify-content:space-between;gap:var(--spazio-2);margin:0 0 var(--spazio-2)}
+.testa-voce h2{margin:0}
+.comandi-riga{display:flex;gap:var(--spazio-1);flex:none}
+.bottone.icona-sola{padding:0;min-width:44px}
+.bottone.spento{opacity:.35}
+.pannello.giorno{border-left:4px solid var(--giorno, var(--bordo-superficie))}
+.schema{margin:0 0 var(--spazio-3)}
+#bozza-avviso .avviso-pt{margin-bottom:var(--spazio-2)}
+#bozza-avviso .bottone{margin-bottom:var(--spazio-4)}
+@media (max-width:480px){
+  .griglia-campi{grid-template-columns:1fr 1fr}
+  .griglia-campi .doppio{grid-column:span 2}
+}

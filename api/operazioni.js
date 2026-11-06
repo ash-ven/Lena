@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const db = require("./db");
 const { hashCodice } = require("./aiuti");
 const { erroreScheda } = require("../web/valida-scheda");
+const { imparaDallaScheda } = require("./libreria");
 
 const DURATA_INVITO_GIORNI = 7;
 
@@ -32,7 +33,9 @@ async function creaScheda(clienteId, dati) {
     [clienteId, dati.inizio, dati.settimane, dati]
   );
   // caricare una scheda è un'attività: serve a decidere dopo quanto tempo cancellare i dati (conservazione.js)
-  await db.query("UPDATE cliente SET ultima_attivita = now() WHERE id = $1", [clienteId]);
+  const c = await db.query("UPDATE cliente SET ultima_attivita = now() WHERE id = $1 RETURNING pt_id", [clienteId]);
+  // gli esercizi (e i loro video) finiscono nella libreria del trainer; se non riesce, la scheda è comunque salvata
+  try { if (c.rows[0]) await imparaDallaScheda(c.rows[0].pt_id, dati); } catch (e) { console.error("Libreria esercizi: non aggiornata", e.message); }
   return { id: r.rows[0].id };
 }
 

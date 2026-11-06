@@ -4,6 +4,7 @@ const express = require("express");
 const db = require("./db");
 const { richiediLogin, richiediRuolo } = require("./auth");
 const { richiediCondizioniPt } = require("./consensi");
+const { cerca: cercaEsercizi } = require("./libreria");
 
 const MAX_NOME = 100, MAX_BIO = 500, MAX_CONTATTO = 100;
 const MAX_FOTO = 400 * 1024;   // il browser la riduce a ~512 px: di solito sono 30-80 KB
@@ -39,6 +40,13 @@ router.use(async (req, res, next) => {
 router.get("/profilo", async (req, res) => {
   const r = await db.query(`SELECT ${COLONNE} FROM pt WHERE id = $1`, [req.ptId]);
   res.json(vista(r.rows[0]));
+});
+
+// GET /api/pt/esercizi?q=squat: gli esercizi già usati che corrispondono (la libreria che si riempie da sola)
+router.get("/esercizi", async (req, res) => {
+  const q = typeof req.query.q === "string" ? req.query.q.slice(0, 100) : "";
+  if (!q.trim()) return res.json([]);
+  res.json(await cercaEsercizi(req.ptId, q));
 });
 
 // PUT /api/pt/profilo  { nome, bio, contatto }

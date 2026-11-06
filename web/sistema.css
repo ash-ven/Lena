@@ -111,6 +111,8 @@ html{-webkit-text-size-adjust:100%}
 .i-orologio{--i:url("/icone/clock.svg")}
 .i-indietro{--i:url("/icone/arrow-left.svg")}
 .i-piu{--i:url("/icone/plus.svg")}
+.i-su{--i:url("/icone/caret-right.svg");transform:rotate(-90deg)}
+.i-giu{--i:url("/icone/caret-right.svg");transform:rotate(90deg)}
 .i-carica{--i:url("/icone/upload-simple.svg")}
 .i-copia{--i:url("/icone/copy.svg")}
 .i-cestino{--i:url("/icone/trash.svg")}
