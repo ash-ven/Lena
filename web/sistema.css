@@ -122,6 +122,7 @@ html{-webkit-text-size-adjust:100%}
 .i-info{--i:url("/icone/info.svg")}
 .i-avanti{--i:url("/icone/caret-right.svg")}
 .i-utente{--i:url("/icone/user-circle.svg")}
+.i-aspetto{--i:url("/icone/palette.svg")}
 
 /* ---- controllo del tema (lo costruisce tema.js dentro [data-tema-controllo]) ---- */
 .tema-bottone{display:inline-flex;align-items:center;gap:var(--spazio-2);min-height:44px;min-width:44px;padding:0 var(--spazio-3);
@@ -140,4 +141,16 @@ html{-webkit-text-size-adjust:100%}
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) .logo-img.su-scuro{display:none}
   :root:not([data-theme]) .logo-img.su-chiaro{display:block}
+}
+
+/* Colori dei giorni A–G del mood Lena, usati dall'editor delle schede (stessi valori di web/mood/lena.css: lo controlla un test).
+   Valgono in tutte e due le modalità; la lettera sopra il colore (--su-giorno-N) garantisce almeno 4,5:1. */
+:root {
+  --giorno-1: #ff4a1c; --su-giorno-1: #0b0d10;
+  --giorno-2: #ffb300; --su-giorno-2: #0b0d10;
+  --giorno-3: #c8102e; --su-giorno-3: #ffffff;
+  --giorno-4: #b5470f; --su-giorno-4: #ffffff;
+  --giorno-5: #ff8a00; --su-giorno-5: #0b0d10;
+  --giorno-6: #ffe14d; --su-giorno-6: #0b0d10;
+  --giorno-7: #e10600; --su-giorno-7: #ffffff;
 }

@@ -69,3 +69,23 @@ test("la scheda del cliente e l'anteprima caricano il mood; la scheda scaricabil
   assert.doesNotMatch(modello, /mood/, "la scheda scaricabile resta senza mood");
   assert.doesNotMatch(leggi("scheda.js"), /<\/script/i);
 });
+
+test("i colori dei giorni di sistema.css (editor delle schede) sono gli stessi del mood Lena", () => {
+  const sistema = leggi("sistema.css"), lena = leggi("mood/lena.css");
+  for (let i = 1; i <= 7; i++) {
+    assert.equal(token(sistema, `giorno-${i}`).toLowerCase(), token(lena, `giorno-${i}`).toLowerCase(), `giorno ${i}`);
+    assert.equal(token(sistema, `su-giorno-${i}`).toLowerCase(), token(lena, `su-giorno-${i}`).toLowerCase(), `scritta sul giorno ${i}`);
+  }
+});
+
+test("i mood che il cliente può scegliere (api/mood.js) hanno tutti il loro css, il loro link nella scheda e sono noti a scheda-server.js", () => {
+  const { MOOD: scelte, PREDEFINITO } = require("../mood");
+  assert.ok(scelte.some((m) => m.id === PREDEFINITO));
+  const server = leggi("scheda-server.js"), html = leggi("scheda.html");
+  for (const m of scelte) {
+    assert.ok(MOOD.includes(`${m.id}.css`), `manca web/mood/${m.id}.css`);
+    assert.ok(m.nome && m.descrizione, `${m.id}: servono nome e descrizione`);
+    assert.ok(html.includes(`/mood/${m.id}.css`), `scheda.html non carica ${m.id}`);
+    assert.ok(server.includes(`"${m.id}"`), `scheda-server.js non conosce ${m.id}`);
+  }
+});

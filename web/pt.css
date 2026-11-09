@@ -284,3 +284,14 @@ details.altro > summary:hover{color:var(--testo)}
 .azioni-testata{display:flex;flex-wrap:wrap;gap:var(--spazio-3)}
 #scelta-cliente .ricerca{margin-top:var(--spazio-3)}
 #elenco-scelta{max-height:360px;overflow:auto}
+
+/* editor: ogni giorno ha il suo colore (mood Lena, per posizione); la lettera c'è sempre, il colore non è mai l'unico segnale */
+.giorno[data-g="1"]{--giorno:var(--giorno-1);--su-giorno:var(--su-giorno-1)}
+.giorno[data-g="2"]{--giorno:var(--giorno-2);--su-giorno:var(--su-giorno-2)}
+.giorno[data-g="3"]{--giorno:var(--giorno-3);--su-giorno:var(--su-giorno-3)}
+.giorno[data-g="4"]{--giorno:var(--giorno-4);--su-giorno:var(--su-giorno-4)}
+.giorno[data-g="5"]{--giorno:var(--giorno-5);--su-giorno:var(--su-giorno-5)}
+.giorno[data-g="6"]{--giorno:var(--giorno-6);--su-giorno:var(--su-giorno-6)}
+.giorno[data-g="7"]{--giorno:var(--giorno-7);--su-giorno:var(--su-giorno-7)}
+.titolo-giorno-riga{display:flex;align-items:center;gap:var(--spazio-3);min-width:0}
+.pastiglia-giorno{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:var(--raggio-controllo);background:var(--giorno,var(--superficie-alta));color:var(--su-giorno,var(--testo));font-family:var(--font-titoli);font-weight:700;font-size:18px;line-height:1}

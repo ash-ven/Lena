@@ -12,7 +12,7 @@
   const $ = (id) => document.getElementById(id);
   const { el, messaggio, normalizza } = LenaPt;
 
-  const MAX_GIORNI = 14, MAX_BLOCCHI = 100;
+  const MAX_GIORNI = 7, MAX_BLOCCHI = 100;
   // gli stessi colori che usa il convertitore dell'Excel
   const PALETTE = [
     { colore: "D49A9A", chiaro: "F6E9E7", scuro: "A86A6B" },
@@ -211,13 +211,12 @@
 
   function giornoCard(g, n) {
     const lettera = LETTERE[n];
-    const pal = PALETTE[n % PALETTE.length];
     const aggiungi = (nuovo, tipo) => {
       if (g.blocchi.length >= MAX_BLOCCHI) return;
       g.blocchi.push(nuovo); daFocalizzare = `[data-id="blocco-${g.blocchi.length - 1}"] input`; salvaBozza(); disegna();
     };
-    return el("section", { class: "pannello giorno", "aria-labelledby": `t-g${n}`, "data-id": `giorno-${n}`, style: `--giorno:#${pal.colore}` },
-      el("div", { class: "testa-voce" }, el("h2", { class: "titolo-giorno", id: `t-g${n}` }, `Giorno ${lettera}`),
+    return el("section", { class: "pannello giorno", "aria-labelledby": `t-g${n}`, "data-id": `giorno-${n}`, "data-g": String(n + 1) },
+      el("div", { class: "testa-voce" }, el("div", { class: "titolo-giorno-riga" }, el("span", { class: "pastiglia-giorno", "aria-hidden": "true" }, lettera), el("h2", { class: "titolo-giorno", id: `t-g${n}` }, `Giorno ${lettera}`)),
         stato.giorni.length > 1 ? comandi(stato.giorni, n, `giorno-${n}`) : null),
       campo("Su cosa si lavora", g, "focus", { max: 60, segnaposto: "Es. Gambe e glutei" }),
       el("ol", { class: "elenco-editor" }, g.blocchi.map((b, i) => b.tipo === "esercizio" ? bloccoEsercizio(g, b, i) : bloccoCircuito(g, b, i))),
