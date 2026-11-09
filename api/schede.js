@@ -3,6 +3,7 @@ const db = require("./db");
 const { richiediLogin, richiediRuolo } = require("./auth");
 const { idDa } = require("./aiuti");
 const { richiediCondizioniPt } = require("./consensi");
+const { PREDEFINITO, èMood } = require("./mood");
 
 const router = express.Router();
 router.use(richiediLogin);
@@ -38,10 +39,13 @@ router.param("id", async (req, res, next, valore) => {
 // GET /api/schede/:id: la scheda completa (solo PT)
 router.get("/:id", richiediRuolo("pt"), async (req, res) => {
   const r = await db.query(
-    "SELECT id, cliente_id, inizio, settimane, creata_il, aggiornata_il, dati FROM scheda WHERE id = $1",
+    `SELECT s.id, s.cliente_id, s.inizio, s.settimane, s.creata_il, s.aggiornata_il, s.dati, c.mood
+       FROM scheda s JOIN cliente c ON c.id = s.cliente_id WHERE s.id = $1`,
     [req.scheda.id]
   );
-  res.json(r.rows[0]);
+  const riga = r.rows[0];
+  riga.mood = èMood(riga.mood) ? riga.mood : PREDEFINITO;   // il trainer vede la scheda con il mood scelto dal cliente
+  res.json(riga);
 });
 
 // GET /api/schede/:id/registrazioni: cosa ha segnato il cliente (solo PT: il cliente le riceve con /api/me/scheda)

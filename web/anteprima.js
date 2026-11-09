@@ -70,8 +70,10 @@
       window.LENA_ARCHIVIO = { carica: () => mem, cambiato() { /* sola lettura: non si cambia niente */ } };
     }
 
-    // Il trainer vede la scheda con lo stesso mood del cliente (per ora sempre «lena», il predefinito)
-    document.documentElement.setAttribute("data-mood", "lena");
+    // Il trainer vede la scheda con il mood scelto dal cliente (arriva con i progressi); nell'anteprima del convertitore, Lena.
+    // Si accetta solo un mood esistente (stesso elenco di api/mood.js: lo controlla api/test/mood.test.js).
+    const MOOD_ESISTENTI = ["lena", "box", "velluto", "oldschool", "botanico", "tatami"];
+    document.documentElement.setAttribute("data-mood", MOOD_ESISTENTI.includes(m.mood) ? m.mood : "lena");
     try {
       await caricaScript("/scheda.js");
       if (!$("giorni") || !$("giorni").children.length) throw new Error("scheda vuota");

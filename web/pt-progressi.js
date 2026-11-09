@@ -45,7 +45,7 @@
     $("progressi-aggiornati").textContent = ultimo ? `Ultimo salvataggio del cliente: ${LenaPt.dataOra(ultimo)}.` : "Il cliente non ha ancora segnato niente su questa scheda.";
 
     if (chiudiCornice) chiudiCornice();
-    chiudiCornice = LenaPt.cornice($("progressi-scheda"), dati, registrazioni);
+    chiudiCornice = LenaPt.cornice($("progressi-scheda"), dati, registrazioni, s.json.mood);   // con l'aspetto scelto dal cliente
   }
 
   // Si chiama ogni volta che la pagina ha i dati del cliente e l'elenco delle sue schede (più recente per prima)

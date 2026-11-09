@@ -84,8 +84,9 @@
 
   // ---------- la cornice con l'anteprima o con la scheda del cliente ----------
   // Mostra /anteprima.html dentro "contenitore" e, quando dice "pronta", le manda i dati con postMessage.
-  // Con "registrazioni" la scheda è in sola lettura con i progressi. Restituisce la funzione per chiuderla.
-  function cornice(contenitore, dati, registrazioni) {
+  // Con "registrazioni" la scheda è in sola lettura con i progressi; "mood" è l'aspetto scelto dal cliente
+  // (senza: Lena, il predefinito). Restituisce la funzione per chiuderla.
+  function cornice(contenitore, dati, registrazioni, mood) {
     contenitore.replaceChildren();
     const f = el("iframe", { title: registrazioni ? "La scheda del cliente, con i suoi progressi" : "Anteprima della scheda", src: "/anteprima.html" });
     let mandata = false;
@@ -94,7 +95,7 @@
       if (ev.origin !== location.origin || ev.source !== f.contentWindow) return;
       if (ev.data && ev.data.tipo === "pronta" && !mandata) {
         mandata = true;
-        f.contentWindow.postMessage({ tipo: "scheda", dati, registrazioni }, location.origin);
+        f.contentWindow.postMessage({ tipo: "scheda", dati, registrazioni, mood }, location.origin);
       }
     }
     window.addEventListener("message", ascolta);

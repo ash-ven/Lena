@@ -63,9 +63,12 @@ test("la scheda del cliente e l'anteprima caricano il mood; la scheda scaricabil
   for (const p of ["scheda.html", "anteprima.html"]) {
     for (const f of MOOD) assert.ok(leggi(p).includes(`href="/mood/${f}"`), `${p} deve caricare mood/${f}`);
   }
-  // ogni mood che si può scegliere con ?mood= esiste davvero come file
-  const elenco = leggi("scheda-server.js").match(/MOOD_ESISTENTI = \[([^\]]+)\]/)[1].match(/"([a-z-]+)"/g).map((s) => s.replace(/"/g, ""));
-  for (const m of elenco) assert.ok(MOOD.includes(`${m}.css`), `manca web/mood/${m}.css`);
+  // l'elenco ufficiale (api/mood.js) e i file css coincidono, e l'anteprima del trainer accetta gli stessi mood
+  const ufficiali = require("../mood").MOOD.map((m) => m.id);
+  assert.deepEqual([...ufficiali].sort(), MOOD.map((f) => f.replace(".css", "")).sort(), "api/mood.js e web/mood/*.css devono coincidere");
+  const anteprima = leggi("anteprima.js").match(/MOOD_ESISTENTI = \[([^\]]+)\]/)[1].match(/"([a-z]+)"/g).map((x) => x.replace(/"/g, ""));
+  assert.deepEqual([...anteprima].sort(), [...ufficiali].sort(), "anteprima.js deve accettare gli stessi mood di api/mood.js");
+  for (const m of require("../mood").MOOD) assert.ok(m.nome && m.descrizione, `${m.id}: nome e descrizione`);
   assert.match(leggi("scheda-server.js"), /setAttribute\("data-mood"/);
   assert.match(leggi("anteprima.js"), /setAttribute\("data-mood"/);
   const modello = fs.readFileSync(path.join(WEB, "..", "modello-scheda.html"), "utf8");
@@ -81,7 +84,7 @@ test("i colori dei giorni di sistema.css (editor delle schede) sono gli stessi d
   }
 });
 
-test("i mood che il cliente può scegliere (api/mood.js) hanno tutti il loro css, il loro link nella scheda e sono noti a scheda-server.js", () => {
+test("i mood che il cliente può scegliere (api/mood.js) hanno tutti il loro css e il loro link nella scheda; scheda-server.js li prende dal server", () => {
   const { MOOD: scelte, PREDEFINITO } = require("../mood");
   assert.ok(scelte.some((m) => m.id === PREDEFINITO));
   const server = leggi("scheda-server.js"), html = leggi("scheda.html");
@@ -89,6 +92,6 @@ test("i mood che il cliente può scegliere (api/mood.js) hanno tutti il loro css
     assert.ok(MOOD.includes(`${m.id}.css`), `manca web/mood/${m.id}.css`);
     assert.ok(m.nome && m.descrizione, `${m.id}: servono nome e descrizione`);
     assert.ok(html.includes(`/mood/${m.id}.css`), `scheda.html non carica ${m.id}`);
-    assert.ok(server.includes(`"${m.id}"`), `scheda-server.js non conosce ${m.id}`);
   }
+  assert.match(server, /md\.json\.disponibili/, "scheda-server.js deve prendere i mood validi da /api/me/mood, non da una lista copiata");
 });
