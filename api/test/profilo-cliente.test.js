@@ -126,3 +126,7 @@ test("un cliente SENZA scheda entra comunque: la scheda non c'è (404) ma il pro
   assert.doesNotMatch(leggi("benvenuto.js"), /location\.replace\("\/scheda\.html"\)/);
   assert.match(leggi("benvenuto.html"), /href="\/scheda\.html"[^>]*>Apri la scheda/);
 });
+
+test("dopo l'uscita si torna alla schermata iniziale, non al login", () => {
+  assert.match(leggi("api.js"), /location\.replace\("\/"\);[^\n]*uscita/);
+});

@@ -39,7 +39,7 @@
       return false;
     }
     if (dopo) dopo();
-    location.replace("/login.html");
+    location.replace("/");   // dopo l'uscita si torna alla schermata iniziale di Lena, non al login
     return true;
   }
 
