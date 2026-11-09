@@ -58,8 +58,8 @@
       el("div", { class: "nota" }, `Caricata il ${LenaPt.dataBreve(s.creata_il)} · ${s.settimane} settimane dal ${LenaPt.dataBreve(s.inizio)}`
         + (s.registrazioni ? ` · ${s.registrazioni} valori segnati` : "")),
       el("div", { class: "azioni-scheda" },
-        el("a", { class: "bottone secondario piccolo", href: `/pt-editor.html?cliente=${id}&base=${s.id}` }, "Modifica (nuova versione)"),
-        el("a", { class: "bottone secondario piccolo", href: `/pt.html?copia=${s.id}` }, "Copia per un altro cliente")))));
+        el("a", { class: "azione-testo", href: `/pt-editor.html?cliente=${id}&base=${s.id}` }, "Modifica (nuova versione)"),
+        el("a", { class: "azione-testo", href: `/pt.html?copia=${s.id}` }, "Copia per un altro cliente")))));
     $("schede-vuoto").hidden = schede.length > 0;
     $("bozza-nota").hidden = !LenaPt.haBozza(id);
     $("bozza-link").href = `/pt-editor.html?cliente=${id}`;
