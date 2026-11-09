@@ -13,10 +13,21 @@
     return a;
   }
 
-  // ---------- elenco e ricerca ----------
+  // ---------- elenco, ricerca e ordine ----------
+  // L'ordine scelto si ricorda su questo dispositivo (solo una comodità: se la memoria è bloccata si riparte da «Cognome»)
+  const CHIAVE_ORDINE = "lena:ordine-clienti";
+  let ordine = "cognome";
+  try { const salvato = localStorage.getItem(CHIAVE_ORDINE); if (LenaOrdinaClienti.OPZIONI.some((o) => o.id === salvato)) ordine = salvato; } catch (e) { /* memoria bloccata */ }
+  $("ordine").replaceChildren(...LenaOrdinaClienti.OPZIONI.map((o) => el("option", { value: o.id, selected: o.id === ordine ? "" : null }, o.testo)));
+  $("ordine").addEventListener("change", () => {
+    ordine = $("ordine").value;
+    try { localStorage.setItem(CHIAVE_ORDINE, ordine); } catch (e) { /* pazienza */ }
+    disegnaElenco();
+  });
+
   function disegnaElenco() {
     const q = normalizza($("cerca").value);
-    const visibili = clienti.filter((c) => normalizza(`${c.nome} ${c.cognome} ${c.cognome} ${c.nome}`).includes(q));
+    const visibili = LenaOrdinaClienti.ordina(clienti, ordine).filter((c) => normalizza(`${c.nome} ${c.cognome} ${c.cognome} ${c.nome}`).includes(q));
     const ul = $("elenco");
     ul.replaceChildren(...visibili.map((c) => {
       const r = LenaPt.riepilogoRiga(c);

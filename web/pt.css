@@ -133,6 +133,8 @@ body.pt .elenco-clienti a{color:var(--testo)}
   #elenco-scadenze .conto small{display:inline;margin:0}
 }
 /* ricerca con la lente dentro il campo */
+.ordine-elenco{display:flex;align-items:center;gap:var(--spazio-3);margin:0 0 var(--spazio-3)}
+.ordine-elenco label{color:var(--testo-secondario);font-size:.875rem}
 .ricerca{position:relative;margin:0 0 var(--spazio-3)}
 .ricerca .icona{position:absolute;left:var(--spazio-4);top:50%;transform:translateY(-50%);color:var(--testo-secondario);pointer-events:none}
 .ricerca input[type="search"]{width:100%;min-height:48px;padding:var(--spazio-3) var(--spazio-4) var(--spazio-3) 48px;font:inherit;font-size:16px;line-height:24px;color:var(--testo);
