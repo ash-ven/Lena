@@ -45,5 +45,17 @@
     return true;
   }
 
-  window.Lena = { chiama, messaggioComune, esci };
+  // Indirizzo del login dopo una sessione scaduta: ricorda la pagina del cliente (solo queste, mai indirizzi esterni)
+  const PAGINE_CLIENTE = ["/scheda.html", "/benvenuto.html", "/account.html"];
+  function loginScaduto() {
+    const q = PAGINE_CLIENTE.includes(location.pathname) ? "&torna=" + encodeURIComponent(location.pathname) : "";
+    return "/login.html?sessione=scaduta" + q;
+  }
+  function paginaDopoLogin(ruolo) {
+    if (ruolo === "pt") return "/pt.html";
+    const t = new URLSearchParams(location.search).get("torna");
+    return PAGINE_CLIENTE.includes(t) ? t : "/benvenuto.html";
+  }
+
+  window.Lena = { chiama, messaggioComune, esci, loginScaduto, paginaDopoLogin };
 })();

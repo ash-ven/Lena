@@ -45,7 +45,7 @@
     const r = await Lena.chiama("POST", "/api/auth/login", ruolo ? { email, password, ruolo } : { email, password });
 
     if (r.stato === 200) {
-      location.replace(r.json.ruolo === "pt" ? "/pt.html" : "/benvenuto.html");
+      location.replace(Lena.paginaDopoLogin(r.json.ruolo));
       return;
     }
     $("invia").disabled = false;

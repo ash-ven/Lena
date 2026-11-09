@@ -46,7 +46,8 @@
     contenitore.replaceChildren(av, el("div", { class: "scheda-trainer-testo" },
       el("p", { class: "nome-trainer" }, profilo.nome),
       profilo.bio ? el("p", { class: "bio-trainer" }, profilo.bio) : null,
-      profilo.contatto ? el("p", { class: "contatto-trainer" }, el("span", { class: "nota" }, "Contatto: "), collegamenti(profilo.contatto)) : null));
+      profilo.contatto ? el("p", { class: "contatto-trainer" }, el("span", { class: "nota" }, "Contatto: "), collegamenti(profilo.contatto)) : null,
+      !profilo.bio && !profilo.contatto ? el("p", { class: "nota" }, "Il tuo trainer non ha ancora scritto la sua presentazione: per ora la scheda è tutto quello che serve.") : null));
   }
 
   // ---------- foto: si ritaglia quadrata e si riduce QUI, nel browser (toglie anche i dati nascosti della fotocamera, come la posizione) ----------

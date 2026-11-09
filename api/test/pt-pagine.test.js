@@ -188,3 +188,12 @@ test("lato trainer: serie in lettere avvisate, link video senza https completati
   assert.match(r("pt-progressi.js"), /barra-sett/);
   assert.doesNotMatch(r("pt-progressi.js"), /el\("progress"/);
 });
+
+test("dopo una sessione scaduta il cliente torna alla pagina di prima (solo pagine sue, mai indirizzi esterni)", () => {
+  const r = (f) => leggi(f);
+  assert.match(r("api.js"), /PAGINE_CLIENTE\.includes\(t\)/);
+  assert.match(r("login.js"), /Lena\.paginaDopoLogin\(/);
+  assert.doesNotMatch(r("scheda-server.js"), /login\.html\?sessione=scaduta"/);
+  assert.match(r("scheda-server.js"), /Lena\.loginScaduto\(\)/);
+  assert.match(r("profilo-comune.js"), /non ha ancora scritto la sua presentazione/);
+});

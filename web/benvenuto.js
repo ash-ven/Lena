@@ -24,7 +24,7 @@
   // Controlla se la scheda c'è e aggiorna la pagina. Restituisce false se la sessione è scaduta.
   async function aggiornaScheda() {
     const r = await Lena.chiama("GET", "/api/me/scheda");
-    if (r.stato === 401) { location.replace("/login.html?sessione=scaduta"); return false; }
+    if (r.stato === 401) { location.replace(Lena.loginScaduto()); return false; }
     const c = r.stato === 200 && r.json && r.json.scheda && r.json.scheda.dati;   // 404 = ancora niente; un errore di rete: resta com'è
     if (r.stato !== 200 && r.stato !== 404) return true;
     $("sezione-scheda").hidden = !c;

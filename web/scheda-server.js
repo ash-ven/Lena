@@ -91,7 +91,7 @@
       memoria: memoriaBrowser(`lena:coda:${utente.id}:${scheda.id}`),
       segnala: segnalaStato,
       inLinea: () => navigator.onLine !== false,
-      sessioneScaduta: () => location.replace("/login.html?sessione=scaduta"),   // le modifiche restano sul dispositivo e partono dopo il login
+      sessioneScaduta: () => location.replace(Lena.loginScaduto()),   // le modifiche restano sul dispositivo e partono dopo il login
       suRifiutata: (voce) => console.warn("Il server non ha accettato questa voce:", voce),
     });
 

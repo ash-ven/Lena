@@ -20,7 +20,7 @@
     $("esporta").disabled = true;
     try {
       const res = await fetch("/api/me/esporta", { credentials: "same-origin" });
-      if (res.status === 401) { location.replace("/login.html?sessione=scaduta"); return; }
+      if (res.status === 401) { location.replace(Lena.loginScaduto()); return; }
       if (!res.ok) throw new Error(String(res.status));
       const blob = await res.blob();
       const a = document.createElement("a");
@@ -61,7 +61,7 @@
     aggiorna();
     if (r.stato === 403 && r.json && r.json.codice === "PASSWORD_ERRATA") esito.append(msg("errore", "La password non è corretta. ", "Non ho cancellato niente."));
     else if (r.stato === 429) esito.append(msg("errore", "Troppi tentativi. ", "Riprova tra qualche minuto."));
-    else if (r.stato === 401) location.replace("/login.html?sessione=scaduta");
+    else if (r.stato === 401) location.replace(Lena.loginScaduto());
     else esito.append(msg("errore", "Non ho cancellato niente. ", Lena.messaggioComune(r) || (r.json && r.json.errore) || "Riprova."));
   });
 
@@ -82,7 +82,7 @@
     if (errore) { esito.append(msg("errore", errore, "")); return; }
     if (!r) return;
     if (r.stato === 200) { profilo = r.json; disegnaProfilo(); esito.append(msg("ok", "Foto aggiornata.", "")); }
-    else if (r.stato === 401) location.replace("/login.html?sessione=scaduta");
+    else if (r.stato === 401) location.replace(Lena.loginScaduto());
     else esito.append(msg("errore", "Non sono riuscito a caricare la foto. ", Lena.messaggioComune(r) || (r.json && r.json.errore) || "Riprova."));
   });
   $("rimuovi-foto").addEventListener("click", async () => {
