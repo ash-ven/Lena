@@ -70,6 +70,8 @@
       window.LENA_ARCHIVIO = { carica: () => mem, cambiato() { /* sola lettura: non si cambia niente */ } };
     }
 
+    // Il trainer vede la scheda con lo stesso mood del cliente (per ora sempre «lena», il predefinito)
+    document.documentElement.setAttribute("data-mood", "lena");
     try {
       await caricaScript("/scheda.js");
       if (!$("giorni") || !$("giorni").children.length) throw new Error("scheda vuota");

@@ -153,6 +153,9 @@
     window.LENA_ARCHIVIO = creaArchivio(me.json, scheda, registrazioni);
     document.title = `${scheda.dati.info.titolo || "La tua scheda"} · Lena`;
 
+    // Il mood della scheda (la sua estetica). Per ora c'è solo «lena», il predefinito: quando il cliente potrà
+    // sceglierlo, arriverà dal server. Va messo PRIMA di scheda.js, che lo legge.
+    document.documentElement.setAttribute("data-mood", "lena");
     try {
       await caricaScript("/scheda.js");   // costruisce la pagina e la mostra
       if (!document.getElementById("giorni") || !document.getElementById("giorni").children.length) throw new Error("scheda vuota");

@@ -1,0 +1,239 @@
+/* ===========================================================================
+   MOOD «LENA» DELLA SCHEDA DEL CLIENTE (scuro, predefinito)
+   Un mood è l'estetica della scheda: colori, carattere dei titoli, angoli, texture, animazioni.
+   La struttura della scheda è la stessa per tutti i mood (scheda.js): qui cambia solo l'aspetto.
+   Si attiva con data-mood="lena" sull'elemento <html> (lo mettono scheda-server.js e anteprima.js).
+   La scheda scaricabile NON ha data-mood: resta com'era (tema.css + scheda.css).
+
+   Lena è identico alla parte base del sito (sistema.css, modalità scura): carbonio e brace, Space Grotesk
+   per i titoli, Inter per testo e numeri, angoli 14/10 px, nessuna texture. È sempre scuro: dentro la
+   scheda decide il mood, non l'interruttore scuro/chiaro del sito.
+
+   Ogni giorno del programma ha il suo colore, per posizione (1 = Giorno A … 7 = Giorno G), mai dai dati.
+   Si vede nella testata del giorno, nelle linguette dei giorni, nella barra di avanzamento e nei passi
+   della modalità allenamento. Pulsanti e spunte restano brace.
+   Contrasti (calcolati): scritta della testata su ogni colore ≥ 5,0:1; ogni colore sulla superficie ≥ 3,0:1.
+   Regole complete: design-sistema/README.md e la nota «mood delle schede».
+   =========================================================================== */
+
+/* ---------- token del mood ---------- */
+/* :root[data-mood] (specificità 0,2,0, file caricato per ultimo) vince sia su [data-theme] sia sulla
+   modalità automatica di sistema.css: la scheda resta scura anche se il sito è in chiaro. */
+:root[data-mood="lena"] {
+  color-scheme: dark;
+
+  /* sistema di design, modalità scura (le parti comuni della pagina: icone in testata, messaggi di stato) */
+  --sfondo: #0b0d10;
+  --superficie: #15191e;
+  --superficie-alta: #1e232a;
+  --testo: #eef1f4;
+  --testo-secondario: #8b939d;
+  --bordo-campo: #626a74;
+  --bordo-superficie: #252b33;
+  --divisorio: #1e232a;
+  --brace: #e84800;
+  --su-brace: #0b0d10;
+  --testo-brace: #e84800;
+  --errore: #ff5c7a;
+  --conferma: #3ddc97;
+
+  /* le variabili di tema.css che scheda.css legge */
+  --colore-sfondo: var(--sfondo);
+  --colore-carta: var(--superficie);
+  --colore-testo: var(--testo);
+  --colore-testo-tenue: var(--testo-secondario);
+  --colore-linea: var(--bordo-superficie);
+  --colore-ok-sfondo: var(--superficie-alta);
+  --colore-ok-bordo: var(--conferma);
+  --colore-ok-testo: var(--conferma);            /* 8,9:1 su superficie-alta */
+  --colore-avviso-sfondo: #2a2116;
+  --colore-avviso-bordo: #6b5634;
+  --colore-avviso-testo: #f2c27a;                /* 9,6:1 sul suo fondo */
+  --colore-errore-sfondo: #2a1418;
+  --colore-errore-bordo: #6b2a36;
+  --colore-errore-testo: #ff8fa3;                /* 8,0:1 sul suo fondo */
+  --scheda-font-titoli: "Space Grotesk", system-ui, sans-serif;
+  --scheda-font-testo: "Inter", system-ui, sans-serif;
+
+  /* accento della scheda (scheda.css lo chiama --c): brace, non il colore del giorno */
+  --c: var(--brace);
+  --c-chiaro: var(--superficie-alta);
+  --c-scuro: var(--testo-brace);
+
+  /* i 7 colori dei giorni e la scritta che ci va sopra */
+  --giorno-1: #ff4a1c; --su-giorno-1: #0b0d10;   /* A fiamma      5,8:1 */
+  --giorno-2: #ffb300; --su-giorno-2: #0b0d10;   /* B ambra      10,8:1 */
+  --giorno-3: #c8102e; --su-giorno-3: #ffffff;   /* C cremisi     5,9:1 */
+  --giorno-4: #b5470f; --su-giorno-4: #ffffff;   /* D rame        5,4:1 */
+  --giorno-5: #ff8a00; --su-giorno-5: #0b0d10;   /* E arancio     8,2:1 */
+  --giorno-6: #ffe14d; --su-giorno-6: #0b0d10;   /* F sole       14,9:1 */
+  --giorno-7: #e10600; --su-giorno-7: #ffffff;   /* G rosso corsa 5,0:1 */
+
+  /* forme e tempi */
+  --raggio-controllo: 10px;
+  --raggio-riquadro: 14px;
+  --tempo-scatto: 90ms;       /* spunta */
+  --tempo-cambio: 180ms;      /* cambio di giorno, barra */
+  --curva-secca: cubic-bezier(.2, .9, .3, 1);
+}
+
+/* il giorno che si sta guardando (scheda.js mette data-giorno="1"…"7" su <html>) */
+:root[data-mood="lena"][data-giorno="1"] { --g: var(--giorno-1); --su-g: var(--su-giorno-1); }
+:root[data-mood="lena"][data-giorno="2"] { --g: var(--giorno-2); --su-g: var(--su-giorno-2); }
+:root[data-mood="lena"][data-giorno="3"] { --g: var(--giorno-3); --su-g: var(--su-giorno-3); }
+:root[data-mood="lena"][data-giorno="4"] { --g: var(--giorno-4); --su-g: var(--su-giorno-4); }
+:root[data-mood="lena"][data-giorno="5"] { --g: var(--giorno-5); --su-g: var(--su-giorno-5); }
+:root[data-mood="lena"][data-giorno="6"] { --g: var(--giorno-6); --su-g: var(--su-giorno-6); }
+:root[data-mood="lena"][data-giorno="7"] { --g: var(--giorno-7); --su-g: var(--su-giorno-7); }
+
+/* ogni linguetta conosce il proprio colore */
+[data-mood="lena"] .giorno-btn[data-giorno="1"] { --gb: var(--giorno-1); --su-gb: var(--su-giorno-1); }
+[data-mood="lena"] .giorno-btn[data-giorno="2"] { --gb: var(--giorno-2); --su-gb: var(--su-giorno-2); }
+[data-mood="lena"] .giorno-btn[data-giorno="3"] { --gb: var(--giorno-3); --su-gb: var(--su-giorno-3); }
+[data-mood="lena"] .giorno-btn[data-giorno="4"] { --gb: var(--giorno-4); --su-gb: var(--su-giorno-4); }
+[data-mood="lena"] .giorno-btn[data-giorno="5"] { --gb: var(--giorno-5); --su-gb: var(--su-giorno-5); }
+[data-mood="lena"] .giorno-btn[data-giorno="6"] { --gb: var(--giorno-6); --su-gb: var(--su-giorno-6); }
+[data-mood="lena"] .giorno-btn[data-giorno="7"] { --gb: var(--giorno-7); --su-gb: var(--su-giorno-7); }
+
+/* ---------- testo e titoli ---------- */
+[data-mood="lena"] body { background: var(--sfondo); color: var(--testo); }
+[data-mood="lena"] h1,
+[data-mood="lena"] .settimana-oggi strong,
+[data-mood="lena"] .giorno-btn b,
+[data-mood="lena"] .titolo-giorno h2,
+[data-mood="lena"] h3.sezione,
+[data-mood="lena"] .nome,
+[data-mood="lena"] .formato,
+[data-mood="lena"] .stretch b,
+[data-mood="lena"] .focus-testa .dove b { font-family: var(--scheda-font-titoli); font-weight: 700; }
+[data-mood="lena"] h1 { letter-spacing: -.01em; }
+[data-mood="lena"] .chi,
+[data-mood="lena"] .titolo-giorno small,
+[data-mood="lena"] .risc .istr,
+[data-mood="lena"] .nota { font-style: normal; }
+[data-mood="lena"] .sopra { letter-spacing: .08em; }
+
+/* numeri: Inter con cifre a larghezza fissa (kg, ripetizioni, tempi non ballano) */
+[data-mood="lena"] .dato b,
+[data-mood="lena"] .questa b,
+[data-mood="lena"] .campo input,
+[data-mood="lena"] .circ .lista input,
+[data-mood="lena"] .lista .rip,
+[data-mood="lena"] table.tutte td:last-child,
+[data-mood="lena"] .num,
+[data-mood="lena"] .timer .tempo {
+  font-family: var(--scheda-font-testo); font-weight: 600; font-variant-numeric: tabular-nums;
+}
+[data-mood="lena"] .dato b,
+[data-mood="lena"] .questa b { color: var(--testo); }
+[data-mood="lena"] .lista .rip,
+[data-mood="lena"] details.prog summary,
+[data-mood="lena"] table.tutte tr.sel td { color: var(--testo-brace); }
+[data-mood="lena"] .formato { color: var(--testo); }
+
+/* ---------- barra dei giorni e delle settimane ---------- */
+[data-mood="lena"] .giorni { grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); }
+[data-mood="lena"] .giorno-btn {
+  border-radius: var(--raggio-controllo); border-color: var(--bordo-superficie); background: var(--superficie);
+  box-shadow: inset 0 4px 0 var(--gb);   /* la linguetta: una striscia del colore del giorno */
+  padding-top: 11px;
+  transition: background-color var(--tempo-cambio) ease-out, color var(--tempo-cambio) ease-out;
+}
+[data-mood="lena"] .giorno-btn b { font-size: 17px; white-space: nowrap; }
+@media (max-width: 360px) { [data-mood="lena"] .giorno-btn { padding-left: 2px; padding-right: 2px; } [data-mood="lena"] .giorno-btn b { font-size: 15px; } }
+[data-mood="lena"] .giorno-btn[aria-pressed="true"] { background: var(--gb); border-color: var(--gb); color: var(--su-gb); box-shadow: none; }
+[data-mood="lena"] .giorno-btn[aria-pressed="true"] span { color: var(--su-gb); }
+[data-mood="lena"] .sett button { border-color: var(--bordo-superficie); color: var(--testo); border-radius: var(--raggio-controllo); }
+[data-mood="lena"] .sett button[aria-pressed="true"] { background: var(--testo); border-color: var(--testo); color: var(--sfondo); }
+[data-mood="lena"] .sett button.oggi:not([aria-pressed="true"]) { border-color: var(--brace); color: var(--testo-brace); }
+
+/* ---------- testata del giorno: la fascia del colore del giorno ---------- */
+[data-mood="lena"] .titolo-giorno {
+  display: block; margin: 20px 0 8px; padding: 14px 16px; border-radius: var(--raggio-riquadro);
+  background: var(--g); color: var(--su-g);
+}
+[data-mood="lena"] .titolo-giorno h2 { color: inherit; font-size: 26px; line-height: 1.15; }
+[data-mood="lena"] .titolo-giorno small { display: block; color: inherit; font-size: 14px; font-weight: 500; margin-top: 2px; }
+[data-mood="lena"] .titolo-giorno.entra { animation: lena-entra var(--tempo-cambio) ease-out; }
+@keyframes lena-entra { from { opacity: .35; } to { opacity: 1; } }
+
+/* barra di avanzamento del giorno (esercizi con la spunta / esercizi) */
+[data-mood="lena"] .avanzamento { height: 6px; border-radius: 3px; background: var(--superficie); margin: 0 0 12px; overflow: hidden; }
+[data-mood="lena"] .avanzamento i { display: block; height: 100%; background: var(--g); border-radius: 3px; transition: width var(--tempo-cambio) ease-out; }
+
+/* ---------- sezioni e riquadri ---------- */
+[data-mood="lena"] h3.sezione { border-bottom-color: var(--bordo-superficie); }
+[data-mood="lena"] .card { border-radius: var(--raggio-riquadro); border-color: var(--bordo-superficie); background: var(--superficie); }
+[data-mood="lena"] .card.fatto { opacity: .6; }
+[data-mood="lena"] .num { background: var(--superficie-alta); color: var(--testo); border-radius: 8px; }
+[data-mood="lena"] .circ .testa .num { background: var(--superficie-alta); color: var(--testo); }
+[data-mood="lena"] .dato,
+[data-mood="lena"] .campo { background: var(--sfondo); border-radius: var(--raggio-controllo); }
+[data-mood="lena"] .questa { background: var(--superficie-alta); border-radius: var(--raggio-controllo); }
+[data-mood="lena"] .questa small { color: var(--testo-secondario); }
+[data-mood="lena"] .campo input { border-bottom-color: var(--bordo-campo); color: var(--testo); }
+[data-mood="lena"] .campo input:focus { border-bottom-color: var(--brace); }
+[data-mood="lena"] .campo input::placeholder { color: var(--testo-secondario); }
+[data-mood="lena"] .circ .lista input { background: var(--sfondo); border-bottom-color: var(--bordo-campo); color: var(--testo); border-radius: 8px 8px 0 0; }
+[data-mood="lena"] .lista a.mini { color: var(--testo); border-color: var(--bordo-superficie); border-radius: var(--raggio-controllo); }
+[data-mood="lena"] .salvataggio { border-radius: var(--raggio-riquadro); }
+
+/* ---------- pulsanti ---------- */
+[data-mood="lena"] .btn { border-radius: var(--raggio-controllo); border-color: var(--bordo-campo); background: transparent; color: var(--testo); }
+[data-mood="lena"] .btn.pieno,
+[data-mood="lena"] .focus-piede button.avanti { background: var(--brace); border-color: var(--brace); color: var(--su-brace); font-weight: 600; }
+[data-mood="lena"] .focus-piede button { border-radius: var(--raggio-riquadro); border-color: var(--bordo-campo); background: var(--superficie); color: var(--testo); }
+[data-mood="lena"] :focus-visible { outline: 2px solid var(--anello-attivo, var(--brace)); outline-offset: 2px; }
+
+/* ---------- spunte: brace, segno scuro, scatto secco ---------- */
+[data-mood="lena"] .spunta { border-radius: var(--raggio-controllo); border: 2px solid var(--bordo-campo); }
+[data-mood="lena"] .lista .pallino { border-radius: 7px; border: 2px solid var(--bordo-campo); }
+[data-mood="lena"] .spunta[aria-pressed="true"],
+[data-mood="lena"] .lista .pallino[aria-pressed="true"] { background: var(--brace); border-color: var(--brace); }
+[data-mood="lena"] .spunta svg path,
+[data-mood="lena"] .lista .pallino svg path { stroke: var(--su-brace); stroke-width: 2.5; }
+[data-mood="lena"] .scatta svg { animation: lena-scatta 140ms var(--curva-secca); }
+@keyframes lena-scatta { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+[data-mood="lena"] .card.fatto .nome { text-decoration-color: var(--brace); }
+
+/* pallini delle serie */
+[data-mood="lena"] .puntini i { border-color: var(--brace); }
+[data-mood="lena"] .puntini i.on { background: var(--brace); }
+
+/* ---------- allenamento completato: i gradi salgono ---------- */
+[data-mood="lena"] .completato { text-align: center; padding: 22px 16px 18px; margin: 4px 0 14px; border-radius: var(--raggio-riquadro);
+  background: var(--superficie); border: 1px solid var(--bordo-superficie); }
+[data-mood="lena"] .completato svg { width: 64px; height: 64px; display: block; margin: 0 auto; }
+[data-mood="lena"] .completato .basso { stroke: var(--testo); }
+[data-mood="lena"] .completato .alto { stroke: var(--brace); }
+[data-mood="lena"] .completato p { font-family: var(--scheda-font-titoli); font-weight: 700; font-size: 20px; margin: 10px 0 0; }
+[data-mood="lena"] .completato.appena path { opacity: 0; transform: translateY(10px); animation: lena-sale 260ms var(--curva-secca) forwards; }
+[data-mood="lena"] .completato.appena path:nth-child(2) { animation-delay: 120ms; }
+[data-mood="lena"] .completato.appena path:nth-child(3) { animation-delay: 240ms; }
+@keyframes lena-sale { to { opacity: 1; transform: translateY(0); } }
+
+/* ---------- modalità allenamento ---------- */
+[data-mood="lena"] .focus-passi i { background: var(--superficie-alta); }
+[data-mood="lena"] .focus-passi i.fatto { background: var(--g); }
+[data-mood="lena"] .focus-passi i.ora { background: var(--testo); }
+[data-mood="lena"] .focus-testa .dove b { color: var(--testo); }
+
+/* ---------- timer: superficie scura, numero che lampeggia una volta in brace a fine recupero ---------- */
+[data-mood="lena"] .timer { background: var(--superficie-alta); color: var(--testo); border: 1px solid var(--bordo-campo);
+  border-radius: var(--raggio-riquadro); box-shadow: 0 10px 30px rgba(0, 0, 0, .5); }
+[data-mood="lena"] .timer .cosa { color: var(--testo-secondario); opacity: 1; }
+[data-mood="lena"] .timer .barra-t { background: var(--sfondo); }
+[data-mood="lena"] .timer .barra-t i { background: var(--brace); }
+[data-mood="lena"] .timer button { background: var(--superficie); color: var(--testo); border: 1px solid var(--bordo-campo); border-radius: var(--raggio-controllo); }
+[data-mood="lena"] .timer.finito { background: var(--superficie-alta); border-color: var(--brace); }
+[data-mood="lena"] .timer.finito .tempo { color: var(--testo-brace); animation: lena-lampo 420ms ease-out; }
+@keyframes lena-lampo { 0% { color: var(--su-brace); background: var(--brace); } 100% { background: transparent; } }
+[data-mood="lena"] .timer .tempo { border-radius: 6px; padding: 0 4px; margin-left: -4px; }
+
+/* ---------- chi ha chiesto meno movimento vede solo il risultato ---------- */
+@media (prefers-reduced-motion: reduce) {
+  [data-mood="lena"] *,
+  [data-mood="lena"] *::before,
+  [data-mood="lena"] *::after { animation: none !important; transition: none !important; }
+  [data-mood="lena"] .completato.appena path { opacity: 1; transform: none; }
+}

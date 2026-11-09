@@ -55,8 +55,13 @@ const SVG = {
   play:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>',
   clock:'<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8.5" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 5.5v3.2l2 1.3M6.5 1.5h3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
   check:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  undo:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 4L2 7l3 3M2.5 7H10a3.5 3.5 0 010 7H7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  undo:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 4L2 7l3 3M2.5 7H10a3.5 3.5 0 010 7H7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  // i «gradi» del logo, per l'allenamento completato (colori dal mood)
+  gradi:'<svg viewBox="0 0 48 48" aria-hidden="true"><path class="basso" d="M6 42 L24 30 L42 42" fill="none" stroke-width="6"/><path class="basso" d="M6 30 L24 18 L42 30" fill="none" stroke-width="6"/><path class="alto" d="M6 18 L24 6 L42 18" fill="none" stroke-width="6"/></svg>'
 };
+// Il mood (l'estetica della scheda) lo sceglie chi carica questo file, con data-mood su <html> (vedi web/mood/).
+// Senza mood (la scheda scaricabile) la scheda resta com'era: colori dei giorni presi dai dati, niente extra.
+const MOOD = document.documentElement.getAttribute("data-mood");
 const MESI = ["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];
 const inizio = new Date(DATI.inizio + "T00:00:00");
 function giornoSett(n){ const d = new Date(inizio); d.setDate(d.getDate() + 7*(n-1)); return d; }
@@ -137,7 +142,7 @@ function testata(){
 
 function barra(){
   const g = document.getElementById("giorni"); g.replaceChildren();
-  DATI.giorni.forEach((d,i) => g.append(el("button",{type:"button", class:"giorno-btn", "aria-pressed": String(i===stato.giorno),
+  DATI.giorni.forEach((d,i) => g.append(el("button",{type:"button", class:"giorno-btn", "data-giorno": String(i+1), "aria-pressed": String(i===stato.giorno),
     style:`--bc:#${esa(d.colore)}`, onclick:()=>{ stato.giorno=i; disegna(); window.scrollTo({top:0}); }},
     el("b",{}, d.titolo), el("span",{}, d.focus))));
   const s = document.getElementById("sett"); s.replaceChildren();
@@ -152,10 +157,13 @@ function barra(){
   if (attivo) s.scrollLeft = attivo.offsetLeft - (s.clientWidth - attivo.offsetWidth) / 2;
 }
 
+let appenaSpuntato = null;   // la spunta appena messa: solo lei fa l'animazione (il mood decide quale)
 function spunta(k, classe){
-  return el("button",{type:"button", class:classe, "aria-pressed": String(fatto(k)), "aria-label":"Segna come fatto",
+  const ck = chiave(stato.settimana, k);
+  const scatta = MOOD && appenaSpuntato === ck && fatto(k);
+  return el("button",{type:"button", class: classe + (scatta ? " scatta" : ""), "aria-pressed": String(fatto(k)), "aria-label":"Segna come fatto",
     html:SVG.check, onclick:()=>{ const c = chiave(stato.settimana, k);
-      if (mem.fatti[c]) delete mem.fatti[c]; else mem.fatti[c] = 1; salva(); disegna(); }});
+      if (mem.fatti[c]) delete mem.fatti[c]; else { mem.fatti[c] = 1; appenaSpuntato = c; } salva(); disegna(); }});
 }
 
 function secondi(t){ const m = t.match(/(\d+)'/), s = t.match(/(\d+)"/); return (m ? +m[1]*60 : 0) + (s ? +s[1] : 0); }
@@ -287,6 +295,17 @@ function cardStretching(g){
     el("section",{class:"card stretch" + (fatto(k) ? " fatto" : "")}, el("b",{class:"nome"}, "Fine allenamento"), spunta(k,"spunta"))];
 }
 
+// ---------- avanzamento e allenamento completato (solo con un mood) ----------
+// Un allenamento è completato quando ogni blocco del giorno ha la spunta (riscaldamento e stretching non contano).
+function contaFatti(g){ return g.blocchi.filter((b,i) => fatto(`${g.id}|${i+1}`)).length; }
+const completo = g => g.blocchi.length > 0 && contaFatti(g) === g.blocchi.length;
+let ultimoGiorno = null;
+const statoFine = { dove: null, era: null, anima: false };   // per animare il completamento solo nel momento in cui avviene
+function bannerCompletato(){
+  return el("div",{class:"completato" + (statoFine.anima ? " appena" : ""), role:"status"},
+    el("span",{html:SVG.gradi}), el("p",{}, "Allenamento completato."));
+}
+
 // ---------- pagina ----------
 function passi(g){
   return [() => cardRiscaldamento(g),
@@ -297,21 +316,38 @@ function passi(g){
 
 function disegna(){
   const g = DATI.giorni[stato.giorno];
-  const r = document.documentElement.style;
-  r.setProperty("--c", "#"+esa(g.colore)); r.setProperty("--c-chiaro", "#"+esa(g.chiaro)); r.setProperty("--c-scuro", "#"+esa(g.scuro));
+  if (MOOD) {
+    // con un mood il colore del giorno dipende solo dalla posizione (1 = Giorno A … 7): lo decide il CSS del mood
+    document.documentElement.setAttribute("data-giorno", String(stato.giorno + 1));
+  } else {
+    const r = document.documentElement.style;
+    r.setProperty("--c", "#"+esa(g.colore)); r.setProperty("--c-chiaro", "#"+esa(g.chiaro)); r.setProperty("--c-scuro", "#"+esa(g.scuro));
+  }
+  const cambioGiorno = ultimoGiorno !== null && ultimoGiorno !== stato.giorno; ultimoGiorno = stato.giorno;
+  const dove = `${stato.settimana}|${stato.giorno}`, ora = completo(g);
+  statoFine.anima = !!MOOD && ora && statoFine.dove === dove && statoFine.era === false;
+  statoFine.dove = dove; statoFine.era = ora;
   barra();
   const m = document.getElementById("contenuto"); m.replaceChildren();
   const n = stato.settimana;
-  m.append(el("div",{class:"titolo-giorno"}, el("h2",{}, g.titolo), el("small",{}, g.focus)));
+  m.append(el("div",{class:"titolo-giorno" + (MOOD && cambioGiorno ? " entra" : "")}, el("h2",{}, g.titolo), el("small",{}, g.focus)));
+  if (MOOD) {
+    const fatti = contaFatti(g), tot = g.blocchi.length;
+    m.append(el("div",{class:"avanzamento", role:"progressbar", "aria-label":"Esercizi fatti oggi",
+      "aria-valuemin":"0", "aria-valuemax":String(tot), "aria-valuenow":String(fatti), "aria-valuetext":`${fatti} su ${tot}`},
+      el("i",{style:`width:${tot ? Math.round(100*fatti/tot) : 0}%`})));
+  }
   m.append(el("div",{style:"font-size:13px;color:var(--colore-testo-tenue)"},
     n < DATI.settimane ? `Stai guardando la settimana ${n} · dal ${fmt(giornoSett(n))}` : `Stai guardando la settimana di scarico · dal ${fmt(giornoSett(n))}`));
   m.append(el("button",{type:"button", class:"btn pieno inizia", html:SVG.play, onclick: apriAllenamento}, " Inizia allenamento"));
   m.append(...cardRiscaldamento(g));
   m.append(el("h3",{class:"sezione"}, "Allenamento", el("span",{}, `${g.blocchi.length} blocchi`)));
   g.blocchi.forEach((b,i) => m.append(b.tipo === "esercizio" ? cardEsercizio(g, i+1, b) : cardCircuito(g, i+1, b)));
+  if (MOOD && ora) m.append(bannerCompletato());
   m.append(...cardStretching(g));
   if (LETTURA) bloccaModifiche();
   if (document.body.classList.contains("in-allenamento")) disegnaFocus();
+  appenaSpuntato = null; statoFine.anima = false;   // le animazioni valgono per un solo disegno
 }
 
 function zonaSalvataggio(){
@@ -377,6 +413,7 @@ function disegnaFocus(){
     n < DATI.settimane ? `Settimana ${n} · dal ${fmt(giornoSett(n))}` : "Settimana di scarico");
   document.getElementById("f-passi").replaceChildren(...p.map((_,i) => el("i",{class: i < stato.passo ? "fatto" : i === stato.passo ? "ora" : null})));
   corpo.replaceChildren(...[p[stato.passo]()].flat());
+  if (MOOD && completo(g) && stato.passo >= g.blocchi.length) corpo.append(bannerCompletato());   // dopo l'ultimo blocco
   corpo.dataset.passo = stato.passo; corpo.scrollTop = stesso ? su : 0;
   document.getElementById("f-indietro").disabled = stato.passo === 0;
   document.getElementById("f-avanti").textContent = stato.passo === p.length - 1 ? "Fine ✓" : "Avanti ›";
