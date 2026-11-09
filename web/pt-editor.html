@@ -27,8 +27,15 @@
   <div id="stato-pagina" aria-live="polite"></div>
 
   <div id="pagina" hidden>
-    <h1 class="titolo">Crea scheda per <span id="nome-cliente"></span></h1>
-    <p class="sotto-titolo">Compili qui giorni, esercizi e circuiti. Quello che scrivi si salva da solo su questo dispositivo finché non invii la scheda.</p>
+    <div class="testata-pt">
+      <div>
+        <div class="testata-titolo">
+          <h1 class="titolo">Nuova scheda</h1>
+          <svg class="gradi-testata" viewBox="0 0 56 56" aria-hidden="true" focusable="false"><path d="M8 18 L28 4 L48 18"/><path d="M8 32 L28 18 L48 32"/><path d="M8 46 L28 32 L48 46"/></svg>
+        </div>
+        <p class="sotto-titolo">Per <strong id="nome-cliente"></strong>. Quello che scrivi si salva da solo su questo dispositivo finché non invii la scheda.</p>
+      </div>
+    </div>
     <div id="bozza-avviso"></div>
 
     <datalist id="suggerimenti"></datalist>

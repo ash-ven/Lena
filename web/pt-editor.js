@@ -174,17 +174,19 @@
         campo("Ripetizioni", b, "rip", { max: 30, segnaposto: "10" }),
         campo("Recupero", b, "rec", { max: 30, segnaposto: "1'30\"" })),
       campoVideo(b),
-      campoLungo("Note (facoltative)", b, "note", { aiuto: "Es. schiena dritta, scendi sotto il parallelo" }),
-      campoLungo("Progressione (facoltativa)", b, "progressione", { aiuto: "Es. +2,5 kg a settimana se chiudi tutte le serie. Se la scrivi, il cliente può segnare le ripetizioni fatte." }),
-      el("label", { class: "spunta-pt" }, (() => {
-        const c = el("input", { type: "checkbox" }); c.checked = b.perSettimana;
-        c.addEventListener("change", () => {
-          b.perSettimana = c.checked;
-          if (c.checked) { const prima = /^\d+$/.test(b.serie.trim()) && /^\d+$/.test(b.rip.trim()) ? `${b.serie.trim()}x${b.rip.trim()}` : ""; b.schema = Array.from({ length: w }, (_, n) => b.schema[n] || prima); }
-          daFocalizzare = null; salvaBozza(); disegna();
-        });
-        return c;
-      })(), el("span", {}, "Cambia da una settimana all'altra")), schema);
+      el("details", { class: "altro", open: b.aperto || b.note || b.progressione || b.perSettimana ? "" : null, ontoggle: (ev) => { b.aperto = ev.target.open; } },
+        el("summary", {}, "Altro: note, progressione, schema per settimana"),
+        campoLungo("Note (facoltative)", b, "note", { aiuto: "Es. schiena dritta, scendi sotto il parallelo" }),
+        campoLungo("Progressione (facoltativa)", b, "progressione", { aiuto: "Es. +2,5 kg a settimana se chiudi tutte le serie. Se la scrivi, il cliente può segnare le ripetizioni fatte." }),
+        el("label", { class: "spunta-pt" }, (() => {
+          const c = el("input", { type: "checkbox" }); c.checked = b.perSettimana;
+          c.addEventListener("change", () => {
+            b.perSettimana = c.checked; b.aperto = true;
+            if (c.checked) { const prima = /^\d+$/.test(b.serie.trim()) && /^\d+$/.test(b.rip.trim()) ? `${b.serie.trim()}x${b.rip.trim()}` : ""; b.schema = Array.from({ length: w }, (_, n) => b.schema[n] || prima); }
+            daFocalizzare = null; salvaBozza(); disegna();
+          });
+          return c;
+        })(), el("span", {}, "Cambia da una settimana all'altra")), schema));
   }
 
   function bloccoCircuito(g, b, i) {
@@ -215,7 +217,7 @@
       g.blocchi.push(nuovo); daFocalizzare = `[data-id="blocco-${g.blocchi.length - 1}"] input`; salvaBozza(); disegna();
     };
     return el("section", { class: "pannello giorno", "aria-labelledby": `t-g${n}`, "data-id": `giorno-${n}`, style: `--giorno:#${pal.colore}` },
-      el("div", { class: "testa-voce" }, el("h2", { class: "sezione-pt", id: `t-g${n}` }, `Giorno ${lettera}`),
+      el("div", { class: "testa-voce" }, el("h2", { class: "titolo-giorno", id: `t-g${n}` }, `Giorno ${lettera}`),
         stato.giorni.length > 1 ? comandi(stato.giorni, n, `giorno-${n}`) : null),
       campo("Su cosa si lavora", g, "focus", { max: 60, segnaposto: "Es. Gambe e glutei" }),
       el("ol", { class: "elenco-editor" }, g.blocchi.map((b, i) => b.tipo === "esercizio" ? bloccoEsercizio(g, b, i) : bloccoCircuito(g, b, i))),
