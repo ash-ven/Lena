@@ -17,10 +17,9 @@ Cose che nel sito servono ma il sistema "Performance lab" non ha ancora. Sono st
 | 11 | Selettore del tema (auto, scura, chiara) | Barra di ogni pagina | Il sistema prevede le due modalità ma non dice come si sceglie. |
 | 12 | Icone Phosphor Bold come file SVG (via maschera CSS) | Ovunque | Colorabili con i token, nessuna richiesta esterna. |
 | 13 | Home con la composizione a blocchi della copertina e i gradi che si accendono dal basso verso l'alto (4,8 s, si ferma con «riduci movimento») | Home | Il movimento è una proposta: il sistema non ne descrive. |
+| 14 | Pannello arancio con i gradi (login e registrazione, schermo largo) | `/login.html`, `/registrati.html` | Dà alle pagine d'ingresso la stessa identità della home. |
 
 ## Ancora da fare (non dipende da te)
 
 - **Logo**: gli SVG sono stati ricostruiti a mano dalle immagini del logo (simbolo Gradi + LENA con la A a chevron), non sono i file originali del sistema: se hai gli originali, sostituiscili in `design-sistema/assets/Logos/` e in `web/logo/` (stessi nomi).
 - **Scheda del cliente**: resta con il suo tema (`web/tema.css`, `web/scheda.css`), identico a quella scaricabile. Va ridisegnata in un secondo momento, insieme alla scheda scaricabile.
-
-| 14 | Pannello arancio con i gradi (login e registrazione, schermo largo) | `/login.html`, `/registrati.html` | Dà alle pagine d'ingresso la stessa identità della home. |
