@@ -73,26 +73,36 @@
 
   // ---------- crea una scheda da qui: si sceglie il cliente e si apre l'editor ----------
   const attivi = () => clienti.filter((c) => !c.rapporto_finito_il);
+  let modoScelta = "crea";   // "crea" = editor; "carica" = caricamento di un Excel (nella pagina del cliente)
+  const indirizzoScelta = (c) => modoScelta === "carica" ? `/pt-cliente.html?id=${c.id}&carica=1` : `/pt-editor.html?cliente=${c.id}`;
   function disegnaScelta() {
     const q = normalizza($("cerca-scelta").value);
     const lista = attivi().filter((c) => normalizza(`${c.nome} ${c.cognome} ${c.cognome} ${c.nome}`).includes(q));
-    $("elenco-scelta").replaceChildren(...lista.map((c) => el("li", {}, el("a", { href: `/pt-editor.html?cliente=${c.id}` },
+    $("elenco-scelta").replaceChildren(...lista.map((c) => el("li", {}, el("a", { href: indirizzoScelta(c) },
       avatar(c),
       el("span", { class: "corpo-cliente" }, el("span", { class: "nome-cliente" }, `${c.cognome} ${c.nome}`)),
       el("span", { class: "icona i-avanti vai", "aria-hidden": "true" })))));
     $("scelta-nessuno").hidden = lista.length > 0 || !attivi().length;
   }
-  function apriScelta(aperto) {
+  function apriScelta(aperto, modo) {
+    if (modo) modoScelta = modo;
     $("scelta-cliente").hidden = !aperto;
-    $("apri-scelta").setAttribute("aria-expanded", String(aperto));
+    for (const [bottone, m] of [["apri-scelta", "crea"], ["apri-carica", "carica"]]) $(bottone).setAttribute("aria-expanded", String(aperto && modoScelta === m));
     if (aperto) {
+      $("scelta-descrizione").textContent = modoScelta === "carica" ? "Scegli il cliente: poi carichi il file Excel con la sua scheda." : "Scegli il cliente: poi compili la scheda qui, in Lena.";
       const vuoto = !attivi().length;
       $("scelta-vuoto").hidden = !vuoto; $("scelta-corpo").hidden = vuoto;
       $("cerca-scelta").value = ""; disegnaScelta();
       (vuoto ? $("annulla-scelta") : $("cerca-scelta")).focus();
-    } else $("apri-scelta").focus();
+    } else $(modoScelta === "carica" ? "apri-carica" : "apri-scelta").focus();
   }
-  $("apri-scelta").addEventListener("click", () => { if (!$("modulo-nuovo").hidden) $("annulla-nuovo").click(); apriScelta($("scelta-cliente").hidden); });
+  // lo stesso pannello serve ai due pulsanti: se è già aperto per l'altro scopo, cambia scopo; se è per lo stesso, si chiude
+  function pulsanteScelta(modo) {
+    if (!$("modulo-nuovo").hidden) $("annulla-nuovo").click();
+    apriScelta($("scelta-cliente").hidden || modoScelta !== modo, modo);
+  }
+  $("apri-scelta").addEventListener("click", () => pulsanteScelta("crea"));
+  $("apri-carica").addEventListener("click", () => pulsanteScelta("carica"));
   $("annulla-scelta").addEventListener("click", () => apriScelta(false));
   $("cerca-scelta").addEventListener("input", disegnaScelta);
 

@@ -214,5 +214,7 @@
     LenaPtProgressi.avvia();
     await ricarica(false);
     if (cliente) LenaPtConverti.avvia(cliente, () => ricarica(true));
+    // arrivati da «Carica scheda» nell'elenco clienti (?carica=1): il caricamento dell'Excel è già aperto
+    if (cliente && !cliente.rapporto_finito_il && new URLSearchParams(location.search).get("carica") === "1") $("apri-convertitore").click();
   })();
 })();

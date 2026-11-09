@@ -114,3 +114,11 @@ test("dall'elenco clienti si può creare una scheda scegliendo il cliente (senza
   assert.match(js, /\/pt-editor\.html\?cliente=\$\{c\.id\}/);
   assert.match(js, /filter\(\(c\) => !c\.rapporto_finito_il\)/);   // non si propongono i clienti con il rapporto concluso
 });
+
+test("dall'elenco clienti si può anche caricare un Excel: porta alla pagina del cliente con il caricamento già aperto", () => {
+  const web = path.join(__dirname, "..", "..", "web");
+  const html = fs.readFileSync(path.join(web, "pt.html"), "utf8"), js = fs.readFileSync(path.join(web, "pt.js"), "utf8"), cli = fs.readFileSync(path.join(web, "pt-cliente.js"), "utf8");
+  assert.match(html, /id="apri-carica"[^>]*>Carica scheda</);
+  assert.match(js, /\/pt-cliente\.html\?id=\$\{c\.id\}&carica=1/);
+  assert.match(cli, /get\("carica"\) === "1"\) \$\("apri-convertitore"\)\.click\(\)/);
+});
