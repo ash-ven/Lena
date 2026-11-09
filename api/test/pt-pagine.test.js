@@ -137,3 +137,15 @@ test("schema per settimana: la scheda mostra serie e ripetizioni della settimana
   assert.doesNotMatch(scheda, /el\("b",\{\}, e\.serie\)/, "i numeri grandi non sono più i valori base");
   assert.match(ed, /!b\.perSettimana && !testo\(b\.serie\)/);
 });
+
+test("scheda: aree di tocco da 44 px (spunte, settimane, pulsanti, timer) e timer che non copre il pulsante delle serie", () => {
+  const css = fs.readFileSync(path.join(__dirname, "..", "..", "web", "scheda.css"), "utf8");
+  assert.match(css, /\.spunta\{[^}]*width:44px;height:44px/);
+  assert.match(css, /\.sett button\{[^}]*min-height:44px/);
+  assert.match(css, /\.btn\.piccolo\{[^}]*min-height:44px/);
+  assert.match(css, /\.timer button\{[^}]*min-height:44px/);
+  assert.match(css, /body:has\(#timer\.on\)\{padding-bottom/);
+  const js = fs.readFileSync(path.join(__dirname, "..", "..", "web", "scheda.js"), "utf8");
+  assert.match(js, /"data-serie": c/);
+  assert.match(js, /scrollIntoView\(\{ block: "nearest" \}\)/);
+});

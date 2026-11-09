@@ -32,7 +32,7 @@ h1{font-family:var(--scheda-font-titoli);font-weight:400;font-size:28px;line-hei
 .giorno-btn[aria-pressed="true"] span{color:rgba(46,42,40,.75)}
 .sett{display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none}
 .sett::-webkit-scrollbar{display:none}
-.sett button{flex:0 0 auto;border:1px solid var(--colore-linea);background:transparent;border-radius:999px;padding:6px 12px;font-size:13px;min-height:34px}
+.sett button{flex:0 0 auto;border:1px solid var(--colore-linea);background:transparent;border-radius:999px;padding:8px 14px;font-size:13px;min-height:44px}
 .sett button[aria-pressed="true"]{background:var(--colore-testo);border-color:var(--colore-testo);color:#fff}
 .sett button.oggi:not([aria-pressed="true"]){border-color:var(--c);color:var(--c-scuro)}
 
@@ -52,8 +52,8 @@ h3.sezione span{font-family:var(--scheda-font-testo);font-size:13px;color:var(--
 .num{flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:var(--c-chiaro);color:var(--c-scuro);
   display:grid;place-items:center;font-family:var(--scheda-font-titoli);font-size:15px;margin-top:1px}
 .nome{font-family:var(--scheda-font-titoli);font-size:19px;line-height:1.25;margin:0;flex:1;min-width:0}
-.spunta{flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--colore-linea);background:transparent;display:grid;place-items:center}
-.spunta svg{opacity:0;width:16px;height:16px}
+.spunta{flex:0 0 auto;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--colore-linea);background:transparent;display:grid;place-items:center}
+.spunta svg{opacity:0;width:20px;height:20px}
 .spunta[aria-pressed="true"]{background:var(--c);border-color:var(--c)}
 .spunta[aria-pressed="true"] svg{opacity:1}
 
@@ -83,7 +83,7 @@ table.tutte tr.sel td{color:var(--c-scuro);font-weight:600}
 
 .azioni{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--colore-linea);background:var(--colore-carta);border-radius:999px;
-  padding:8px 14px;font-size:14px;text-decoration:none;min-height:40px}
+  padding:8px 14px;font-size:14px;text-decoration:none;min-height:44px}
 .btn svg{width:15px;height:15px;flex:0 0 auto}
 .btn.pieno{background:var(--c-scuro);border-color:var(--c-scuro);color:#fff}
 
@@ -99,7 +99,7 @@ table.tutte tr.sel td{color:var(--c-scuro);font-weight:600}
 .lista .pallino[aria-pressed="true"] svg{opacity:1}
 .lista .t{flex:1;min-width:0}
 .lista .rip{font-family:var(--scheda-font-titoli);color:var(--c-scuro);white-space:nowrap}
-.lista a.mini{font-size:13px;color:var(--c-scuro);text-decoration:none;border:1px solid var(--colore-linea);border-radius:999px;padding:5px 10px;white-space:nowrap}
+.lista a.mini{display:inline-flex;align-items:center;min-height:44px;font-size:13px;color:var(--c-scuro);text-decoration:none;border:1px solid var(--colore-linea);border-radius:999px;padding:0 14px;white-space:nowrap}
 
 .circ .testa .num{background:var(--c-scuro);color:#fff}
 .formato{font-family:var(--scheda-font-titoli);font-size:22px;margin:0;color:var(--c-scuro)}
@@ -118,7 +118,7 @@ footer{color:var(--colore-testo-tenue);font-size:12px;text-align:center;margin:2
 .timer .info{flex:1;min-width:0}
 .timer .barra-t{height:3px;border-radius:2px;background:rgba(255,255,255,.18);margin-top:7px;overflow:hidden}
 .timer .barra-t i{display:block;height:100%;background:var(--c);width:0}
-.timer button{border:0;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;padding:9px 13px;font-size:14px;min-height:40px}
+.timer button{border:0;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;padding:9px 14px;font-size:14px;min-height:44px}
 .timer.finito{background:var(--c-scuro)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 /* --- aggiunte: kg, serie, salvataggio, modalità allenamento --- */
@@ -136,7 +136,7 @@ footer{color:var(--colore-testo-tenue);font-size:12px;text-align:center;margin:2
 .puntini{display:flex;gap:5px;align-items:center;margin-right:2px}
 .puntini i{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--c);display:block}
 .puntini i.on{background:var(--c)}
-.btn.piccolo{padding:6px 11px;min-height:36px;font-size:13px}
+.btn.piccolo{padding:8px 12px;min-height:44px;font-size:13px}
 .inizia{width:100%;justify-content:center;margin:14px 0 2px;min-height:50px;font-size:16px}
 .salvataggio{background:var(--colore-carta);border:1px solid var(--colore-linea);border-radius:18px;padding:14px 16px;margin-top:22px;font-size:13px;color:var(--colore-testo-tenue)}
 .salvataggio b{color:var(--colore-testo);font-weight:600}
@@ -181,3 +181,10 @@ body.in-allenamento .timer{bottom:calc(86px + env(safe-area-inset-bottom))}
 body.sola-lettura .inizia, body.sola-lettura .serie-riga button, body.sola-lettura .card .azioni{display:none}
 body.sola-lettura .campo input, body.sola-lettura .circ .lista input{pointer-events:none}
 body.sola-lettura button:disabled{cursor:default}
+
+/* aree di tocco: almeno 44 px. Le righe del riscaldamento si toccano per intero (non solo il pallino); il campo kg è un'etichetta, quindi si tocca tutto il riquadro */
+.lista li:has(> .pallino){min-height:44px;cursor:pointer}
+.campo{cursor:text}
+/* il timer è fisso in basso: finché è acceso la pagina ha spazio sotto, e la riga delle serie si ferma sopra di lui (così «Serie fatta» non resta nascosto) */
+body:has(#timer.on){padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+.serie-riga{scroll-margin-bottom:130px}

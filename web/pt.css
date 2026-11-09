@@ -12,7 +12,7 @@ body.pt a{color:var(--testo-brace)}
 .barra-pt{background:var(--superficie);border-bottom:1px solid var(--bordo-superficie);position:sticky;top:0;z-index:5}
 .barra-pt .dentro{max-width:1040px;margin:0 auto;padding:var(--spazio-2) var(--spazio-4);display:flex;align-items:center;gap:var(--spazio-3);justify-content:space-between}
 .barra-pt .destra{display:flex;align-items:center;gap:var(--spazio-2)}
-.logo-pt{display:inline-block;vertical-align:middle;line-height:0;text-decoration:none}
+.logo-pt{display:inline-block;vertical-align:middle;line-height:0;text-decoration:none;padding:9px 0;margin:-9px 0}
 .logo-pt .logo-img{height:26px;width:auto}
 .area-pt{font-size:13px;line-height:18px;color:var(--testo-secondario);margin-left:var(--spazio-3)}
 .contenitore{max-width:1040px;margin:0 auto;padding:var(--spazio-6) var(--spazio-4) 64px}
@@ -187,7 +187,7 @@ select.scelta{min-height:48px;padding:var(--spazio-2) var(--spazio-3);font:inher
 .testo-legale h2{margin-top:var(--spazio-5)}
 .testo-legale h2:first-child{margin-top:0}
 .piede-legale{max-width:1040px;margin:0 auto;padding:var(--spazio-2) var(--spazio-4) var(--spazio-8);font-size:13px;line-height:18px;color:var(--testo-secondario);text-align:center}
-.piede-legale a{text-decoration:underline}
+.piede-legale a{text-decoration:underline;display:inline-block;padding:13px 6px}
 .nota a,.testo-legale a,.sotto-titolo a,.pannello p a,.avviso-pt a{text-decoration:underline}
 
 /* ---------- passi numerati del convertitore (PROPOSTA) ---------- */

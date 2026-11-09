@@ -68,7 +68,7 @@ body.semplice a:focus-visible, body.semplice button:focus-visible, body.semplice
 
 /* link a piè di pagina (informativa, condizioni) */
 .piede-legale{padding:var(--spazio-2) var(--spazio-4) var(--spazio-8);font-size:13px;line-height:18px;color:var(--testo-secondario);text-align:center}
-.piede-legale a{text-decoration:underline}
+.piede-legale a{text-decoration:underline;display:inline-block;padding:13px 6px}
 .mostra a{text-decoration:underline}
 .centrato{text-align:center}
 

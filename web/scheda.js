@@ -218,8 +218,10 @@ function rigaSerie(k, e, serie){
     if (n === tot) mem.fatti[c] = 1;
     salva(); disegna();
     if (rec) avviaTimer(secondi(rec), `${e.nome} · serie ${n}/${tot} · recupero ${rec}`);
+    // il timer copre il fondo della pagina: la riga delle serie si porta sopra di lui, così il pulsante della serie dopo resta toccabile
+    requestAnimationFrame(() => { const r = [...document.querySelectorAll("[data-serie]")].find((x) => x.getAttribute("data-serie") === c); if (r) r.scrollIntoView({ block: "nearest" }); });
   };
-  const riga = el("div",{class:"serie-riga"}, pallini);
+  const riga = el("div",{class:"serie-riga", "data-serie": c}, pallini);
   if (fatte < tot){
     if (recs.length === 0) riga.append(el("button",{type:"button", class:"btn pieno", onclick:()=>dopo(null)}, `Serie ${fatte+1} fatta`));
     recs.forEach(rec => riga.append(el("button",{type:"button", class:"btn pieno", html:SVG.clock, onclick:()=>dopo(rec)},
@@ -239,7 +241,7 @@ function cardRiscaldamento(g){
   const R = DATI.riscaldamento;
   const sez = [el("h3",{class:"sezione"}, "Riscaldamento", el("span",{}, `${R.voce} · ${R.durata}`))];
   const lista = el("ul",{class:"lista"});
-  R.esercizi.forEach(([nome,url],i) => lista.append(el("li",{}, spunta(`${g.id}|R|${i}`,"pallino"), el("span",{class:"t"}, nome),
+  R.esercizi.forEach(([nome,url],i) => lista.append(el("li",{onclick:(ev)=>{ if (!ev.target.closest("a, button")) ev.currentTarget.querySelector("button.pallino").click(); }}, spunta(`${g.id}|R|${i}`,"pallino"), el("span",{class:"t"}, nome),
       url ? el("a",{class:"mini", href:url, target:"_blank", rel:"noopener"}, "Video") : null)));
   sez.push(el("section",{class:"card risc"},
     el("p",{class:"istr"}, R.istruzione), lista,
