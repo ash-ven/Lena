@@ -39,6 +39,8 @@ function creaApp(opzioni = {}) {
   } = opzioni;
 
   const app = express();
+  // Online (Render) le richieste passano da un proxy: ci fidiamo di UN solo passaggio, così i limiti contano l'IP vero dell'utente.
+  if (produzione) app.set("trust proxy", 1);
 
   // Intestazioni di sicurezza standard (e toglie "X-Powered-By"). Unica differenza in sviluppo: senza la direttiva
   // "upgrade-insecure-requests" (che obbliga il browser a chiedere tutto in https), così il sito si apre anche dal
