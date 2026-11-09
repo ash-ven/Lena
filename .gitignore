@@ -2,3 +2,6 @@
 scheda-*.html
 node_modules/
 .env
+
+# il modello Excel scaricabile fa parte del sito: si tiene nel repository
+!web/modello-scheda-lena.xlsx
