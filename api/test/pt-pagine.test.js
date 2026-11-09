@@ -149,3 +149,13 @@ test("scheda: aree di tocco da 44 px (spunte, settimane, pulsanti, timer) e time
   assert.match(js, /"data-serie": c/);
   assert.match(js, /scrollIntoView\(\{ block: "nearest" \}\)/);
 });
+
+test("elenco clienti: ogni riga dice lo stato, l'ultimo allenamento e quando scade la scheda; lo stato non ruba più spazio al nome", () => {
+  const web = path.join(__dirname, "..", "..", "web");
+  const js = fs.readFileSync(path.join(web, "pt.js"), "utf8"), comune = fs.readFileSync(path.join(web, "pt-comune.js"), "utf8");
+  assert.match(comune, /function riepilogoRiga\(c\)/);
+  assert.match(comune, /Ultimo allenamento \$\{quando\(c\.ultimo_progresso\)\}/);
+  assert.match(js, /riepilogoRiga\(c\)/);
+  assert.match(js, /scadenza-riga/);
+  assert.doesNotMatch(js, /el\("span", \{ class: `stato \$\{s\.tipo\}` \}, s\.breve\),\s*el\("span", \{ class: "icona i-avanti vai"/, "lo stato non sta più in una colonna a parte");
+});

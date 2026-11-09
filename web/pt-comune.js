@@ -57,6 +57,27 @@
     return { giorni: g, scaduta: g < 0, testo, data: c.scheda_scade_il };
   }
 
+  // «oggi», «ieri», «5 giorni fa» (oltre i due mesi la data)
+  function quando(iso) {
+    const g = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const n = Math.round((g(new Date()) - g(new Date(iso))) / 86400000);
+    return n <= 0 ? "oggi" : n === 1 ? "ieri" : n <= 60 ? `${n} giorni fa` : `il ${dataBreve(iso)}`;
+  }
+
+  // Che cosa mostra la riga di un cliente nell'elenco: lo stato, quando si è allenato l'ultima volta, quando scade la scheda
+  function riepilogoRiga(c) {
+    const s = statoCliente(c);
+    const testo = c.schede && c.registrato && !c.rapporto_finito_il
+      ? (c.ultimo_progresso ? `Ultimo allenamento ${quando(c.ultimo_progresso)}` : "Non ha ancora segnato nulla")
+      : s.dettaglio;
+    let scad = null;
+    if (c.schede && !c.rapporto_finito_il && c.giorni_alla_scadenza != null) {
+      const u = scadenza(c);
+      scad = u ? { testo: `Scheda ${u.testo}`, urgente: true } : { testo: `Scheda fino al ${dataBreve(c.scheda_scade_il)}`, urgente: false };
+    }
+    return { stato: s, testo, scad };
+  }
+
   // ---------- costruire pezzi di pagina SEMPRE come testo (mai come HTML) ----------
   function el(tag, attrs, ...figli) {
     const e = document.createElement(tag);
@@ -109,5 +130,5 @@
     try { const t = sessionStorage.getItem("lena:messaggio"); sessionStorage.removeItem("lena:messaggio"); return t; } catch (e) { return null; }
   }
 
-  window.LenaPt = { verificaPt, chiama, vaiAlLogin, dataBreve, dataOra, normalizza, statoCliente, scadenza, el, messaggio, testoErrore, cornice, ricordaMessaggio, prendiMessaggio };
+  window.LenaPt = { verificaPt, chiama, vaiAlLogin, dataBreve, dataOra, normalizza, statoCliente, scadenza, riepilogoRiga, el, messaggio, testoErrore, cornice, ricordaMessaggio, prendiMessaggio };
 })();

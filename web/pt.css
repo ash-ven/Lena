@@ -106,7 +106,8 @@ body.pt a.bottone{color:var(--su-brace)}
 body.pt .elenco-clienti a{color:var(--testo)}
 .elenco-clienti .corpo-cliente{flex:1 1 auto;min-width:0;display:grid;gap:2px;justify-items:start}
 .elenco-clienti .nome-cliente{font-family:var(--font-titoli);font-weight:700;font-size:18px;line-height:24px;overflow-wrap:anywhere}
-.elenco-clienti .dettaglio{font-size:14px;line-height:20px;color:var(--testo-secondario)}
+.elenco-clienti .dettaglio{display:flex;flex-wrap:wrap;align-items:center;gap:0 var(--spazio-2);font-size:14px;line-height:20px;color:var(--testo-secondario)}
+.elenco-clienti .scadenza-riga.urgente{color:var(--testo-brace);font-weight:500}
 .elenco-clienti .vai{color:var(--testo-secondario)}
 .elenco-clienti .stato{flex:none;margin:0}
 /* l'elenco completo: un unico riquadro con righe separate */
@@ -123,6 +124,14 @@ body.pt .elenco-clienti a{color:var(--testo)}
 .conto{flex:none;text-align:right;font-family:var(--font-titoli);font-weight:700;color:var(--testo-brace);font-variant-numeric:tabular-nums}
 .conto b{display:block;font-size:40px;line-height:1}
 .conto small{display:block;margin-top:2px;font-size:12px;line-height:16px;letter-spacing:.12em;text-transform:uppercase}
+/* telefono: il conto alla rovescia va sotto il nome, su una riga sua, così il nome e la data non restano strozzati */
+@media (max-width:600px){
+  #elenco-scadenze a{flex-wrap:wrap;row-gap:var(--spazio-2)}
+  #elenco-scadenze .corpo-cliente{flex:1 1 0}
+  #elenco-scadenze .conto{order:3;flex:1 0 100%;display:flex;align-items:baseline;gap:var(--spazio-2);text-align:left;padding-left:calc(48px + var(--spazio-4))}
+  #elenco-scadenze .conto b{display:inline;font-size:28px}
+  #elenco-scadenze .conto small{display:inline;margin:0}
+}
 /* ricerca con la lente dentro il campo */
 .ricerca{position:relative;margin:0 0 var(--spazio-3)}
 .ricerca .icona{position:absolute;left:var(--spazio-4);top:50%;transform:translateY(-50%);color:var(--testo-secondario);pointer-events:none}
@@ -296,3 +305,9 @@ details.altro > summary:hover{color:var(--testo)}
 .giorno[data-g="7"]{--giorno:var(--giorno-7);--su-giorno:var(--su-giorno-7)}
 .titolo-giorno-riga{display:flex;align-items:center;gap:var(--spazio-3);min-width:0}
 .pastiglia-giorno{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:var(--raggio-controllo);background:var(--giorno,var(--superficie-alta));color:var(--su-giorno,var(--testo));font-family:var(--font-titoli);font-weight:700;font-size:18px;line-height:1}
+/* telefono stretto: «Crea scheda» e «Carica scheda» stanno affiancati e dividono la riga; «Nuovo cliente» va sotto, a tutta larghezza */
+@media (max-width:420px){
+  .azioni-testata{gap:var(--spazio-2)}
+  .azioni-testata .bottone.secondario{flex:1 1 0;padding-left:var(--spazio-2);padding-right:var(--spazio-2);justify-content:center}
+  .azioni-testata #apri-nuovo{flex:1 0 100%;justify-content:center}
+}

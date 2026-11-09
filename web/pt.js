@@ -1,7 +1,7 @@
 /* pt.html: l'elenco dei clienti del PT, la ricerca e il modulo "Nuovo cliente". */
 (function () {
   const $ = (id) => document.getElementById(id);
-  const { el, normalizza, statoCliente } = LenaPt;
+  const { el, normalizza } = LenaPt;
   let clienti = [];
 
   $("esci").addEventListener("click", () => Lena.esci());
@@ -19,13 +19,14 @@
     const visibili = clienti.filter((c) => normalizza(`${c.nome} ${c.cognome} ${c.cognome} ${c.nome}`).includes(q));
     const ul = $("elenco");
     ul.replaceChildren(...visibili.map((c) => {
-      const s = statoCliente(c);
+      const r = LenaPt.riepilogoRiga(c);
       return el("li", {}, el("a", { href: `/pt-cliente.html?id=${c.id}` },
         avatar(c),
         el("span", { class: "corpo-cliente" },
           el("span", { class: "nome-cliente" }, `${c.cognome} ${c.nome}`),
-          el("span", { class: "dettaglio" }, s.dettaglio)),
-        el("span", { class: `stato ${s.tipo}` }, s.breve),
+          el("span", { class: "dettaglio" },
+            r.stato.tipo === "neutro" ? null : el("span", { class: `stato ${r.stato.tipo}` }, r.stato.breve), r.testo),
+          r.scad ? el("span", { class: "dettaglio scadenza-riga" + (r.scad.urgente ? " urgente" : "") }, r.scad.testo) : null),
         el("span", { class: "icona i-avanti vai", "aria-hidden": "true" })));
     }));
     $("conteggio").textContent = !clienti.length ? "" : q
