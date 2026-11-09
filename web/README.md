@@ -29,7 +29,8 @@ Le pagine usano due immagini per ogni logo (`su-scuro` e `su-chiaro`): `sistema.
 
 ## I mood della scheda del cliente (`web/mood/`)
 La scheda di allenamento ha un'estetica a parte, il **mood**: colori, carattere dei titoli, angoli, texture e animazioni. La struttura (`scheda.js`) è la stessa per tutti i mood.
-- Un mood è un file `web/mood/<nome>.css`, attivo quando `<html>` ha `data-mood="<nome>"`. Lo mettono `scheda-server.js` (scheda del cliente) e `anteprima.js` (il trainer vede la stessa estetica). Per ora c'è solo `lena`, il predefinito; quando il cliente potrà scegliere, il nome arriverà dal server.
+- Un mood è un file `web/mood/<nome>.css`, attivo quando `<html>` ha `data-mood="<nome>"`. Lo mettono `scheda-server.js` (scheda del cliente) e `anteprima.js` (il trainer vede la stessa estetica). Mood esistenti: `lena` (predefinito) e `motori`. Finché il cliente non può scegliere, si prova un mood aprendo la scheda con `?mood=<nome>` (provvisorio, elenco in `MOOD_ESISTENTI`); poi il nome arriverà dal server.
+- Ganci di `scheda.js` per le animazioni dei mood: classe `cambia` su `<html>` al cambio di giorno; `data-luci` (0–3) sul timer negli ultimi 3 secondi, con tre `<i>` in `.luci` (Lena le nasconde, Motori ne fa il semaforo).
 - Ogni mood è **o scuro o chiaro**: dentro la scheda vale il mood, non l'interruttore del tema del sito (`:root[data-mood]` vince su `data-theme`).
 - **Colori dei giorni:** `--giorno-1` … `--giorno-7` e `--su-giorno-1` … `--su-giorno-7` (la scritta sopra). Il giorno si sceglie per posizione (`data-giorno` su `<html>` e sulle linguette), mai dai colori salvati nei dati. Si vedono nella testata del giorno, nelle linguette, nella barra di avanzamento e nei passi della modalità allenamento.
 - **Animazioni:** brevi e legate a momenti precisi (spunta → classe `scatta`, cambio giorno → `entra`, allenamento completato → `completato appena`, fine recupero → `.timer.finito`). Si fermano con «riduci movimento».

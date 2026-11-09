@@ -152,7 +152,9 @@
 /* ---------- riquadri e campi: angoli vivi ---------- */
 [data-mood="motori"] h3.sezione { border-bottom-color: var(--bordo-superficie); }
 [data-mood="motori"] .card { border-radius: var(--raggio); border-color: var(--bordo-superficie); background: var(--superficie); }
-[data-mood="motori"] .card.fatto { opacity: .6; }
+/* fatto: si spegne il contenuto, non il riquadro (il riquadro resta pieno, così il carbonio non passa sotto il testo) */
+[data-mood="motori"] .card.fatto { opacity: 1; }
+[data-mood="motori"] .card.fatto > * { opacity: .6; }
 [data-mood="motori"] .card.fatto .nome { text-decoration-color: var(--g); }
 [data-mood="motori"] .num, [data-mood="motori"] .circ .testa .num { background: var(--superficie-alta); color: var(--testo); border-radius: var(--raggio); }
 [data-mood="motori"] .dato, [data-mood="motori"] .campo { background: var(--sfondo); border-radius: var(--raggio); }

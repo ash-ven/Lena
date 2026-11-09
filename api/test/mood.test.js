@@ -57,7 +57,12 @@ for (const f of MOOD) {
 }
 
 test("la scheda del cliente e l'anteprima caricano il mood; la scheda scaricabile no", () => {
-  for (const p of ["scheda.html", "anteprima.html"]) assert.match(leggi(p), /href="\/mood\/lena\.css"/, p);
+  for (const p of ["scheda.html", "anteprima.html"]) {
+    for (const f of MOOD) assert.ok(leggi(p).includes(`href="/mood/${f}"`), `${p} deve caricare mood/${f}`);
+  }
+  // ogni mood che si può scegliere con ?mood= esiste davvero come file
+  const elenco = leggi("scheda-server.js").match(/MOOD_ESISTENTI = \[([^\]]+)\]/)[1].match(/"([a-z-]+)"/g).map((s) => s.replace(/"/g, ""));
+  for (const m of elenco) assert.ok(MOOD.includes(`${m}.css`), `manca web/mood/${m}.css`);
   assert.match(leggi("scheda-server.js"), /setAttribute\("data-mood"/);
   assert.match(leggi("anteprima.js"), /setAttribute\("data-mood"/);
   const modello = fs.readFileSync(path.join(WEB, "..", "modello-scheda.html"), "utf8");
