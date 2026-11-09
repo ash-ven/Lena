@@ -25,6 +25,7 @@
   const ricarica = () => location.reload();
   const AZIONE_RIPROVA = { testo: "Riprova", fa: ricarica };
   const AZIONE_ESCI = { testo: "Esci", fa: () => Lena.esci(), secondario: true };
+  const AZIONE_PROFILO = { testo: "Il mio profilo", fa: () => location.assign("/account.html"), secondario: true };
 
   function vaiAlLogin() { location.replace("/login.html"); }
 
@@ -142,8 +143,8 @@
     if (me.stato === 200 && me.json.ruolo === "pt") return location.replace("/pt.html");
     if (sch.stato === 404) {
       return mostraStato("La tua scheda non c'è ancora",
-        "Il tuo PT non ti ha ancora caricato una scheda. Appena lo fa, la trovi qui.",
-        [{ testo: "Controlla di nuovo", fa: ricarica }, AZIONE_ESCI]);
+        "Il tuo PT non ti ha ancora caricato una scheda. Appena lo fa, la trovi qui. Intanto puoi vedere il tuo profilo.",
+        [{ testo: "Controlla di nuovo", fa: ricarica }, AZIONE_PROFILO, AZIONE_ESCI]);
     }
     if (me.stato !== 200 || sch.stato !== 200) {
       const r = me.stato !== 200 ? me : sch;

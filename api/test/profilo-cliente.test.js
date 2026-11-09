@@ -108,3 +108,16 @@ test("pagine: l'account del cliente ha il caricamento della foto con etichetta; 
     assert.doesNotMatch(js, /innerHTML|outerHTML|insertAdjacentHTML|document\.write|eval\(|new Function/, f);
   }
 });
+
+test("un cliente SENZA scheda entra comunque: la scheda non c'è (404) ma il profilo, il trainer e i dati sono raggiungibili", async () => {
+  const s = await entra("pc-cli1");   // questo cliente non ha ancora nessuna scheda in questo punto, oppure la ha: lo rendiamo certo
+  await db.query("DELETE FROM scheda WHERE cliente_id = $1", [c1.clienteId]);
+  assert.equal((await s("GET", "/api/me/scheda")).stato, 404);
+  assert.equal((await s("GET", "/api/me/profilo")).stato, 200);
+  assert.equal((await s("GET", "/api/me/trainer")).stato, 200);
+  assert.equal((await s("GET", "/api/me/esporta")).stato, 200);
+  // e la schermata «La tua scheda non c'è ancora» offre il collegamento al profilo
+  const js = leggi("scheda-server.js");
+  assert.match(js, /AZIONE_PROFILO\s*=\s*\{[^}]*"\/account\.html"/);
+  assert.match(js, /Controlla di nuovo[^\]]*AZIONE_PROFILO/);
+});
