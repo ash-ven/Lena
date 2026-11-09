@@ -67,7 +67,8 @@ test("Excel pulito: nessun avviso sulla salute; Excel con «Ernia del disco» ne
   assert.ok(r.dati, "la scheda c'è: non è un blocco");
   assert.equal(erroreScheda(r.dati), null, "ed è valida: il professionista può inviarla con la spunta");
   assert.equal(r.avvisi.length, 1);
-  assert.match(r.avvisi[0], /^Questo testo sembra contenere informazioni sulla salute: verifica di averne il consenso o toglile\./);
+  assert.ok(r.avvisi[0].startsWith(Salute.MESSAGGIO), "un solo messaggio, quello della regola");
+  assert.match(r.avvisi[0], /togli questa informazione/);
   assert.match(r.avvisi[0], /Giorno A, «Hip thrust» \(note\)/);
   assert.match(r.avvisi[0], /Ernia del disco/);
   assert.match(r.avvisi[0], /parola riconosciuta: ernia/);
@@ -115,4 +116,15 @@ test("il PT può proseguire: la pagina tratta questi avvisi come tutti gli altri
   assert.match(html, /Non inserire dati di salute/);
   assert.match(html.replace(/\s+/g, " "), /parole-salute\.js"><\/script> <script src="\/convertitore\.js"/, "la lista si carica prima del convertitore");
   assert.match(fs.readFileSync(path.join(web, "..", "convertitore-test.html"), "utf8"), /parole-salute\.js/);
+});
+
+test("un solo messaggio sui dati di salute: editor ed Excel usano lo stesso testo, e non si parla più di «consenso» (nel pilota non ne devono entrare)", () => {
+  const fs = require("node:fs"), path = require("node:path");
+  const web = path.join(__dirname, "..", "..", "web");
+  const parole = fs.readFileSync(path.join(web, "parole-salute.js"), "utf8");
+  assert.doesNotMatch(parole, /verifica di averne il consenso/);
+  assert.match(Salute.MESSAGGIO, /togli questa informazione/);
+  assert.match(fs.readFileSync(path.join(web, "pt-editor.js"), "utf8"), /LenaParoleSalute\.avvisi\(dati\)/);
+  assert.match(fs.readFileSync(path.join(web, "convertitore.js"), "utf8"), /ParoleSalute\.avvisi\(dati\)/);
+  assert.doesNotMatch(fs.readFileSync(path.join(web, "pt-cliente.html"), "utf8"), /Sono dati sulla salute/);
 });

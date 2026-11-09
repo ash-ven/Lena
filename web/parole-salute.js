@@ -1,6 +1,6 @@
 /* Controllo "morbido" sui dati di salute nelle schede.
    Lena NON è pensata per contenere dati di salute (infortuni, patologie, farmaci...). Quando il professionista carica un Excel,
-   se un testo contiene parole tipiche, compare un AVVISO (mai un blocco): «verifica di averne il consenso o toglile».
+   se un testo contiene parole tipiche, compare un AVVISO (mai un blocco) con UN SOLO messaggio, lo stesso nell'editor e nel caricamento da Excel: «togli questa informazione».
 
    È solo un aiuto, non un medico: cerca parole italiane in una lista. Non capisce il senso delle frasi.
    Limiti, detti chiaramente:
@@ -82,6 +82,9 @@
     return fuori;
   }
 
+  // L'unico messaggio sui dati di salute (pilota: nessun dato di salute in Lena). Cambiare la regola = cambiare solo questa riga.
+  const MESSAGGIO = "In questa fase Lena non può contenere dati sulla salute: togli questa informazione.";
+
   // Gli avvisi (testi in italiano) per una scheda. Al massimo 8, poi una riga che dice quanti altri ce ne sono.
   function avvisi(dati, massimo = 8) {
     const tutti = [];
@@ -89,11 +92,11 @@
       const parole = trova(testo);
       if (!parole.length) continue;
       const estratto = testo.length > 60 ? testo.slice(0, 57) + "…" : testo;
-      tutti.push(`Questo testo sembra contenere informazioni sulla salute: verifica di averne il consenso o toglile. [${dove}] «${estratto}» (parola riconosciuta: ${parole.join(", ")})`);
+      tutti.push(`${MESSAGGIO} [${dove}] «${estratto}» (parola riconosciuta: ${parole.join(", ")})`);
     }
     if (tutti.length <= massimo) return tutti;
-    return [...tutti.slice(0, massimo), `…e altri ${tutti.length - massimo} testi che sembrano contenere informazioni sulla salute: controlla l'Excel.`];
+    return [...tutti.slice(0, massimo), `…e altri ${tutti.length - massimo} testi che sembrano contenere dati sulla salute: toglili.`];
   }
 
-  return { PAROLE, trova, avvisi, normalizza };
+  return { PAROLE, MESSAGGIO, trova, avvisi, normalizza };
 });

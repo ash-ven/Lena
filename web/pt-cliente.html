@@ -53,7 +53,7 @@
         <h3 class="sezione-pt" id="t-conv">Carica un file Excel</h3>
         <ol class="passi"><li>Scegli il file.</li><li>Controlla gli avvisi e l'anteprima.</li><li>Invia la scheda al cliente.</li></ol>
         <p class="nota">Il file viene letto qui, nel tuo browser: al server arriva solo la scheda già convertita.</p>
-        <p class="avviso-pt avviso" role="note"><strong>Non inserire dati di salute.</strong>Niente infortuni, patologie, farmaci o allergie nelle note dell'Excel: Lena non è pensata per questo. Se ne trovo, te lo segnalo.</p>
+        <p class="avviso-pt avviso" role="note"><strong>Non inserire dati di salute.</strong>Infortuni, patologie, farmaci, allergie: in questa fase Lena non può contenerli, nemmeno nelle note dell'Excel. Se ne trovo, te lo segnalo.</p>
         <div class="campo-pt">
           <label for="conv-file">Scegli il file Excel (.xlsx)</label>
           <input id="conv-file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
@@ -112,7 +112,7 @@
     <!-- ===== Dati personali ===== -->
     <section class="pannello zona-pericolo" aria-labelledby="t-dati">
       <h2 class="sezione-pt" id="t-dati">Dati personali del cliente</h2>
-      <p>Sono dati sulla salute, quindi protetti in modo particolare. Il cliente ha diritto a riceverli e a farli cancellare.</p>
+      <p>Sono dati personali del cliente: trattali con cura. Il cliente ha diritto a riceverli e a farli cancellare.</p>
       <div class="azioni-pt"><button class="bottone secondario" type="button" id="esporta"><span class="icona i-scarica" aria-hidden="true"></span>Esporta dati (JSON)</button></div>
       <div id="esporta-esito" role="status"></div>
       <hr class="separatore">
