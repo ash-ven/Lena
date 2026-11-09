@@ -121,4 +121,8 @@ test("un cliente SENZA scheda entra comunque: la scheda non c'è (404) ma il pro
   assert.match(js, /sch\.stato === 404\) return location\.replace\("\/benvenuto\.html"\)/);
   assert.match(js, /profilo-icona[\s\S]*\/account\.html/);
   assert.match(leggi("benvenuto.js"), /\/api\/me\/trainer/);
+  // la scheda non si apre da sola: dopo l'accesso si va sempre alla pagina di casa
+  for (const f of ["login.js", "registrati.js", "index.js"]) assert.doesNotMatch(leggi(f), /"\/scheda\.html"/, `${f} non deve mandare dritto alla scheda`);
+  assert.doesNotMatch(leggi("benvenuto.js"), /location\.replace\("\/scheda\.html"\)/);
+  assert.match(leggi("benvenuto.html"), /href="\/scheda\.html"[^>]*>Apri la scheda/);
 });

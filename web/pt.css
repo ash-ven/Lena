@@ -270,3 +270,12 @@ details.altro > summary:hover{color:var(--testo)}
   .barra-pt .destra{gap:var(--spazio-1)}
   .barra-pt .destra .bottone.piccolo{padding-left:var(--spazio-3);padding-right:var(--spazio-3)}
 }
+
+/* la scheda in evidenza nella pagina di casa del cliente (PROPOSTA): barra arancio come "Cosa fare adesso" */
+.scheda-pronta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--spazio-5);background:var(--superficie);border:1px solid var(--bordo-superficie);border-left:4px solid var(--brace);border-radius:var(--raggio-riquadro);padding:var(--spazio-6) var(--spazio-5);margin:0 0 var(--spazio-8)}
+.scheda-pronta-testo{min-width:0;flex:1 1 260px}
+.scheda-pronta-testo p{margin:0}
+.scheda-pronta-titolo{font-family:var(--font-titoli);font-weight:700;font-size:clamp(22px,4vw,30px);line-height:1.15;overflow-wrap:anywhere;margin:0 0 var(--spazio-2)!important}
+.scheda-pronta-stato{margin-top:var(--spazio-2)!important;font-weight:600}
+.scheda-pronta .bottone{flex:none}
+@media (max-width:480px){.scheda-pronta .bottone{width:100%}}

@@ -128,3 +128,4 @@ body.semplice a.scelta{color:var(--testo)}
 .profilo-icona{display:inline-grid;place-items:center;width:44px;height:44px;margin:-8px 0 -8px var(--spazio-3);border-radius:50%;color:inherit;border:1px solid currentColor;opacity:.85;text-decoration:none}
 .profilo-icona:hover{opacity:1}
 header .sopra{align-items:center}
+.icone-testata{display:inline-flex;gap:var(--spazio-2)}

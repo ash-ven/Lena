@@ -170,7 +170,14 @@
       a.className = "profilo-icona"; a.href = "/account.html";
       a.setAttribute("aria-label", "Il mio profilo");
       const i = document.createElement("span"); i.className = "icona i-utente"; i.setAttribute("aria-hidden", "true");
-      a.append(i); sopra.append(a);
+      a.append(i);
+      const casa = document.createElement("a");
+      casa.className = "profilo-icona"; casa.href = "/benvenuto.html";
+      casa.setAttribute("aria-label", "Torna alla home");
+      const ic = document.createElement("span"); ic.className = "icona i-indietro"; ic.setAttribute("aria-hidden", "true");
+      casa.append(ic);
+      const gruppo = document.createElement("span"); gruppo.className = "icone-testata";
+      gruppo.append(casa, a); sopra.append(gruppo);
     }
   }
 

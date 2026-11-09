@@ -8,7 +8,7 @@
   async function verificaPt() {
     const r = await Lena.chiama("GET", "/api/auth/me");
     if (r.stato === 401) { location.replace("/login.html"); return new Promise(() => {}); }   // non è mai entrato: login pulito, senza «sessione scaduta»
-    if (r.stato === 200 && r.json.ruolo !== "pt") { location.replace("/scheda.html"); return new Promise(() => {}); }
+    if (r.stato === 200 && r.json.ruolo !== "pt") { location.replace("/benvenuto.html"); return new Promise(() => {}); }
     if (r.stato !== 200) return null;   // rete o server: la pagina mostra il suo messaggio con "Riprova"
     // Le condizioni d'uso (versione corrente) vanno accettate prima di usare l'area: altrimenti si va alla schermata apposta
     const c = await Lena.chiama("GET", "/api/privacy/condizioni-pt");

@@ -65,7 +65,7 @@
     const r = await Lena.chiama("POST", "/api/auth/registra-cliente", { codice, email, password, accettaInformativa: true, versioneInformativa });
 
     if (r.stato === 201) {
-      location.replace("/scheda.html");   // la registrazione ha già fatto il login
+      location.replace("/benvenuto.html");   // la registrazione ha già fatto il login
       return;
     }
     $("invia").disabled = false;

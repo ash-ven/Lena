@@ -31,9 +31,20 @@
           <h1 class="titolo" id="saluto">Ciao.</h1>
           <svg class="gradi-testata" viewBox="0 0 56 56" aria-hidden="true" focusable="false"><path d="M8 18 L28 4 L48 18"/><path d="M8 32 L28 18 L48 32"/><path d="M8 46 L28 32 L48 46"/></svg>
         </div>
-        <p class="sotto-titolo">Il tuo trainer sta preparando la tua scheda. Appena è pronta, la trovi qui: questa pagina si aggiorna da sola.</p>
+        <p class="sotto-titolo" id="sotto-saluto">Il tuo trainer sta preparando la tua scheda. Appena è pronta, la trovi qui: questa pagina si aggiorna da sola.</p>
       </div>
     </div>
+    <section aria-labelledby="t-scheda" id="sezione-scheda" hidden>
+      <h2 class="etichetta-sezione" id="t-scheda">La tua scheda</h2>
+      <div class="scheda-pronta">
+        <div class="scheda-pronta-testo">
+          <p class="scheda-pronta-titolo" id="scheda-titolo"></p>
+          <p class="nota" id="scheda-periodo"></p>
+          <p class="scheda-pronta-stato" id="scheda-stato"></p>
+        </div>
+        <a class="bottone" href="/scheda.html" id="apri-scheda">Apri la scheda</a>
+      </div>
+    </section>
     <section aria-labelledby="t-trainer" id="sezione-trainer" hidden>
       <h2 class="etichetta-sezione" id="t-trainer">Il tuo trainer</h2>
       <div class="pannello scheda-trainer" id="scheda-trainer"></div>
