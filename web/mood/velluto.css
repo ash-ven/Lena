@@ -1,0 +1,226 @@
+/* ===========================================================================
+   MOOD «VELLUTO» DELLA SCHEDA DEL CLIENTE (scuro; categoria interna: girly) — nome provvisorio
+   Velluto e oro in chiave art déco: nero caldo con un motivo a ventagli d'oro appena percepibile, titoli in
+   Playfair Display corsivo, angoli quasi vivi (4 px), riquadri con doppia cornice (oro + scura).
+   Si attiva con data-mood="velluto" su <html>. Stessa struttura di tutti i mood (scheda.js).
+
+   TUTTO ciò che è colorato e ha una funzione prende il colore del giorno (--g), scritta sopra scura.
+   L'ORO è solo decorazione fissa (filetti, cornici, motivo dello sfondo, raggi del ventaglio): non cambia con il giorno.
+   Colori dei giorni (solo rosa e viola, nessun verde o giallo): fucsia, lilla, rosa tenue, malva, lavanda,
+   confetto, ametista. Contrasti (calcolati): scritta scura su ogni colore ≥ 5,9:1; ogni colore sulla superficie ≥ 5,5:1.
+   Animazioni: luccichio dorato sulla spunta; filetto d'oro che si disegna al cambio di giorno; avanzamento a perle;
+   brillio sul «Via!»; ad allenamento completato si apre un ventaglio di raggi d'oro.
+   =========================================================================== */
+@font-face { font-family: "Playfair Display"; src: url("/fonts/playfair-display-latin-700-italic.woff2") format("woff2"); font-weight: 700; font-style: italic; font-display: swap; }
+
+:root[data-mood="velluto"] {
+  color-scheme: dark;
+  --sfondo: #120b0e;
+  --superficie: #1b1216;
+  --superficie-alta: #261a1f;
+  --testo: #f4ecef;
+  --testo-secondario: #b9a3ad;    /* 7,1:1 o più */
+  --bordo-campo: #8e7a82;          /* 4,2:1 o più */
+  --bordo-superficie: #3a2a22;
+  --divisorio: #261a1f;
+  --oro: #c9a35a;                  /* solo decorazione */
+  --oro-chiaro: #e9cf95;
+  --errore: #ff5c7a;
+  --conferma: #3ddc97;
+  --brace: #e84800;
+  --su-brace: #0b0d10;
+
+  --colore-sfondo: var(--sfondo);
+  --colore-carta: var(--superficie);
+  --colore-testo: var(--testo);
+  --colore-testo-tenue: var(--testo-secondario);
+  --colore-linea: var(--bordo-superficie);
+  --colore-ok-sfondo: var(--superficie-alta);
+  --colore-ok-bordo: var(--conferma);
+  --colore-ok-testo: var(--conferma);
+  --colore-avviso-sfondo: #2a2116;
+  --colore-avviso-bordo: #6b5634;
+  --colore-avviso-testo: #f2c27a;
+  --colore-errore-sfondo: #2a1418;
+  --colore-errore-bordo: #6b2a36;
+  --colore-errore-testo: #ff8fa3;
+  --scheda-font-titoli: "Playfair Display", Georgia, serif;
+  --scheda-font-testo: "Inter", system-ui, sans-serif;
+
+  --c: var(--g, #f25cb8);
+  --c-chiaro: var(--superficie-alta);
+  --c-scuro: var(--testo);
+  --anello-attivo: var(--g, #f25cb8);
+
+  --giorno-1: #f25cb8; --su-giorno-1: #120b0e;   /* A fucsia      6,5:1 */
+  --giorno-2: #b99cff; --su-giorno-2: #120b0e;   /* B lilla       8,6:1 */
+  --giorno-3: #ffd1e0; --su-giorno-3: #120b0e;   /* C rosa tenue 14,3:1 */
+  --giorno-4: #c38aa8; --su-giorno-4: #120b0e;   /* D malva       7,0:1 */
+  --giorno-5: #e0ccff; --su-giorno-5: #120b0e;   /* E lavanda    13,2:1 */
+  --giorno-6: #ff8fc7; --su-giorno-6: #120b0e;   /* F confetto    9,3:1 */
+  --giorno-7: #9b78f0; --su-giorno-7: #120b0e;   /* G ametista    5,9:1 */
+
+  --raggio: 4px;
+}
+:root[data-mood="velluto"][data-giorno="1"] { --g: var(--giorno-1); --su-g: var(--su-giorno-1); }
+:root[data-mood="velluto"][data-giorno="2"] { --g: var(--giorno-2); --su-g: var(--su-giorno-2); }
+:root[data-mood="velluto"][data-giorno="3"] { --g: var(--giorno-3); --su-g: var(--su-giorno-3); }
+:root[data-mood="velluto"][data-giorno="4"] { --g: var(--giorno-4); --su-g: var(--su-giorno-4); }
+:root[data-mood="velluto"][data-giorno="5"] { --g: var(--giorno-5); --su-g: var(--su-giorno-5); }
+:root[data-mood="velluto"][data-giorno="6"] { --g: var(--giorno-6); --su-g: var(--su-giorno-6); }
+:root[data-mood="velluto"][data-giorno="7"] { --g: var(--giorno-7); --su-g: var(--su-giorno-7); }
+[data-mood="velluto"] .giorno-btn[data-giorno="1"] { --gb: var(--giorno-1); }
+[data-mood="velluto"] .giorno-btn[data-giorno="2"] { --gb: var(--giorno-2); }
+[data-mood="velluto"] .giorno-btn[data-giorno="3"] { --gb: var(--giorno-3); }
+[data-mood="velluto"] .giorno-btn[data-giorno="4"] { --gb: var(--giorno-4); }
+[data-mood="velluto"] .giorno-btn[data-giorno="5"] { --gb: var(--giorno-5); }
+[data-mood="velluto"] .giorno-btn[data-giorno="6"] { --gb: var(--giorno-6); }
+[data-mood="velluto"] .giorno-btn[data-giorno="7"] { --gb: var(--giorno-7); }
+
+/* ---------- fondo: nero caldo con ventagli d'oro appena percepibili ---------- */
+[data-mood="velluto"] body {
+  background-color: var(--sfondo); color: var(--testo);
+  background-image: radial-gradient(circle at 50% 100%, transparent 14px, rgba(201, 163, 90, .08) 15px, transparent 16px,
+    transparent 22px, rgba(201, 163, 90, .06) 23px, transparent 24px);
+  background-size: 48px 24px;
+}
+[data-mood="velluto"] .barra { background: var(--sfondo); }
+
+/* ---------- titoli: Playfair Display corsivo; testo e numeri: Inter ---------- */
+[data-mood="velluto"] h1,
+[data-mood="velluto"] .titolo-giorno h2,
+[data-mood="velluto"] .giorno-btn b,
+[data-mood="velluto"] h3.sezione,
+[data-mood="velluto"] .formato,
+[data-mood="velluto"] .stretch b,
+[data-mood="velluto"] .settimana-oggi strong,
+[data-mood="velluto"] .focus-testa .dove b,
+[data-mood="velluto"] .completato p,
+[data-mood="velluto"] .timer .tempo { font-family: var(--scheda-font-titoli); font-style: italic; font-weight: 700; }
+[data-mood="velluto"] h1 { font-size: 32px; line-height: 1.1; }
+[data-mood="velluto"] h3.sezione { font-size: 22px; }
+[data-mood="velluto"] h3.sezione span { font-family: var(--scheda-font-testo); font-style: normal; }
+[data-mood="velluto"] .nome { font-family: var(--scheda-font-testo); font-weight: 600; font-size: 17px; }
+[data-mood="velluto"] .chi, [data-mood="velluto"] .titolo-giorno small, [data-mood="velluto"] .risc .istr, [data-mood="velluto"] .nota { font-style: normal; }
+[data-mood="velluto"] .sopra { letter-spacing: .14em; }
+[data-mood="velluto"] .dato b, [data-mood="velluto"] .questa b, [data-mood="velluto"] .campo input,
+[data-mood="velluto"] .circ .lista input, [data-mood="velluto"] .lista .rip, [data-mood="velluto"] table.tutte td:last-child,
+[data-mood="velluto"] .num { font-family: var(--scheda-font-testo); font-style: normal; font-weight: 600; font-variant-numeric: tabular-nums; }
+[data-mood="velluto"] .dato b, [data-mood="velluto"] .questa b, [data-mood="velluto"] .formato { color: var(--testo); }
+[data-mood="velluto"] .lista .rip, [data-mood="velluto"] details.prog summary, [data-mood="velluto"] table.tutte tr.sel td { color: var(--testo); }
+[data-mood="velluto"] table.tutte tr.sel td:first-child { box-shadow: inset 3px 0 0 var(--g); padding-left: 8px; }
+
+/* ---------- linguette dei giorni: nome nel suo colore, il giorno aperto con la doppia cornice ---------- */
+[data-mood="velluto"] .giorni { grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); }
+[data-mood="velluto"] .giorno-btn { border-radius: var(--raggio); border: 1px solid var(--bordo-superficie); background: transparent; padding: 9px 4px; }
+[data-mood="velluto"] .giorno-btn b { font-size: 20px; white-space: nowrap; color: var(--gb); }
+[data-mood="velluto"] .giorno-btn span { color: var(--testo-secondario); }
+[data-mood="velluto"] .giorno-btn[aria-pressed="true"] { background: var(--superficie); border-color: var(--gb); outline: 1px solid var(--oro); outline-offset: 2px; color: var(--testo); }
+[data-mood="velluto"] .giorno-btn[aria-pressed="true"] b { color: var(--gb); }
+[data-mood="velluto"] .giorno-btn[aria-pressed="true"] span { color: var(--testo); }
+[data-mood="velluto"] .sett button { border-color: var(--bordo-superficie); color: var(--testo); border-radius: var(--raggio); background: var(--sfondo); }
+[data-mood="velluto"] .sett button[aria-pressed="true"] { background: var(--testo); border-color: var(--testo); color: var(--sfondo); }
+[data-mood="velluto"] .sett button.oggi:not([aria-pressed="true"]) { border-color: var(--g); color: var(--testo); }
+
+/* ---------- testata del giorno: nome grande nel colore del giorno, filetto d'oro che si disegna ---------- */
+[data-mood="velluto"] .titolo-giorno { display: block; margin: 20px 0 12px; }
+[data-mood="velluto"] .titolo-giorno h2 { color: var(--g); font-size: 38px; line-height: 1.05; }
+[data-mood="velluto"] .titolo-giorno small { display: block; color: var(--testo); font-size: 15px; font-weight: 500; margin-top: 4px; }
+[data-mood="velluto"] .titolo-giorno::after { content: ""; display: block; height: 1px; width: 72px; margin-top: 10px; background: var(--oro); transform-origin: left; }
+:root[data-mood="velluto"].cambia .titolo-giorno::after { animation: velluto-penna 420ms cubic-bezier(.4, 0, .2, 1); }
+@keyframes velluto-penna { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* avanzamento: filo di perle, una per blocco */
+[data-mood="velluto"] .avanzamento { height: auto; background: none; margin: 0 0 14px; overflow: visible; }
+[data-mood="velluto"] .avanzamento > i { display: none; }
+[data-mood="velluto"] .avanzamento .tappe { display: flex; align-items: center; gap: 0; }
+[data-mood="velluto"] .avanzamento .tappe b { flex: 0 0 auto; width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--oro); background: transparent;
+  transition: background-color 220ms ease-out; }
+[data-mood="velluto"] .avanzamento .tappe b + b { margin-left: 26px; position: relative; }
+[data-mood="velluto"] .avanzamento .tappe b + b::before { content: ""; position: absolute; right: 100%; top: 50%; width: 26px; height: 1px; background: var(--bordo-superficie); }
+[data-mood="velluto"] .avanzamento .tappe b.on { background: var(--g); box-shadow: inset -2px -2px 0 rgba(0, 0, 0, .18); }
+
+/* ---------- riquadri: doppia cornice (oro + scura) ---------- */
+[data-mood="velluto"] h3.sezione { border-bottom-color: var(--bordo-superficie); }
+[data-mood="velluto"] .card { border-radius: var(--raggio); border: 1px solid var(--oro); outline: 1px solid var(--bordo-superficie); outline-offset: 3px;
+  background: var(--superficie); margin-bottom: 18px; }
+[data-mood="velluto"] .card.fatto { opacity: 1; border-color: var(--bordo-superficie); }
+[data-mood="velluto"] .card.fatto > * { opacity: .6; }
+[data-mood="velluto"] .card.fatto .nome { text-decoration-color: var(--g); }
+[data-mood="velluto"] .num, [data-mood="velluto"] .circ .testa .num { background: var(--superficie-alta); color: var(--testo); border-radius: var(--raggio); }
+[data-mood="velluto"] .dato, [data-mood="velluto"] .campo { background: var(--sfondo); border-radius: var(--raggio); }
+[data-mood="velluto"] .questa { background: var(--superficie-alta); border-radius: var(--raggio); }
+[data-mood="velluto"] .questa small { color: var(--testo-secondario); }
+[data-mood="velluto"] .campo input { border-bottom-color: var(--bordo-campo); color: var(--testo); }
+[data-mood="velluto"] .campo input:focus { border-bottom-color: var(--g); }
+[data-mood="velluto"] .campo input::placeholder { color: var(--testo-secondario); }
+[data-mood="velluto"] .circ .lista input { background: var(--sfondo); border-bottom-color: var(--bordo-campo); color: var(--testo); border-radius: var(--raggio) var(--raggio) 0 0; }
+[data-mood="velluto"] .lista a.mini { color: var(--testo); border-color: var(--bordo-superficie); border-radius: var(--raggio); }
+[data-mood="velluto"] .salvataggio { border-radius: var(--raggio); }
+[data-mood="velluto"] .nota::before { color: var(--oro); }
+
+/* ---------- pulsanti ---------- */
+[data-mood="velluto"] .btn { border-radius: var(--raggio); border-color: var(--bordo-campo); background: transparent; color: var(--testo); }
+[data-mood="velluto"] .btn.pieno,
+[data-mood="velluto"] .focus-piede button.avanti { background: var(--g); border-color: var(--g); color: var(--su-g); font-weight: 600; }
+[data-mood="velluto"] .inizia { outline: 1px solid var(--oro); outline-offset: 3px; }
+[data-mood="velluto"] .focus-piede button { border-radius: var(--raggio); border-color: var(--bordo-campo); background: var(--superficie); color: var(--testo); }
+[data-mood="velluto"] :focus-visible { outline: 2px solid var(--anello-attivo); outline-offset: 2px; }
+
+/* ---------- spunte: piene nel colore del giorno, con un luccichio d'oro ---------- */
+[data-mood="velluto"] .spunta, [data-mood="velluto"] .lista .pallino { position: relative; border-radius: 2px; border: 1px solid var(--bordo-campo); }
+[data-mood="velluto"] .spunta[aria-pressed="true"],
+[data-mood="velluto"] .lista .pallino[aria-pressed="true"] { background: var(--g); border-color: var(--g); }
+[data-mood="velluto"] .spunta svg path, [data-mood="velluto"] .lista .pallino svg path { stroke: var(--su-g); stroke-width: 2.5; }
+[data-mood="velluto"] .scatta::after {
+  content: ""; position: absolute; inset: -6px; pointer-events: none; background: var(--oro-chiaro); opacity: 0;
+  clip-path: polygon(50% 0, 56% 44%, 100% 50%, 56% 56%, 50% 100%, 44% 56%, 0 50%, 44% 44%);
+  animation: velluto-luccica 420ms ease-out;
+}
+@keyframes velluto-luccica { 0% { opacity: 0; transform: scale(.3) rotate(0); } 40% { opacity: 1; transform: scale(1.15) rotate(20deg); } 100% { opacity: 0; transform: scale(1.3) rotate(45deg); } }
+[data-mood="velluto"] .puntini i { border-color: var(--g); }
+[data-mood="velluto"] .puntini i.on { background: var(--g); }
+
+/* ---------- allenamento completato: si apre un ventaglio di raggi d'oro ---------- */
+[data-mood="velluto"] .completato { position: relative; text-align: center; padding: 132px 16px 20px; margin: 4px 0 18px; border-radius: var(--raggio);
+  background: var(--superficie); border: 1px solid var(--oro); outline: 1px solid var(--bordo-superficie); outline-offset: 3px; overflow: hidden; }
+[data-mood="velluto"] .completato svg { display: none; }
+[data-mood="velluto"] .completato::before {
+  /* il ventaglio sta SOPRA la scritta, mai dietro: i raggi non attraversano il testo */
+  content: ""; position: absolute; left: 50%; top: 14px; width: 220px; height: 110px; margin-left: -110px; border-radius: 110px 110px 0 0;
+  background: repeating-conic-gradient(from -90deg at 50% 100%, transparent 0 7.2deg, rgba(201, 163, 90, .55) 7.2deg 7.8deg, transparent 7.8deg 15deg);   /* 12 raggi simmetrici */
+  transform-origin: 50% 100%;
+}
+[data-mood="velluto"] .completato p { position: relative; font-size: 28px; margin: 0; color: var(--testo); }
+[data-mood="velluto"] .completato.appena::before { animation: velluto-apri 520ms cubic-bezier(.2, .9, .3, 1) both; }
+[data-mood="velluto"] .completato.appena p { animation: velluto-sale 380ms 260ms both ease-out; }
+@keyframes velluto-apri { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes velluto-sale { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ---------- modalità allenamento ---------- */
+[data-mood="velluto"] .focus { background: var(--sfondo); }
+[data-mood="velluto"] .focus-passi i { background: var(--superficie-alta); }
+[data-mood="velluto"] .focus-passi i.fatto { background: var(--g); }
+[data-mood="velluto"] .focus-passi i.ora { background: var(--oro); }
+[data-mood="velluto"] .focus-testa .dove b { color: var(--g); font-size: 20px; }
+
+/* ---------- timer: brillio sul «Via!» ---------- */
+[data-mood="velluto"] .timer { background: var(--superficie); color: var(--testo); border: 1px solid var(--oro); border-radius: var(--raggio); box-shadow: 0 10px 30px rgba(0, 0, 0, .6); }
+[data-mood="velluto"] .timer .cosa { color: var(--testo-secondario); opacity: 1; }
+[data-mood="velluto"] .timer .tempo { position: relative; overflow: hidden; padding: 0 4px; margin-left: -4px; font-size: 32px; }
+[data-mood="velluto"] .timer .barra-t { background: var(--sfondo); }
+[data-mood="velluto"] .timer .barra-t i { background: var(--g); }
+[data-mood="velluto"] .timer button { background: var(--superficie-alta); color: var(--testo); border: 1px solid var(--bordo-campo); border-radius: var(--raggio); }
+[data-mood="velluto"] .timer .luci { display: none; }
+[data-mood="velluto"] .timer.finito { border-color: var(--g); }
+[data-mood="velluto"] .timer.finito .tempo { color: var(--g); }
+[data-mood="velluto"] .timer.finito .tempo::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 40%; left: -60%;
+  background: linear-gradient(100deg, transparent, rgba(255, 240, 210, .85), transparent); animation: velluto-brilla 650ms ease-out forwards;
+}
+@keyframes velluto-brilla { to { left: 130%; } }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-mood="velluto"] *, [data-mood="velluto"] *::before, [data-mood="velluto"] *::after { animation: none !important; transition: none !important; }
+  [data-mood="velluto"] .scatta::after, [data-mood="velluto"] .timer.finito .tempo::after { display: none; }
+}

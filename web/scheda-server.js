@@ -197,7 +197,7 @@
 
     // Il mood della scheda (la sua estetica): quello scelto dal cliente, altrimenti «lena». Se il server non lo dice, «lena».
     // Va messo PRIMA di scheda.js, che lo legge. (?mood=<nome> nell'indirizzo resta per provare un mood senza salvarlo.)
-    const MOOD_ESISTENTI = ["lena", "motori"];
+    const MOOD_ESISTENTI = ["lena", "motori", "velluto"];
     const salvato = md.stato === 200 ? md.json.mood : null;
     const richiesto = new URLSearchParams(location.search).get("mood");
     document.documentElement.setAttribute("data-mood",

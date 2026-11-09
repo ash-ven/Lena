@@ -163,6 +163,7 @@
 
 /* barra di avanzamento del giorno (esercizi con la spunta / esercizi) */
 [data-mood="lena"] .avanzamento { height: 6px; border-radius: 3px; background: var(--superficie); margin: 0 0 12px; overflow: hidden; }
+[data-mood="lena"] .avanzamento .tappe { display: none; }
 [data-mood="lena"] .avanzamento i { display: block; height: 100%; background: var(--g); border-radius: 3px; transition: width var(--tempo-cambio) ease-out; }
 
 /* ---------- sezioni e riquadri ---------- */

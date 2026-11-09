@@ -146,6 +146,7 @@
 
 /* barra di avanzamento: strisce segnaletica che avanzano */
 [data-mood="motori"] .avanzamento { height: 12px; border-radius: var(--raggio); background: var(--superficie-alta); margin: 0 0 12px; overflow: hidden; }
+[data-mood="motori"] .avanzamento .tappe { display: none; }
 [data-mood="motori"] .avanzamento i { display: block; height: 100%; background: var(--strisce); background-size: 28.28px 28.28px;
   transition: width 500ms var(--curva-secca); }
 
