@@ -110,11 +110,11 @@ body.pt .elenco-clienti a{color:var(--testo)}
 .elenco-clienti .vai{color:var(--testo-secondario)}
 .elenco-clienti .stato{flex:none;margin:0}
 /* l'elenco completo: un unico riquadro con righe separate */
-#elenco{background:var(--superficie);border:1px solid var(--bordo-superficie);border-radius:var(--raggio-riquadro);overflow:hidden}
-#elenco:empty{display:none}
-#elenco li+li{border-top:1px solid var(--divisorio)}
-#elenco a:hover,#elenco a:focus-visible{background:var(--superficie-alta)}
-#elenco .avatar{width:48px;height:48px;font-size:17px}
+#elenco,#elenco-scelta{background:var(--superficie);border:1px solid var(--bordo-superficie);border-radius:var(--raggio-riquadro);overflow:hidden}
+#elenco:empty,#elenco-scelta:empty{display:none}
+#elenco li+li,#elenco-scelta li+li{border-top:1px solid var(--divisorio)}
+#elenco a:hover,#elenco a:focus-visible,#elenco-scelta a:hover,#elenco-scelta a:focus-visible{background:var(--superficie-alta)}
+#elenco .avatar,#elenco-scelta .avatar{width:48px;height:48px;font-size:17px}
 @media (max-width:600px){#elenco .stato.neutro{display:none}}
 /* le schede in scadenza: più grandi, con una barra arancio e il conto alla rovescia */
 #elenco-scadenze{display:grid;gap:var(--spazio-3)}
@@ -279,3 +279,8 @@ details.altro > summary:hover{color:var(--testo)}
 .scheda-pronta-stato{margin-top:var(--spazio-2)!important;font-weight:600}
 .scheda-pronta .bottone{flex:none}
 @media (max-width:480px){.scheda-pronta .bottone{width:100%}}
+
+/* "Crea scheda" dalla pagina dei clienti: si sceglie il cliente e si apre l'editor */
+.azioni-testata{display:flex;flex-wrap:wrap;gap:var(--spazio-3)}
+#scelta-cliente .ricerca{margin-top:var(--spazio-3)}
+#elenco-scelta{max-height:360px;overflow:auto}

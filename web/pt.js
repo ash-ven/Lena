@@ -71,6 +71,31 @@
     disegnaElenco();
   }
 
+  // ---------- crea una scheda da qui: si sceglie il cliente e si apre l'editor ----------
+  const attivi = () => clienti.filter((c) => !c.rapporto_finito_il);
+  function disegnaScelta() {
+    const q = normalizza($("cerca-scelta").value);
+    const lista = attivi().filter((c) => normalizza(`${c.nome} ${c.cognome} ${c.cognome} ${c.nome}`).includes(q));
+    $("elenco-scelta").replaceChildren(...lista.map((c) => el("li", {}, el("a", { href: `/pt-editor.html?cliente=${c.id}` },
+      avatar(c),
+      el("span", { class: "corpo-cliente" }, el("span", { class: "nome-cliente" }, `${c.cognome} ${c.nome}`)),
+      el("span", { class: "icona i-avanti vai", "aria-hidden": "true" })))));
+    $("scelta-nessuno").hidden = lista.length > 0 || !attivi().length;
+  }
+  function apriScelta(aperto) {
+    $("scelta-cliente").hidden = !aperto;
+    $("apri-scelta").setAttribute("aria-expanded", String(aperto));
+    if (aperto) {
+      const vuoto = !attivi().length;
+      $("scelta-vuoto").hidden = !vuoto; $("scelta-corpo").hidden = vuoto;
+      $("cerca-scelta").value = ""; disegnaScelta();
+      (vuoto ? $("annulla-scelta") : $("cerca-scelta")).focus();
+    } else $("apri-scelta").focus();
+  }
+  $("apri-scelta").addEventListener("click", () => { if (!$("modulo-nuovo").hidden) $("annulla-nuovo").click(); apriScelta($("scelta-cliente").hidden); });
+  $("annulla-scelta").addEventListener("click", () => apriScelta(false));
+  $("cerca-scelta").addEventListener("input", disegnaScelta);
+
   // ---------- nuovo cliente ----------
   const modulo = $("modulo-nuovo");
   function apriModulo(aperto) {
@@ -80,7 +105,7 @@
     $("errore-nuovo").replaceChildren();
     if (aperto) $("nuovo-nome").focus(); else $("apri-nuovo").focus();
   }
-  $("apri-nuovo").addEventListener("click", () => apriModulo(true));
+  $("apri-nuovo").addEventListener("click", () => { if (!$("scelta-cliente").hidden) apriScelta(false); apriModulo(true); });
   $("annulla-nuovo").addEventListener("click", () => { modulo.reset(); apriModulo(false); });
 
   let inCorso = false;   // contro il doppio clic: non nascono due clienti uguali

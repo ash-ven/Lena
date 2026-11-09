@@ -153,9 +153,12 @@
     window.LENA_ARCHIVIO = creaArchivio(me.json, scheda, registrazioni);
     document.title = `${scheda.dati.info.titolo || "La tua scheda"} · Lena`;
 
-    // Il mood della scheda (la sua estetica). Per ora c'è solo «lena», il predefinito: quando il cliente potrà
-    // sceglierlo, arriverà dal server. Va messo PRIMA di scheda.js, che lo legge.
-    document.documentElement.setAttribute("data-mood", "lena");
+    // Il mood della scheda (la sua estetica). Predefinito «lena». Quando il cliente potrà sceglierlo, arriverà dal server;
+    // per ora, PROVVISORIO, si può provare un altro mood aggiungendo ?mood=<nome> all'indirizzo (solo i mood che esistono).
+    // Va messo PRIMA di scheda.js, che lo legge.
+    const MOOD_ESISTENTI = ["lena", "motori"];
+    const richiesto = new URLSearchParams(location.search).get("mood");
+    document.documentElement.setAttribute("data-mood", MOOD_ESISTENTI.includes(richiesto) ? richiesto : "lena");
     try {
       await caricaScript("/scheda.js");   // costruisce la pagina e la mostra
       if (!document.getElementById("giorni") || !document.getElementById("giorni").children.length) throw new Error("scheda vuota");

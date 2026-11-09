@@ -31,10 +31,28 @@
       </div>
       <p class="sotto-titolo">Carica le schede e invita i tuoi clienti a vederle.</p>
     </div>
-    <button class="bottone" type="button" id="apri-nuovo" aria-expanded="false" aria-controls="modulo-nuovo"><span class="icona i-piu" aria-hidden="true"></span>Nuovo cliente</button>
+    <div class="azioni-testata">
+      <button class="bottone secondario" type="button" id="apri-scelta" aria-expanded="false" aria-controls="scelta-cliente">Crea scheda</button>
+      <button class="bottone" type="button" id="apri-nuovo" aria-expanded="false" aria-controls="modulo-nuovo"><span class="icona i-piu" aria-hidden="true"></span>Nuovo cliente</button>
+    </div>
   </div>
 
   <div id="messaggio-pagina" role="status"></div>
+
+  <section class="pannello" id="scelta-cliente" hidden aria-labelledby="titolo-scelta">
+    <h2 class="sezione-pt" id="titolo-scelta">Per quale cliente?</h2>
+    <p class="nota" id="scelta-vuoto" hidden>Non hai ancora clienti con cui lavorare. Crea prima un cliente con «Nuovo cliente».</p>
+    <div id="scelta-corpo">
+      <div class="ricerca">
+        <label class="solo-lettori" for="cerca-scelta">Cerca il cliente</label>
+        <span class="icona i-cerca" aria-hidden="true"></span>
+        <input id="cerca-scelta" type="search" autocomplete="off" placeholder="Cerca per nome o cognome">
+      </div>
+      <ul class="elenco-clienti" id="elenco-scelta"></ul>
+      <p class="nota" id="scelta-nessuno" hidden>Nessun cliente corrisponde alla ricerca.</p>
+    </div>
+    <div class="azioni-pt"><button class="bottone secondario" type="button" id="annulla-scelta">Annulla</button></div>
+  </section>
 
   <form class="pannello" id="modulo-nuovo" novalidate hidden aria-labelledby="titolo-nuovo">
     <h2 class="sezione-pt" id="titolo-nuovo">Nuovo cliente</h2>

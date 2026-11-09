@@ -106,3 +106,11 @@ test("pagine: niente richieste esterne, niente script o stile scritti nella pagi
   for (const f of ["login.css"].filter((n) => fs.existsSync(path.join(WEB, n)))) assert.doesNotMatch(leggi(f), /https?:\/\//);
   assert.doesNotMatch(leggi("sistema.css"), /url\((?!["']?\/fonts\/|["']?\/icone\/)/, "sistema.css carica qualcosa che non è in /fonts o /icone");
 });
+
+test("dall'elenco clienti si può creare una scheda scegliendo il cliente (senza passare dal suo profilo)", () => {
+  const web = path.join(__dirname, "..", "..", "web");
+  const html = fs.readFileSync(path.join(web, "pt.html"), "utf8"), js = fs.readFileSync(path.join(web, "pt.js"), "utf8");
+  assert.match(html, /id="apri-scelta"[^>]*>Crea scheda</);
+  assert.match(js, /\/pt-editor\.html\?cliente=\$\{c\.id\}/);
+  assert.match(js, /filter\(\(c\) => !c\.rapporto_finito_il\)/);   // non si propongono i clienti con il rapporto concluso
+});

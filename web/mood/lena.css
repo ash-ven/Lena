@@ -228,6 +228,7 @@
   border-radius: var(--raggio-riquadro); box-shadow: 0 10px 30px rgba(0, 0, 0, .5); }
 [data-mood="lena"] .timer .cosa { color: var(--testo-secondario); opacity: 1; }
 [data-mood="lena"] .timer .barra-t { background: var(--sfondo); }
+[data-mood="lena"] .timer .luci { display: none; }   /* le luci del semaforo sono di Motori */
 [data-mood="lena"] .timer .barra-t i { background: var(--g); }
 [data-mood="lena"] .timer button { background: var(--superficie-alta); color: var(--testo); border: 1px solid var(--bordo-campo); border-radius: var(--raggio-controllo); }
 [data-mood="lena"] .timer.finito { border-color: var(--g); }

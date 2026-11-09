@@ -44,6 +44,7 @@ const SCHELETRO = `
 
 <div class="timer" id="timer" aria-live="polite">
   <div class="info"><div class="cosa" id="t-cosa"></div><div class="tempo" id="t-tempo">0:00</div><div class="barra-t"><i id="t-barra"></i></div></div>
+  <span class="luci" aria-hidden="true"><i></i><i></i><i></i></span>
   <button type="button" id="t-piu">+15"</button>
   <button type="button" id="t-stop">Chiudi</button>
 </div>
@@ -324,6 +325,9 @@ function disegna(){
     r.setProperty("--c", "#"+esa(g.colore)); r.setProperty("--c-chiaro", "#"+esa(g.chiaro)); r.setProperty("--c-scuro", "#"+esa(g.scuro));
   }
   const cambioGiorno = ultimoGiorno !== null && ultimoGiorno !== stato.giorno; ultimoGiorno = stato.giorno;
+  if (MOOD && cambioGiorno) {   // gancio per l'animazione del cambio di giorno del mood (classe «cambia» su <html>, riavviata ogni volta)
+    const h = document.documentElement; h.classList.remove("cambia"); void h.offsetWidth; h.classList.add("cambia");
+  }
   const dove = `${stato.settimana}|${stato.giorno}`, ora = completo(g);
   statoFine.anima = !!MOOD && ora && statoFine.dove === dove && statoFine.era === false;
   statoFine.dove = dove; statoFine.era = ora;
@@ -451,7 +455,7 @@ function suona(lungo){
 function avviaTimer(sec, cosa, aMinuti=false){
   try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); audio.resume(); } catch(e){}
   clearInterval(tId); tTot = sec; tFine = Date.now() + sec*1000; tMinuti = aMinuti; tUltimoMin = Math.ceil(sec/60);
-  T("t-cosa").textContent = cosa; T("timer").classList.add("on"); T("timer").classList.remove("finito");
+  T("t-cosa").textContent = cosa; T("timer").classList.add("on"); T("timer").classList.remove("finito"); T("timer").setAttribute("data-luci", "0");
   tick(); tId = setInterval(tick, 250);
 }
 function tick(){
@@ -459,6 +463,8 @@ function tick(){
   T("t-tempo").textContent = `${Math.floor(resto/60)}:${String(resto%60).padStart(2,"0")}`;
   T("t-barra").style.width = `${100 * (1 - resto / tTot)}%`;
   if (tMinuti && resto > 0){ const mm = Math.ceil(resto/60); if (mm < tUltimoMin){ tUltimoMin = mm; suona(false); } }
+  // a 3, 2, 1 secondi si accende una luce in più, al «Via!» sono tutte e tre (il mood decide se mostrarle: in Motori è il semaforo)
+  T("timer").setAttribute("data-luci", String(resto > 3 ? 0 : resto === 0 ? 3 : 4 - resto));
   if (resto === 0){ clearInterval(tId); T("timer").classList.add("finito"); T("t-tempo").textContent = "Via!"; suona(true); }
 }
 T("t-piu").onclick = () => { if (!T("timer").classList.contains("on")) return;
