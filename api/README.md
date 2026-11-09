@@ -169,6 +169,7 @@ Il sito fa già tutto. Questi script restano per i casi in cui il sito non è di
 | `node crea-pt.js email password "Nome"` | creare un account da PT (email valida, password da 10 a 72 caratteri). **Unico modo** per creare un PT: dal sito non si può |
 | `node carica-scheda.js <id-cliente> <file.json>` | caricare una scheda (il JSON del convertitore) senza passare dal sito |
 | `node crea-invito.js <id-cliente>` | creare l'invito e stampare il link senza passare dal sito |
+| `node riempi-libreria.js [--prova \| --esegui]` | **una volta sola**: riempie la libreria esercizi di ogni trainer con quelli delle schede già caricate prima che la libreria esistesse. Senza argomenti è solo un elenco; si può rilanciare senza danni |
 | `node pulizia.js [--prova \| --esegui]` | **non è di emergenza: è la pulizia dei clienti vecchi** (vedi «Conservazione dei dati»). Senza argomenti è solo un elenco |
 
 Per vedere gli `id` dei clienti: `docker exec lena-db psql -U lena -d lena -c "SELECT id, nome, cognome FROM cliente"`.

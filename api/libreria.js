@@ -57,4 +57,51 @@ async function cerca(ptId, testo) {
   return r.rows;
 }
 
-module.exports = { chiaveNome, eserciziDellaScheda, imparaDallaScheda, cerca };
+// ---------- riempire la libreria dalle schede GIÀ salvate ----------
+// La libreria impara solo dalle schede salvate dopo la sua introduzione: questa serve una volta sola per quelle di prima.
+// Dalle schede più vecchie alle più nuove: il nome vale l'ultimo scritto, il video l'ultimo presente, "usi" = in quante schede compare.
+function aggregaSchede(listaDati) {
+  const tot = new Map();
+  for (const dati of listaDati) {
+    for (const e of eserciziDellaScheda(dati)) {
+      const p = tot.get(e.chiave);
+      if (!p) tot.set(e.chiave, { chiave: e.chiave, nome: e.nome, video: e.video, usi: 1 });
+      else { p.nome = e.nome; if (e.video) p.video = e.video; p.usi += 1; }
+    }
+  }
+  return tot;
+}
+
+// Si può rilanciare quante volte si vuole senza danni: non cambia i nomi già in libreria, aggiunge un video solo dove manca,
+// e "usi" non cresce oltre quanto vero. Con esegui=false non scrive niente: dice solo cosa farebbe.
+async function riempiDallaStoria({ esegui = false, ptId = null } = {}) {
+  const r = await db.query(
+    `SELECT p.id AS pt_id, p.nome AS pt_nome, s.dati
+       FROM scheda s JOIN cliente c ON c.id = s.cliente_id JOIN pt p ON p.id = c.pt_id
+      WHERE ($1::int IS NULL OR p.id = $1)
+      ORDER BY p.id, s.creata_il, s.id`, [ptId]);
+  const perPt = new Map();
+  for (const riga of r.rows) {
+    if (!perPt.has(riga.pt_id)) perPt.set(riga.pt_id, { pt_id: riga.pt_id, pt_nome: riga.pt_nome, schede: [] });
+    perPt.get(riga.pt_id).schede.push(riga.dati);
+  }
+  const esito = [];
+  for (const gruppo of perPt.values()) {
+    const esercizi = aggregaSchede(gruppo.schede);
+    const gia = new Set((await db.query("SELECT chiave FROM esercizio_libreria WHERE pt_id = $1", [gruppo.pt_id])).rows.map((x) => x.chiave));
+    const nuovi = [...esercizi.keys()].filter((k) => !gia.has(k)).length;
+    if (esegui) {
+      for (const e of esercizi.values()) {
+        await db.query(
+          `INSERT INTO esercizio_libreria (pt_id, chiave, nome, video, usi) VALUES ($1, $2, $3, $4, $5)
+           ON CONFLICT (pt_id, chiave) DO UPDATE
+             SET video = COALESCE(esercizio_libreria.video, EXCLUDED.video), usi = GREATEST(esercizio_libreria.usi, EXCLUDED.usi)`,
+          [gruppo.pt_id, e.chiave, e.nome, e.video, e.usi]);
+      }
+    }
+    esito.push({ pt_id: gruppo.pt_id, pt_nome: gruppo.pt_nome, schede: gruppo.schede.length, esercizi: esercizi.size, nuovi });
+  }
+  return esito;
+}
+
+module.exports = { chiaveNome, eserciziDellaScheda, imparaDallaScheda, cerca, aggregaSchede, riempiDallaStoria };

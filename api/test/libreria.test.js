@@ -3,7 +3,7 @@ const { test, before, after } = require("node:test");
 const assert = require("node:assert/strict");
 const { avvia, db, sessione, creaPt, email, PASSWORD, pulisci, datiProva } = require("./comune");
 const { creaApp } = require("../app");
-const { chiaveNome, eserciziDellaScheda } = require("../libreria");
+const { chiaveNome, eserciziDellaScheda, riempiDallaStoria } = require("../libreria");
 
 let server, BASE, pt, s, altro, s2, cl;
 before(async () => {
@@ -63,4 +63,19 @@ test("la libreria è privata: un altro trainer non vede nulla; senza testo l'ele
 test("i caratteri speciali della ricerca (% e _) non fanno da jolly", async () => {
   assert.deepEqual((await s("GET", "/api/pt/esercizi?q=%25")).json, []);
   assert.deepEqual((await s("GET", "/api/pt/esercizi?q=_")).json, []);
+});
+
+// riempire la libreria dalle schede già salvate (la parte senza database è in libreria-storia.test.js)
+test("riempiDallaStoria: la prova non scrive, --esegui sì, e rilanciare non cambia niente", async () => {
+  const prima = (await db.query("SELECT count(*)::int AS n FROM esercizio_libreria WHERE pt_id = $1", [pt.ptId])).rows[0].n;
+  await db.query("DELETE FROM esercizio_libreria WHERE pt_id = $1", [pt.ptId]);   // come se la libreria non avesse mai imparato
+  const prova = (await riempiDallaStoria({ esegui: false, ptId: pt.ptId })).find((x) => x.pt_id === pt.ptId);
+  assert.ok(prova.schede >= 1 && prova.nuovi === prova.esercizi && prova.nuovi >= 1);
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM esercizio_libreria WHERE pt_id = $1", [pt.ptId])).rows[0].n, 0);   // prova: niente scritto
+  await riempiDallaStoria({ esegui: true, ptId: pt.ptId });
+  const dopo = (await db.query("SELECT count(*)::int AS n FROM esercizio_libreria WHERE pt_id = $1", [pt.ptId])).rows[0].n;
+  assert.ok(dopo >= 1 && dopo <= Math.max(prima, prova.esercizi));
+  const ancora = (await riempiDallaStoria({ esegui: true, ptId: pt.ptId })).find((x) => x.pt_id === pt.ptId);
+  assert.equal(ancora.nuovi, 0);
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM esercizio_libreria WHERE pt_id = $1", [pt.ptId])).rows[0].n, dopo);
 });
