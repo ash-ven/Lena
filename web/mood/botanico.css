@@ -208,7 +208,7 @@
 /* ---------- allenamento completato: un fiore classico, centro tondo e otto petali, che si apre ruotando ---------- */
 [data-mood="botanico"] .completato { text-align: center; padding: 18px 16px 18px; margin: 4px 0 14px; border-radius: var(--raggio);
   background: var(--superficie); border: 1px solid var(--bordo-superficie); }
-[data-mood="botanico"] .completato .gradi { display: none; }
+[data-mood="botanico"] .completato .gradi, [data-mood="botanico"] .completato .enso { display: none; }
 [data-mood="botanico"] .completato .fiore { display: block; width: 96px; height: 96px; margin: 0 auto; }
 [data-mood="botanico"] .completato .fiore .petalo { fill: var(--g); stroke: var(--superficie); stroke-width: 1.5; transform-box: view-box; }
 [data-mood="botanico"] .completato .fiore .petalo:nth-child(even) { fill-opacity: .82; }

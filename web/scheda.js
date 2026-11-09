@@ -60,7 +60,9 @@ const SVG = {
   // i «gradi» del logo, per l'allenamento completato (colori dal mood)
   gradi:'<svg class="gradi" viewBox="0 0 48 48" aria-hidden="true"><path class="basso" d="M6 42 L24 30 L42 42" fill="none" stroke-width="6"/><path class="basso" d="M6 30 L24 18 L42 30" fill="none" stroke-width="6"/><path class="alto" d="M6 18 L24 6 L42 18" fill="none" stroke-width="6"/></svg>',
   // un fiore classico (centro tondo e petali attaccati), per l'allenamento completato di Botanico (colori dal mood)
-  fiore:'<svg class="fiore" viewBox="0 0 100 100" aria-hidden="true"><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(0 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(45 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(90 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(135 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(180 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(225 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(270 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(315 50 50)"/><circle class="centro" cx="50" cy="50" r="13"/></svg>'
+  fiore:'<svg class="fiore" viewBox="0 0 100 100" aria-hidden="true"><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(0 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(45 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(90 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(135 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(180 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(225 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(270 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(315 50 50)"/><circle class="centro" cx="50" cy="50" r="13"/></svg>',
+  // il cerchio zen (ensō) dipinto con una pennellata, per l'allenamento completato del Dojo (colore dal mood)
+  enso:'<svg class="enso" viewBox="0 0 150 150" aria-hidden="true"><path d="M118 40 C100 14 54 12 32 40 C10 68 22 112 60 124 C96 136 132 110 128 72 C126 56 118 46 108 42"/></svg>'
 };
 // Il mood (l'estetica della scheda) lo sceglie chi carica questo file, con data-mood su <html> (vedi web/mood/).
 // Senza mood (la scheda scaricabile) la scheda resta com'era: colori dei giorni presi dai dati, niente extra.
@@ -306,7 +308,7 @@ let ultimoGiorno = null;
 const statoFine = { dove: null, era: null, anima: false };   // per animare il completamento solo nel momento in cui avviene
 function bannerCompletato(){
   return el("div",{class:"completato" + (statoFine.anima ? " appena" : ""), role:"status"},
-    el("span",{html:SVG.gradi + SVG.fiore}), el("p",{}, "Allenamento completato."));   // ogni mood mostra il suo disegno
+    el("span",{html:SVG.gradi + SVG.fiore + SVG.enso}), el("p",{}, "Allenamento completato."));   // ogni mood mostra il suo disegno
 }
 
 // ---------- pagina ----------

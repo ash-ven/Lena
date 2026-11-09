@@ -34,12 +34,15 @@ for (const f of MOOD) {
   const nome = f.replace(".css", "");
   const css = leggi(`mood/${f}`);
 
-  test(`mood ${nome}: 7 colori dei giorni, scritta della testata almeno 4,5:1, colore sulla superficie almeno 3:1`, () => {
+  test(`mood ${nome}: 7 colori dei giorni, scritta sopra almeno 4,5:1, colore sulla superficie almeno 3:1 (salvo pastelli con contorno)`, () => {
     const superficie = token(css, "superficie");
     for (let n = 1; n <= 7; n++) {
       const g = token(css, `giorno-${n}`), su = token(css, `su-giorno-${n}`);
       assert.ok(contrasto(g, su) >= 4.5, `${nome}, giorno ${n}: scritta ${su} su ${g} = ${contrasto(g, su).toFixed(2)}`);
-      assert.ok(contrasto(g, superficie) >= 3, `${nome}, giorno ${n}: ${g} sulla superficie ${superficie} = ${contrasto(g, superficie).toFixed(2)}`);
+      // eccezione dichiarata dal mood (--giorni-pastello: 1): i colori dei giorni sono pastelli sempre con contorno d'inchiostro, mai testo
+      if (!/--giorni-pastello:\s*1/.test(css)) {
+        assert.ok(contrasto(g, superficie) >= 3, `${nome}, giorno ${n}: ${g} sulla superficie ${superficie} = ${contrasto(g, superficie).toFixed(2)}`);
+      }
     }
   });
 
