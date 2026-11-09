@@ -52,10 +52,11 @@
   annuncio.setAttribute("role", "status");
   document.body.append(annuncio);
 
-  let statoPrecedente = null;
+  let statoPrecedente = null, haSalvato = false;   // «Salvato ✓» si mostra solo dopo un salvataggio vero, non appena si apre la scheda
   function segnalaStato(stato) {
+    if (stato !== "salvato") haSalvato = true;
     for (const e of document.querySelectorAll(".stato-salv")) {
-      e.textContent = TESTI_STATO[stato];
+      e.textContent = stato === "salvato" && !haSalvato ? "" : TESTI_STATO[stato];
       e.classList.toggle("attenzione", stato === "attesa" || stato === "definitivo");
     }
     if (stato === "attesa" || stato === "definitivo") annuncio.textContent = TESTI_STATO[stato];

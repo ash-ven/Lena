@@ -31,7 +31,7 @@ const SCHELETRO = `
   <div class="focus-testa">
     <div class="dove" id="f-dove"></div>
     <span class="stato-salv" aria-hidden="true"></span>
-    <button type="button" class="btn piccolo" id="f-esci">Esci</button>
+    <button type="button" class="btn piccolo" id="f-esci">Chiudi</button>
   </div>
   <div class="focus-passi" id="f-passi"></div>
   <div class="focus-corpo" id="f-corpo"></div>
@@ -145,16 +145,21 @@ function testata(){
   document.getElementById("piede").textContent = `${DATI.info.nota_durata} · dal ${fmt(inizio)} al ${fmt(fine)} ${fine.getFullYear()}`;
 }
 
+// Un giorno è «fatto» in una settimana quando ogni suo blocco ha la spunta (riscaldamento e stretching non contano); una settimana quando lo sono tutti i giorni
+const giornoFatto = (g, n) => g.blocchi.length > 0 && g.blocchi.every((b,i) => mem.fatti[chiave(n, `${g.id}|${i+1}`)]);
+const settimanaFatta = n => DATI.giorni.every(g => giornoFatto(g, n));
+const segnoFatto = () => [el("span",{class:"fatto-segno","aria-hidden":"true"}, " ✓"), el("span",{class:"solo-lettori"}, ", fatto")];
+
 function barra(){
   const g = document.getElementById("giorni"); g.replaceChildren();
   DATI.giorni.forEach((d,i) => g.append(el("button",{type:"button", class:"giorno-btn", "data-giorno": String(i+1), "aria-pressed": String(i===stato.giorno),
     style:`--bc:#${esa(d.colore)}`, onclick:()=>{ stato.giorno=i; disegna(); window.scrollTo({top:0}); }},
-    el("b",{}, d.titolo), el("span",{}, d.focus))));
+    el("b",{}, d.titolo, giornoFatto(d, stato.settimana) ? segnoFatto() : null), el("span",{}, d.focus))));
   const s = document.getElementById("sett"); s.replaceChildren();
   for (let n=1; n<=DATI.settimane; n++){
     s.append(el("button",{type:"button", class: n===nOggi ? "oggi" : null, "aria-pressed": String(n===stato.settimana),
       title: fmt(giornoSett(n)), onclick:()=>{ stato.settimana=n; disegna(); }},
-      n < DATI.settimane ? `Sett. ${n}` : "Scarico"));
+      n < DATI.settimane ? `Sett. ${n}` : "Scarico", settimanaFatta(n) ? segnoFatto() : null));
   }
   // Centra la settimana attiva scorrendo SOLO la barra delle settimane. (Non scrollIntoView: dentro una cornice
   // farebbe scorrere anche la pagina che la contiene, per esempio quella del PT.)
@@ -266,7 +271,7 @@ function cardEsercizio(g, i, e){
       el("small",{}, scar ? "Settimana di scarico" : `Schema · settimana ${n}`), el("b",{}, scar ? "Scarico" : e.schema[n-1])));
   }
   const campi = el("div",{class:"campi"}, campo("kg", k, `Kg · sett. ${n}`, "—"));
-  if (e.progressione) campi.append(campo("rip", k, "Rip. fatte", "10-10-9-8", parseInt(v.serie,10)));
+  if (e.progressione) campi.append(campo("rip", k, "Rip. fatte", "es. 10-10-9-8", parseInt(v.serie,10)));
   card.append(campi);
   const rs = rigaSerie(k, e, v.serie); if (rs) card.append(rs);
   if (e.note) card.append(el("p",{class:"nota"}, e.note));
@@ -285,7 +290,7 @@ function cardCircuito(g, i, c){
   const k = `${g.id}|${i}`;
   const card = el("section",{class:"card circ" + (fatto(k) ? " fatto" : "")});
   card.append(el("div",{class:"testa"}, el("span",{class:"num"}, i), el("h4",{class:"formato nome"}, c.formato), spunta(k,"spunta")));
-  if (c.rec) card.append(el("div",{class:"dati", style:"grid-template-columns:1fr"}, el("div",{class:"dato"}, el("small",{}, "Recupero"), el("b",{}, c.rec))));
+  if (c.rec && c.rec !== "/") card.append(el("div",{class:"dati", style:"grid-template-columns:1fr"}, el("div",{class:"dato"}, el("small",{}, "Recupero"), el("b",{}, c.rec))));
   const lista = el("ul",{class:"lista"});
   c.esercizi.forEach((e,j) => {
     const kk = `${k}|${j}`, cc = chiave(stato.settimana, kk);

@@ -159,3 +159,13 @@ test("elenco clienti: ogni riga dice lo stato, l'ultimo allenamento e quando sca
   assert.match(js, /scadenza-riga/);
   assert.doesNotMatch(js, /el\("span", \{ class: `stato \$\{s\.tipo\}` \}, s\.breve\),\s*el\("span", \{ class: "icona i-avanti vai"/, "lo stato non sta più in una colonna a parte");
 });
+
+test("scheda del cliente: «Chiudi» in modalità allenamento, segno «fatto» su giorno e settimana, «Salvato» solo dopo un salvataggio vero, niente riquadro «Recupero /»", () => {
+  const web = path.join(__dirname, "..", "..", "web");
+  const js = fs.readFileSync(path.join(web, "scheda.js"), "utf8"), srv = fs.readFileSync(path.join(web, "scheda-server.js"), "utf8");
+  assert.match(js, /id="f-esci">Chiudi</);
+  assert.match(js, /giornoFatto\(d, stato\.settimana\)/);
+  assert.match(js, /settimanaFatta\(n\)/);
+  assert.match(js, /c\.rec && c\.rec !== "\/"/);
+  assert.match(srv, /stato === "salvato" && !haSalvato/);
+});
