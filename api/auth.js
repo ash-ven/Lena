@@ -120,6 +120,8 @@ async function mandaLinkRecupero(email) {
   const r = await db.query("SELECT id FROM utente WHERE email = $1", [email]);
   if (!r.rows[0]) return;
   const utenteId = r.rows[0].id;
+  // online il link deve puntare al sito vero: senza URL_BASE non si manda niente (meglio nessuna email che un link a localhost)
+  if (process.env.NODE_ENV === "production" && !process.env.URL_BASE) { console.error("# [recupero password] Manca URL_BASE: email non inviata"); return; }
   const recente = await db.query(
     "SELECT 1 FROM reimposta_password WHERE utente_id = $1 AND creato_il > now() - make_interval(secs => $2)", [utenteId, ATTESA_RECUPERO_SECONDI]);
   if (recente.rows[0]) return;

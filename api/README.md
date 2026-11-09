@@ -663,11 +663,20 @@ Chi dimentica la password (trainer o cliente) va su «Hai dimenticato la passwor
 Get-Content db\initdb\10_reimposta_password.sql | docker exec -i lena-db psql -U lena -d lena
 ```
 
-**Spedire le email.** Serve un servizio che offra SMTP. In `api/.env` si impostano `SMTP_HOST`, `SMTP_PORT` (587 di solito), `SMTP_USER`, `SMTP_PASS` ed `EMAIL_DA` (il mittente, per esempio `"Lena <noreply@tuodominio.it>"`). Alcune scelte, tutte con un piano gratuito (controlla i limiti attuali sul loro sito): Brevo, Resend, Mailjet. Quasi tutte vogliono che tu verifichi un dominio tuo per mandare da un indirizzo tuo: con un indirizzo generico (gmail.com) le email finiscono nello spam o non partono.
+**Spedire le email.** Come in Loadout: **Brevo** spedisce (tramite la sua API https, quindi funziona anche su Render gratuito, che blocca le porte SMTP) e un indirizzo **Gmail** dedicato fa da mittente (Gmail non spedisce niente). Piano gratuito di Brevo: controlla i limiti attuali nella tua area (in Loadout erano 300 email al giorno).
 
-**Senza servizio di posta (sviluppo).** Se `SMTP_HOST` o `EMAIL_DA` mancano, l'email non parte: il testo, con il link, viene scritto nella finestra dove gira il server. Basta copiare il link e aprirlo per provare tutto. In produzione (`NODE_ENV=production`) senza configurazione il link non viene scritto da nessuna parte.
+1. Brevo → **Mittenti** → aggiungi il Gmail → Brevo manda un link di conferma in quella casella → aprilo.
+2. Brevo → **SMTP e API** → **Chiavi API** → crea una chiave per Lena (non riusare quella di Loadout).
+3. In `api/.env`: `BREVO_API_KEY` (la chiave), `EMAIL_MITTENTE` (il Gmail verificato) ed, facoltativa, `EMAIL_ASSISTENZA`. Online le stesse variabili vanno nel pannello Environment di Render, mai nel repository.
+4. Online serve anche `URL_BASE` (l'indirizzo pubblico del sito, per i link nelle email): senza, l'email non parte.
 
-**Privacy.** Il servizio di posta vede l'email della persona e il link: è un fornitore (responsabile del trattamento) da nominare nell'informativa privacy e da citare nelle condizioni d'uso. L'email non contiene mai dati di allenamento né di salute.
+**Senza chiave (sviluppo).** Se `BREVO_API_KEY` manca, l'email non parte: il testo, con il link, viene scritto nella finestra dove gira il server. Basta copiare il link e aprirlo per provare tutto. In produzione (`NODE_ENV=production`) senza configurazione il link non viene scritto da nessuna parte.
+
+**Limite noto.** Con un mittente `gmail.com` Brevo non può firmare le email (DKIM): qualcuna può finire nello spam. Si risolve solo con un dominio proprio.
+
+**Errori comuni.** «Key not found» da Brevo: chiave copiata male o scaduta (ne basta una nuova; il codice toglie già spazi e a capo). Variabili aggiunte a `.env` ma ignorate: riavvia il server.
+
+**Privacy.** Brevo (e Google, per la casella del mittente) vedono l'email della persona e il link: sono fornitori (responsabili del trattamento) da nominare nell'informativa privacy e da citare nelle condizioni d'uso. L'email non contiene mai dati di allenamento né di salute.
 
 **Se il trainer non riceve l'email** (servizio non ancora configurato): resta il comando di emergenza `node reimposta-password.js email nuovaPassword`, che cambia la password direttamente dal database.
 

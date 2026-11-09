@@ -25,3 +25,25 @@ test("migrazione 10, posta e README sono al loro posto", () => {
   assert.match(fs.readFileSync(path.join(API, "posta.js"), "utf8"), /NODE_ENV === "production"/);
   assert.match(fs.readFileSync(path.join(API, "README.md"), "utf8"), /Recupero della password/);
 });
+
+test("posta: usa Brevo via https (non SMTP), toglie spazi dalla chiave, risponde a EMAIL_ASSISTENZA, non scrive il link in produzione", async () => {
+  const { inviaEmail } = require("../posta");
+  const chiamate = [];
+  const finto = async (url, opz) => { chiamate.push({ url, opz }); return { ok: true, status: 201, text: async () => "" }; };
+  const env = { BREVO_API_KEY: "  chiave  \n", EMAIL_MITTENTE: " lena@esempio.it ", EMAIL_ASSISTENZA: "aiuto@esempio.it" };
+  const r = await inviaEmail({ a: "m@esempio.it", oggetto: "Ciao", testo: "link" }, env, finto);
+  assert.equal(r.inviata, true);
+  assert.equal(chiamate[0].url, "https://api.brevo.com/v3/smtp/email");
+  assert.equal(chiamate[0].opz.headers["api-key"], "chiave");
+  const corpo = JSON.parse(chiamate[0].opz.body);
+  assert.equal(corpo.sender.email, "lena@esempio.it"); assert.equal(corpo.replyTo.email, "aiuto@esempio.it"); assert.deepEqual(corpo.to, [{ email: "m@esempio.it" }]);
+  // errore di Brevo: non lancia
+  const errore = async () => ({ ok: false, status: 401, text: async () => "Key not found" });
+  assert.equal((await inviaEmail({ a: "m@esempio.it", oggetto: "x", testo: "y" }, env, errore)).inviata, false);
+  // senza chiave in produzione: non parte e il testo (con il link) non si scrive nel log
+  const scritti = []; const log = console.log, err = console.error;
+  console.log = (...a) => scritti.push(a.join(" ")); console.error = (...a) => scritti.push(a.join(" "));
+  try { await inviaEmail({ a: "m@esempio.it", oggetto: "x", testo: "LINK-SEGRETO" }, { NODE_ENV: "production" }, finto); } finally { console.log = log; console.error = err; }
+  assert.equal(scritti.some((r) => r.includes("LINK-SEGRETO")), false);
+  assert.equal(chiamate.length, 1);
+});
