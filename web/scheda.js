@@ -341,7 +341,10 @@ function disegna(){
       "aria-valuemin":"0", "aria-valuemax":String(tot), "aria-valuenow":String(fatti), "aria-valuetext":`${fatti} su ${tot}`},
       el("i",{style:`width:${tot ? Math.round(100*fatti/tot) : 0}%`}),
       // le tappe: una per blocco, «on» se fatto (il mood sceglie se mostrare la barra continua o le tappe, es. le perle di Velluto)
-      el("span",{class:"tappe"}, g.blocchi.map((b,i) => el("b",{class: fatto(`${g.id}|${i+1}`) ? "on" : null})))));
+      el("span",{class:"tappe"}, g.blocchi.map((b,i) => {
+        const k = `${g.id}|${i+1}`;   // «nuovo» = la tappa appena spuntata (per l'animazione del mood)
+        return el("b",{class: fatto(k) ? "on" + (appenaSpuntato === chiave(stato.settimana, k) ? " nuovo" : "") : null});
+      }))));
   }
   m.append(el("div",{style:"font-size:13px;color:var(--colore-testo-tenue)"},
     n < DATI.settimane ? `Stai guardando la settimana ${n} · dal ${fmt(giornoSett(n))}` : `Stai guardando la settimana di scarico · dal ${fmt(giornoSett(n))}`));
