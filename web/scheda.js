@@ -59,8 +59,8 @@ const SVG = {
   undo:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 4L2 7l3 3M2.5 7H10a3.5 3.5 0 010 7H7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   // i «gradi» del logo, per l'allenamento completato (colori dal mood)
   gradi:'<svg class="gradi" viewBox="0 0 48 48" aria-hidden="true"><path class="basso" d="M6 42 L24 30 L42 42" fill="none" stroke-width="6"/><path class="basso" d="M6 30 L24 18 L42 30" fill="none" stroke-width="6"/><path class="alto" d="M6 18 L24 6 L42 18" fill="none" stroke-width="6"/></svg>',
-  // la peonia disegnata a tratto, per l'allenamento completato di Botanico (colore dal mood)
-  peonia:'<svg class="peonia" viewBox="30 36 80 70" aria-hidden="true"><path d="M70 100 C46 100 32 84 36 64 C40 46 56 40 70 48 C84 40 100 46 104 64 C108 84 94 100 70 100Z"/><path d="M70 92 C54 90 46 78 50 64 C54 54 62 52 70 58 C78 52 86 54 90 64 C94 78 86 90 70 92Z"/><path d="M70 82 C62 80 58 72 62 66 C66 62 70 64 70 68 C70 64 74 62 78 66 C82 72 78 80 70 82Z"/></svg>'
+  // un fiore classico (centro tondo e petali attaccati), per l'allenamento completato di Botanico (colori dal mood)
+  fiore:'<svg class="fiore" viewBox="0 0 100 100" aria-hidden="true"><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(0 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(45 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(90 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(135 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(180 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(225 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(270 50 50)"/><ellipse class="petalo" cx="50" cy="24" rx="11" ry="18" transform="rotate(315 50 50)"/><circle class="centro" cx="50" cy="50" r="13"/></svg>'
 };
 // Il mood (l'estetica della scheda) lo sceglie chi carica questo file, con data-mood su <html> (vedi web/mood/).
 // Senza mood (la scheda scaricabile) la scheda resta com'era: colori dei giorni presi dai dati, niente extra.
@@ -306,7 +306,7 @@ let ultimoGiorno = null;
 const statoFine = { dove: null, era: null, anima: false };   // per animare il completamento solo nel momento in cui avviene
 function bannerCompletato(){
   return el("div",{class:"completato" + (statoFine.anima ? " appena" : ""), role:"status"},
-    el("span",{html:SVG.gradi + SVG.peonia}), el("p",{}, "Allenamento completato."));   // ogni mood mostra il suo disegno
+    el("span",{html:SVG.gradi + SVG.fiore}), el("p",{}, "Allenamento completato."));   // ogni mood mostra il suo disegno
 }
 
 // ---------- pagina ----------

@@ -9,7 +9,7 @@
    Colori dei giorni (fiori e foglie essiccati): lampone, salvia, prugna, terracotta, glicine, eucalipto, malva.
    Contrasti (calcolati): bianco su ogni colore ≥ 5,4:1; ogni colore sul fondo ≥ 4,1:1 e sui riquadri ≥ 5,0:1.
    Animazioni: fiorellino che si apre sulla spunta; petali che cadono al cambio di giorno (e i rametti ondeggiano);
-   avanzamento a boccioli che sbocciano; respiro guidato durante il recupero; peonia disegnata a tratto a fine allenamento.
+   avanzamento a boccioli che sbocciano; respiro guidato durante il recupero; fiore classico (centro tondo e petali) che si apre a fine allenamento.
    =========================================================================== */
 @font-face { font-family: "Cormorant Garamond"; src: url("/fonts/cormorant-garamond-latin-700-italic.woff2") format("woff2"); font-weight: 700; font-style: italic; font-display: swap; }
 
@@ -205,17 +205,20 @@
 [data-mood="botanico"] .puntini i { border-color: var(--g); }
 [data-mood="botanico"] .puntini i.on { background: var(--g); }
 
-/* ---------- allenamento completato: una peonia che si disegna a tratto (senza stelo) ---------- */
+/* ---------- allenamento completato: un fiore classico, centro tondo e otto petali, che si apre ruotando ---------- */
 [data-mood="botanico"] .completato { text-align: center; padding: 18px 16px 18px; margin: 4px 0 14px; border-radius: var(--raggio);
   background: var(--superficie); border: 1px solid var(--bordo-superficie); }
 [data-mood="botanico"] .completato .gradi { display: none; }
-[data-mood="botanico"] .completato .peonia { display: block; width: 96px; height: 84px; margin: 0 auto; }
-[data-mood="botanico"] .completato .peonia path { fill: none; stroke: var(--g); stroke-width: 2.2; stroke-linecap: round; }
+[data-mood="botanico"] .completato .fiore { display: block; width: 96px; height: 96px; margin: 0 auto; }
+[data-mood="botanico"] .completato .fiore .petalo { fill: var(--g); stroke: var(--superficie); stroke-width: 1.5; transform-box: view-box; }
+[data-mood="botanico"] .completato .fiore .petalo:nth-child(even) { fill-opacity: .82; }
+[data-mood="botanico"] .completato .fiore .centro { fill: var(--polline); stroke: var(--superficie); stroke-width: 2; }
 [data-mood="botanico"] .completato p { font-size: 30px; margin: 6px 0 0; color: var(--testo); }
-[data-mood="botanico"] .completato.appena .peonia path { stroke-dasharray: 400; stroke-dashoffset: 400; animation: botanico-traccia 900ms ease-out forwards; }
-[data-mood="botanico"] .completato.appena .peonia path:nth-child(3) { animation-delay: 400ms; }
-[data-mood="botanico"] .completato.appena p { animation: botanico-appare 400ms 800ms both; }
-@keyframes botanico-traccia { to { stroke-dashoffset: 0; } }
+[data-mood="botanico"] .completato.appena .fiore { animation: botanico-apre 640ms cubic-bezier(.2, .9, .3, 1.2) both; transform-origin: 50% 50%; }
+[data-mood="botanico"] .completato.appena .fiore .centro { animation: botanico-centro 300ms 420ms cubic-bezier(.2, .9, .3, 1.4) both; transform-box: fill-box; transform-origin: center; }
+[data-mood="botanico"] .completato.appena p { animation: botanico-appare 400ms 600ms both; }
+@keyframes botanico-apre { from { transform: scale(.2) rotate(-60deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes botanico-centro { from { transform: scale(0); } to { transform: scale(1); } }
 @keyframes botanico-appare { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 /* ---------- modalità allenamento ---------- */
