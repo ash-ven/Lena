@@ -25,7 +25,6 @@
   const ricarica = () => location.reload();
   const AZIONE_RIPROVA = { testo: "Riprova", fa: ricarica };
   const AZIONE_ESCI = { testo: "Esci", fa: () => Lena.esci(), secondario: true };
-  const AZIONE_PROFILO = { testo: "Il mio profilo", fa: () => location.assign("/account.html"), secondario: true };
 
   function vaiAlLogin() { location.replace("/login.html"); }
 
@@ -141,11 +140,7 @@
 
     if (me.stato === 401 || sch.stato === 401) return vaiAlLogin();
     if (me.stato === 200 && me.json.ruolo === "pt") return location.replace("/pt.html");
-    if (sch.stato === 404) {
-      return mostraStato("La tua scheda non c'è ancora",
-        "Il tuo PT non ti ha ancora caricato una scheda. Appena lo fa, la trovi qui. Intanto puoi vedere il tuo profilo.",
-        [{ testo: "Controlla di nuovo", fa: ricarica }, AZIONE_PROFILO, AZIONE_ESCI]);
-    }
+    if (sch.stato === 404) return location.replace("/benvenuto.html");   // niente scheda ancora: la pagina di benvenuto, con il trainer e il profilo
     if (me.stato !== 200 || sch.stato !== 200) {
       const r = me.stato !== 200 ? me : sch;
       return mostraStato("Non riesco a mostrare la scheda",
@@ -168,6 +163,15 @@
     }
     $("stato-pagina").hidden = true;
     document.body.classList.remove("semplice");
+    // l'icona del profilo, sempre a portata di mano nella testata della scheda
+    const sopra = document.querySelector("header .sopra");
+    if (sopra) {
+      const a = document.createElement("a");
+      a.className = "profilo-icona"; a.href = "/account.html";
+      a.setAttribute("aria-label", "Il mio profilo");
+      const i = document.createElement("span"); i.className = "icona i-utente"; i.setAttribute("aria-hidden", "true");
+      a.append(i); sopra.append(a);
+    }
   }
 
   avvia();

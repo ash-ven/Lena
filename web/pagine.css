@@ -123,3 +123,8 @@ body.semplice a.scelta{color:var(--testo)}
 .scelta:hover{border-color:var(--brace)}
 .scelta:focus-visible{outline:2px solid var(--anello-attivo);outline-offset:2px}
 .home-avviso{margin:0;max-width:520px;text-align:center;color:var(--testo-secondario)}
+
+/* l'icona del profilo nella testata della scheda del cliente: prende il colore del testo della scheda */
+.profilo-icona{display:inline-grid;place-items:center;width:44px;height:44px;margin:-8px 0 -8px var(--spazio-3);border-radius:50%;color:inherit;border:1px solid currentColor;opacity:.85;text-decoration:none}
+.profilo-icona:hover{opacity:1}
+header .sopra{align-items:center}

@@ -116,8 +116,9 @@ test("un cliente SENZA scheda entra comunque: la scheda non c'è (404) ma il pro
   assert.equal((await s("GET", "/api/me/profilo")).stato, 200);
   assert.equal((await s("GET", "/api/me/trainer")).stato, 200);
   assert.equal((await s("GET", "/api/me/esporta")).stato, 200);
-  // e la schermata «La tua scheda non c'è ancora» offre il collegamento al profilo
+  // senza scheda si va alla pagina di benvenuto; con la scheda c'è l'icona del profilo nella testata
   const js = leggi("scheda-server.js");
-  assert.match(js, /AZIONE_PROFILO\s*=\s*\{[^}]*"\/account\.html"/);
-  assert.match(js, /Controlla di nuovo[^\]]*AZIONE_PROFILO/);
+  assert.match(js, /sch\.stato === 404\) return location\.replace\("\/benvenuto\.html"\)/);
+  assert.match(js, /profilo-icona[\s\S]*\/account\.html/);
+  assert.match(leggi("benvenuto.js"), /\/api\/me\/trainer/);
 });

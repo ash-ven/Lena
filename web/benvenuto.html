@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B0D10">
+<title>Benvenuto · Lena</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script src="/tema.js"></script>
+<link rel="stylesheet" href="/sistema.css">
+<link rel="stylesheet" href="/pt.css">
+</head>
+<body class="pt">
+<header class="barra-pt">
+  <div class="dentro">
+    <div><a class="logo-pt" href="/benvenuto.html"><img class="logo-img su-scuro" src="/logo/lena-logo-scuro.svg" alt="Lena" width="124" height="26"><img class="logo-img su-chiaro" src="/logo/lena-logo-chiaro.svg" alt="Lena" width="124" height="26"></a></div>
+    <div class="destra">
+      <a class="bottone secondario piccolo" href="/account.html"><span class="icona i-utente" aria-hidden="true"></span><span class="testo-largo">Il mio profilo</span></a>
+      <div data-tema-controllo></div>
+      <button class="bottone secondario piccolo" type="button" id="esci"><span class="icona i-esci" aria-hidden="true"></span>Esci</button>
+    </div>
+  </div>
+</header>
+
+<main class="contenitore" id="contenuto">
+  <div id="stato-pagina" aria-live="polite"></div>
+  <div id="pagina" hidden>
+    <div class="testata-pt">
+      <div>
+        <div class="testata-titolo">
+          <h1 class="titolo" id="saluto">Ciao.</h1>
+          <svg class="gradi-testata" viewBox="0 0 56 56" aria-hidden="true" focusable="false"><path d="M8 18 L28 4 L48 18"/><path d="M8 32 L28 18 L48 32"/><path d="M8 46 L28 32 L48 46"/></svg>
+        </div>
+        <p class="sotto-titolo">Il tuo trainer sta preparando la tua scheda. Appena è pronta, la trovi qui: questa pagina si aggiorna da sola.</p>
+      </div>
+    </div>
+    <section aria-labelledby="t-trainer" id="sezione-trainer" hidden>
+      <h2 class="etichetta-sezione" id="t-trainer">Il tuo trainer</h2>
+      <div class="pannello scheda-trainer" id="scheda-trainer"></div>
+    </section>
+  </div>
+</main>
+<footer class="piede-legale"><a href="/privacy.html">Informativa privacy</a></footer>
+<noscript><p>Per usare Lena serve JavaScript attivo nel browser.</p></noscript>
+<script src="/api.js"></script>
+<script src="/profilo-comune.js"></script>
+<script src="/benvenuto.js"></script>
+</body>
+</html>
