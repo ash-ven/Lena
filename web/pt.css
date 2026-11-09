@@ -148,7 +148,8 @@ body.pt .elenco-clienti a{color:var(--testo)}
 .stato.attivo{color:var(--conferma);--i:url("/icone/check-circle.svg")}
 .stato.invito{color:var(--testo-brace);--i:url("/icone/clock.svg")}
 .stato.nessuna{color:var(--testo-brace);--i:url("/icone/info.svg")}
-.stato.attivo::before,.stato.invito::before,.stato.nessuna::before{display:block}
+.stato.bozza{color:var(--testo-brace);--i:url("/icone/info.svg")}
+.stato.attivo::before,.stato.invito::before,.stato.nessuna::before,.stato.bozza::before{display:block}
 .stato.neutro{background:var(--superficie-alta);border-color:transparent}
 
 /* ---------- pagina del cliente ---------- */

@@ -36,7 +36,8 @@
         el("span", { class: "corpo-cliente" },
           el("span", { class: "nome-cliente" }, `${c.cognome} ${c.nome}`),
           el("span", { class: "dettaglio" },
-            r.stato.tipo === "neutro" ? null : el("span", { class: `stato ${r.stato.tipo}` }, r.stato.breve), r.testo),
+            r.stato.tipo === "neutro" ? null : el("span", { class: `stato ${r.stato.tipo}` }, r.stato.breve),
+            LenaPt.haBozza(c.id) ? el("span", { class: "stato bozza" }, "Bozza in corso") : null, r.testo),
           r.scad ? el("span", { class: "dettaglio scadenza-riga" + (r.scad.urgente ? " urgente" : "") }, r.scad.testo) : null),
         el("span", { class: "icona i-avanti vai", "aria-hidden": "true" })));
     }));

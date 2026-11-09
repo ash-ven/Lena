@@ -130,5 +130,13 @@
     try { const t = sessionStorage.getItem("lena:messaggio"); sessionStorage.removeItem("lena:messaggio"); return t; } catch (e) { return null; }
   }
 
-  window.LenaPt = { verificaPt, chiama, vaiAlLogin, dataBreve, dataOra, normalizza, statoCliente, scadenza, riepilogoRiga, el, messaggio, testoErrore, cornice, ricordaMessaggio, prendiMessaggio };
+  // C'è una bozza di scheda in corso, su questo dispositivo, per il cliente? (la scrive pt-editor.js; vale solo per questo browser)
+  function haBozza(idCliente) {
+    try {
+      const b = JSON.parse(localStorage.getItem(`lena:bozza:${idCliente}`) || "null");
+      return !!(b && Array.isArray(b.giorni));
+    } catch (e) { return false; }
+  }
+
+  window.LenaPt = { haBozza, verificaPt, chiama, vaiAlLogin, dataBreve, dataOra, normalizza, statoCliente, scadenza, riepilogoRiga, el, messaggio, testoErrore, cornice, ricordaMessaggio, prendiMessaggio };
 })();

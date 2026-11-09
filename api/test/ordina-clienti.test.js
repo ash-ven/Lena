@@ -39,3 +39,13 @@ test("la pagina usa l'ordinamento e ricorda la scelta", () => {
   assert.match(w("pt.html"), /ordina-clienti\.js/);
   assert.match(w("pt.js"), /LenaOrdinaClienti\.ordina\(clienti, ordine\)/);
 });
+
+test("la bozza in corso si vede nell'elenco e nella pagina del cliente", () => {
+  const w = (f) => fs.readFileSync(path.join(__dirname, "..", "..", "web", f), "utf8");
+  assert.match(w("pt-comune.js"), /lena:bozza:\$\{idCliente\}/);
+  assert.match(w("pt.js"), /LenaPt\.haBozza\(c\.id\)/);
+  assert.match(w("pt-cliente.js"), /LenaPt\.haBozza\(id\)/);
+  assert.match(w("pt-cliente.html"), /id="bozza-nota"/);
+  // stessa chiave dell'editor: se una cambia e l'altra no, il segno sparisce in silenzio
+  assert.match(w("pt-editor.js"), /`lena:bozza:\$\{idCliente\}`/);
+});

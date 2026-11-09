@@ -61,6 +61,8 @@
         el("a", { class: "bottone secondario piccolo", href: `/pt-editor.html?cliente=${id}&base=${s.id}` }, "Modifica (nuova versione)"),
         el("a", { class: "bottone secondario piccolo", href: `/pt.html?copia=${s.id}` }, "Copia per un altro cliente")))));
     $("schede-vuoto").hidden = schede.length > 0;
+    $("bozza-nota").hidden = !LenaPt.haBozza(id);
+    $("bozza-link").href = `/pt-editor.html?cliente=${id}`;
   }
 
   function disegnaInvito() {
