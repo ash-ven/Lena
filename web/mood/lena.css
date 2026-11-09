@@ -153,13 +153,11 @@
 [data-mood="lena"] .sett button[aria-pressed="true"] { background: var(--testo); border-color: var(--testo); color: var(--sfondo); }
 [data-mood="lena"] .sett button.oggi:not([aria-pressed="true"]) { border-color: var(--g); color: var(--testo); }
 
-/* ---------- testata del giorno: la fascia del colore del giorno ---------- */
-[data-mood="lena"] .titolo-giorno {
-  display: block; margin: 20px 0 8px; padding: 14px 16px; border-radius: var(--raggio-riquadro);
-  background: var(--g); color: var(--su-g);
-}
-[data-mood="lena"] .titolo-giorno h2 { color: inherit; font-size: 26px; line-height: 1.15; }
-[data-mood="lena"] .titolo-giorno small { display: block; color: inherit; font-size: 14px; font-weight: 500; margin-top: 2px; }
+/* ---------- testata del giorno: nome grande nel colore del giorno, senza fascia colorata ---------- */
+/* 30 px grassetto = testo grande: basta 3:1, e il colore più scuro (cremisi) fa 3,3:1 sul fondo */
+[data-mood="lena"] .titolo-giorno { display: block; margin: 22px 0 10px; padding: 0; background: none; }
+[data-mood="lena"] .titolo-giorno h2 { color: var(--g); font-size: 30px; line-height: 1.1; }
+[data-mood="lena"] .titolo-giorno small { display: block; color: var(--testo); font-size: 15px; font-weight: 500; margin-top: 4px; }
 [data-mood="lena"] .titolo-giorno.entra { animation: lena-entra var(--tempo-cambio) ease-out; }
 @keyframes lena-entra { from { opacity: .35; } to { opacity: 1; } }
 
