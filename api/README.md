@@ -192,9 +192,7 @@ del server. I dati arrivano come semplice testo e non vengono mai eseguiti come 
 ## Privacy, consensi e conservazione dei dati
 
 > **Importante.** Tutto quello che c'è qui sono le **basi tecniche**. I testi legali (informativa, condizioni d'uso) sono **segnaposto** da sostituire, e manca ancora molto prima di usare Lena
-> con dati di persone vere: l'elenco onesto è in [`docs/privacy/COSA-MANCA.md`](../docs/privacy/COSA-MANCA.md).
-> Gli altri documenti: [`PERIMETRO.md`](../docs/privacy/PERIMETRO.md) (cosa Lena è e non è), [`DATI-TRATTATI.md`](../docs/privacy/DATI-TRATTATI.md) (quali dati, dove, per quanto tempo),
-> [`REGISTRO-TRATTAMENTI-BOZZA.md`](../docs/privacy/REGISTRO-TRATTAMENTI-BOZZA.md) (bozza da compilare).
+> con dati di persone vere. Gli appunti sulla privacy (cosa manca, perimetro, dati trattati, registro dei trattamenti) sono documenti di lavoro tenuti fuori dal repository.
 
 **Il perimetro in una riga:** pilota con **un** professionista e pochi clienti **maggiorenni**; **solo schede di allenamento**; **nessun dato di salute**; Lena mostra e raccoglie, non decide.
 Chi gestisce Lena è il *responsabile del trattamento*, il professionista è il *titolare*.

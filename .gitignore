@@ -5,3 +5,6 @@ node_modules/
 
 # il modello Excel scaricabile fa parte del sito: si tiene nel repository
 !web/modello-scheda-lena.xlsx
+
+# documenti di lavoro (privacy, screenshot): restano sul PC, non nel repository pubblico
+docs/
