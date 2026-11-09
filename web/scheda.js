@@ -200,8 +200,15 @@ function campo(tipo, k, etichetta, segnaposto, serie){
 }
 
 // ---------- serie fatte + recupero ----------
-function rigaSerie(k, e){
-  const tot = /^\d{1,2}$/.test(String(e.serie).trim()) ? parseInt(e.serie, 10) : 0; if (!tot) return null;   // pallini solo se la serie è un numero (1-99)
+// Serie e ripetizioni DELLA SETTIMANA che si sta guardando. Se l'esercizio ha lo schema («4x10» per ogni settimana di lavoro) valgono
+// quelle dello schema; altrimenti (nessuno schema, schema non leggibile, settimana di scarico) i valori base dell'esercizio.
+function valoriSettimana(e, n){
+  const m = e.schema && n >= 1 && n <= e.schema.length ? /^(\d{1,3})\s*[x×]\s*(\d{1,3})$/i.exec(String(e.schema[n-1]).trim()) : null;
+  return m ? { serie: m[1], rip: m[2], daSchema: true } : { serie: e.serie, rip: e.rip, daSchema: false };
+}
+
+function rigaSerie(k, e, serie){
+  const tot = /^\d{1,2}$/.test(String(serie).trim()) ? parseInt(serie, 10) : 0; if (!tot) return null;   // pallini solo se la serie è un numero (1-99)
   const c = chiave(stato.settimana, k), fatte = mem.serie[c] || 0;
   const pallini = el("span",{class:"puntini", "aria-label":`${fatte} serie su ${tot}`},
     Array.from({length:tot}, (_,i) => el("i",{class: i < fatte ? "on" : null})));
@@ -246,19 +253,20 @@ function cardEsercizio(g, i, e){
   const k = `${g.id}|${i}`, n = stato.settimana;
   const card = el("section",{class:"card" + (fatto(k) ? " fatto" : "")});
   card.append(el("div",{class:"testa"}, el("span",{class:"num"}, i), el("h4",{class:"nome"}, e.nome), spunta(k,"spunta")));
+  const v = valoriSettimana(e, n);
   card.append(el("div",{class:"dati"},
-    el("div",{class:"dato"}, el("small",{}, "Serie"), el("b",{}, e.serie)),
-    el("div",{class:"dato"}, el("small",{}, "Ripetizioni"), el("b",{}, e.rip)),
+    el("div",{class:"dato"}, el("small",{}, "Serie"), el("b",{}, v.serie)),
+    el("div",{class:"dato"}, el("small",{}, "Ripetizioni"), el("b",{}, v.rip)),
     el("div",{class:"dato"}, el("small",{}, "Recupero"), el("b",{}, e.rec))));
-  if (e.schema){
+  if (e.schema && !v.daSchema){   // con lo schema leggibile i numeri grandi qui sopra sono già quelli della settimana
     const scar = n > e.schema.length;
     card.append(el("div",{class:"questa" + (scar ? " scarico" : "")},
       el("small",{}, scar ? "Settimana di scarico" : `Schema · settimana ${n}`), el("b",{}, scar ? "Scarico" : e.schema[n-1])));
   }
   const campi = el("div",{class:"campi"}, campo("kg", k, `Kg · sett. ${n}`, "—"));
-  if (e.progressione) campi.append(campo("rip", k, "Rip. fatte", "10-10-9-8", parseInt(e.serie,10)));
+  if (e.progressione) campi.append(campo("rip", k, "Rip. fatte", "10-10-9-8", parseInt(v.serie,10)));
   card.append(campi);
-  const rs = rigaSerie(k, e); if (rs) card.append(rs);
+  const rs = rigaSerie(k, e, v.serie); if (rs) card.append(rs);
   if (e.note) card.append(el("p",{class:"nota"}, e.note));
   if (e.progressione) card.append(el("details",{class:"prog", open: n===1 ? "" : null}, el("summary",{}, "Progressione"), el("p",{}, e.progressione)));
   if (e.schema){

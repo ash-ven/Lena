@@ -224,6 +224,7 @@ select.scelta{min-height:48px;padding:var(--spazio-2) var(--spazio-3);font:inher
 .griglia-campi{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 var(--spazio-3)}
 .griglia-campi .doppio{grid-column:span 2}
 .griglia-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 var(--spazio-2)}
+.griglia-1{display:grid;grid-template-columns:minmax(0,1fr)}
 .griglia-schema{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:0 var(--spazio-2)}
 .campo-pt select{width:100%;min-height:48px;padding:var(--spazio-3);font:inherit;font-size:16px;line-height:24px;color:var(--testo);
   background:var(--superficie);border:1px solid var(--bordo-campo);border-radius:var(--raggio-controllo)}

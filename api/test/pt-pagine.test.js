@@ -128,3 +128,12 @@ test("editor: il cursore dopo «Aggiungi esercizio» parte sempre dal giorno giu
   assert.doesNotMatch(js, /daFocalizzare = `\[data-id="blocco-/, "ricerca del campo non limitata al giorno: finisce nel Giorno A");
   assert.match(js, /dentroGiorno\(g\)\} \[data-id="blocco-\$\{g\.blocchi\.length - 1\}"\]/);
 });
+
+test("schema per settimana: la scheda mostra serie e ripetizioni della settimana scelta; l'editor non chiede valori «base» in più", () => {
+  const web = path.join(__dirname, "..", "..", "web");
+  const scheda = fs.readFileSync(path.join(web, "scheda.js"), "utf8"), ed = fs.readFileSync(path.join(web, "pt-editor.js"), "utf8");
+  assert.match(scheda, /function valoriSettimana\(e, n\)/);
+  assert.match(scheda, /rigaSerie\(k, e, v\.serie\)/, "pallini e timer seguono la settimana");
+  assert.doesNotMatch(scheda, /el\("b",\{\}, e\.serie\)/, "i numeri grandi non sono più i valori base");
+  assert.match(ed, /!b\.perSettimana && !testo\(b\.serie\)/);
+});

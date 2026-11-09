@@ -165,14 +165,15 @@
     const schema = b.perSettimana ? el("div", { class: "schema" },
       el("p", { class: "nota" }, "Scrivi per ogni settimana serie × ripetizioni, per esempio 4x10. Le settimane di scarico si compilano da sole."),
       el("div", { class: "griglia-schema" }, Array.from({ length: w }, (_, n) =>
-        campo(`Settimana ${n + 1}`, b.schema, n, { max: 10, segnaposto: "4x10" })))) : null;
+        campo(`Settimana ${n + 1}`, b.schema, n, { max: 10, segnaposto: "es. 4x10" })))) : null;
     return el("li", { class: "blocco", "data-voce": "", "data-id": `blocco-${i}` },
       el("div", { class: "testa-voce" }, el("strong", {}, `${i + 1}. Esercizio`), comandi(g.blocchi, i, `blocco-${i}`)),
       campoNome(b),
-      el("div", { class: "griglia-3" },
-        campo("Serie", b, "serie", { max: 10, modo: "numeric", segnaposto: "4" }),
-        campo("Ripetizioni", b, "rip", { max: 30, segnaposto: "10" }),
-        campo("Recupero", b, "rec", { max: 30, segnaposto: "1'30\"" })),
+      // con lo schema per settimana, serie e ripetizioni stanno SOLO nello schema (un'unica fonte: niente valori «base» che lo contraddicono)
+      el("div", { class: b.perSettimana ? "griglia-1" : "griglia-3" },
+        b.perSettimana ? null : campo("Serie", b, "serie", { max: 10, modo: "numeric", segnaposto: "es. 4" }),
+        b.perSettimana ? null : campo("Ripetizioni", b, "rip", { max: 30, segnaposto: "es. 10" }),
+        campo("Recupero", b, "rec", { max: 30, segnaposto: "es. 1'30\"" })),
       campoVideo(b),
       el("details", { class: "altro", open: b.aperto || b.note || b.progressione || b.perSettimana ? "" : null, ontoggle: (ev) => { b.aperto = ev.target.open; } },
         el("summary", {}, "Altro: note, progressione, schema per settimana"),
@@ -182,6 +183,11 @@
           const c = el("input", { type: "checkbox" }); c.checked = b.perSettimana;
           c.addEventListener("change", () => {
             b.perSettimana = c.checked; b.aperto = true;
+            if (!c.checked) {   // tornando ai valori fissi si riparte da quelli della prima settimana, se i campi sono vuoti
+              const m = /^(\d+)x(\d+)$/i.exec(testo(b.schema[0]).replace(/\s/g, ""));
+              if (m && !testo(b.serie)) b.serie = m[1];
+              if (m && !testo(b.rip)) b.rip = m[2];
+            }
             if (c.checked) { const prima = /^\d+$/.test(b.serie.trim()) && /^\d+$/.test(b.rip.trim()) ? `${b.serie.trim()}x${b.rip.trim()}` : ""; b.schema = Array.from({ length: w }, (_, n) => b.schema[n] || prima); }
             daFocalizzare = null; salvaBozza(); disegna();
           });
@@ -286,8 +292,8 @@
         if (b.tipo === "esercizio") {
           const nm = testo(b.nome);
           if (!nm) return err(`${dove}: manca il nome dell'esercizio.`);
-          if (!testo(b.serie)) err(`${dove} («${nm}»): scrivi le serie.`);
-          if (!testo(b.rip)) err(`${dove} («${nm}»): scrivi le ripetizioni.`);
+          if (!b.perSettimana && !testo(b.serie)) err(`${dove} («${nm}»): scrivi le serie.`);
+          if (!b.perSettimana && !testo(b.rip)) err(`${dove} («${nm}»): scrivi le ripetizioni.`);
           if (!indirizzoOk(b.video)) err(`${dove} («${nm}»): il link al video deve iniziare con http:// o https://.`);
           let schema = null;
           if (b.perSettimana) {
@@ -298,7 +304,9 @@
               schema.push(v);
             }
           }
-          blocchi.push({ tipo: "esercizio", nome: nm, serie: testo(b.serie), rip: testo(b.rip), rec: testo(b.rec) || "/", video: oNull(b.video),
+          // con lo schema, serie e ripetizioni base sono quelle della prima settimana (la scheda mostra comunque quelle della settimana scelta)
+          const base1 = schema && /^(\d+)x(\d+)$/.exec(schema[0] || "");
+          blocchi.push({ tipo: "esercizio", nome: nm, serie: base1 ? base1[1] : testo(b.serie), rip: base1 ? base1[2] : testo(b.rip), rec: testo(b.rec) || "/", video: oNull(b.video),
             note: oNull(b.note), schema, progressione: oNull(b.progressione) });
         } else {
           const min = Number(b.minuti);
