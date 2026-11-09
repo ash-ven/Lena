@@ -156,7 +156,10 @@ test("nessun file del sito chiama indirizzi esterni (niente CDN, font o librerie
     // gli indirizzi ammessi sono solo quelli che NON fanno richieste: lo spazio dei nomi di un file SVG
     const esterni = [...testo.matchAll(/https?:\/\/[^\s"'`)<>]+/g)].map((m) => m[0]).filter((u) => u !== "http://www.w3.org/2000/svg")
       // «https://…» nei suggerimenti e nei messaggi d'errore non è un indirizzo: conta solo ciò che ha un nome di sito
-      .filter((u) => /^https?:\/\/[a-z0-9-]+(\.[a-z0-9-]+)+/i.test(u));
+      .filter((u) => /^https?:\/\/[a-z0-9-]+(\.[a-z0-9-]+)+/i.test(u))
+    // UNICA eccezione: il collegamento «Manda su WhatsApp» dell'invito (pt-cliente.js). Non fa nessuna richiesta: è un link che il trainer
+    // sceglie di aprire con un clic, e contiene solo il messaggio che sta per mandare.
+    .filter((u) => !(f === "pt-cliente.js" && u.startsWith("https://wa.me/")));
     // esempi.com compare solo come testo di esempio nei commenti della documentazione, non in questi file: se compare è un errore
     assert.deepEqual(esterni, [], `${f}: contiene indirizzi esterni`);
     assert.doesNotMatch(testo, /@import|url\(\s*["']?https?:/i, `${f}: importa risorse esterne`);

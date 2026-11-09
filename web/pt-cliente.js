@@ -69,10 +69,10 @@
     }
     bottone.hidden = false;
     if (cliente.invito_attivo) {
-      stato.textContent = `C'è un invito attivo, valido fino al ${LenaPt.dataBreve(cliente.invito_scade_il)}. Il link si vede una sola volta, quando lo crei: se non ce l'hai più, creane uno nuovo (quello vecchio smette di funzionare).`;
+      stato.textContent = `C'è un invito attivo, valido fino al ${LenaPt.dataBreve(cliente.invito_scade_il)}. Se non hai più il link, creane uno nuovo: quello vecchio smette di funzionare.`;
       bottone.textContent = "Crea un nuovo invito";
     } else {
-      stato.textContent = "Per far entrare il cliente crea un invito: ottieni un link da mandargli. Vale 7 giorni e si può usare una volta sola.";
+      stato.textContent = "Per far entrare il cliente crea un invito: ottieni un link da mandargli. Vale 7 giorni.";
       bottone.textContent = "Crea invito";
     }
   }
@@ -156,12 +156,14 @@
       }
     });
     $("crea-invito").classList.add("secondario");
-    zona.append(messaggio("ok", "Invito creato", [
-      `Manda questo link al cliente. Scade il ${LenaPt.dataBreve(r.json.scade_il)} e si può usare una volta sola.`]),
-      el("div", { class: "link-invito" }, campo, copia), esito,
-      messaggio("avviso", "Copialo adesso", [
-        "Il link si vede una volta sola: se lasci o ricarichi questa pagina non puoi più rivederlo.",
-        "Se ne crei un altro, questo smette di funzionare."]));
+    // mandarlo con un tocco: il messaggio è già pronto, scegli tu a chi (si aprono WhatsApp o la posta, non parte niente da solo)
+    const testoMsg = `Ciao ${cliente.nome}, ecco il link per entrare su Lena e vedere la tua scheda: ${link}`;
+    const manda = el("div", { class: "azioni-pt invito-manda" },
+      el("a", { class: "bottone secondario", href: `https://wa.me/?text=${encodeURIComponent(testoMsg)}`, target: "_blank", rel: "noopener" }, "Manda su WhatsApp"),
+      el("a", { class: "bottone secondario", href: `mailto:?subject=${encodeURIComponent("Il tuo accesso a Lena")}&body=${encodeURIComponent(testoMsg)}` }, "Manda per email"));
+    zona.append(messaggio("ok", "Invito creato", [`Vale fino al ${LenaPt.dataBreve(r.json.scade_il)}.`]),
+      el("div", { class: "link-invito" }, campo, copia), esito, manda,
+      messaggio("avviso", "Copialo o mandalo adesso", ["Il link si vede una volta sola: se lasci o ricarichi la pagina non lo rivedi, e se ne crei un altro questo smette di funzionare."]));
     campo.focus(); campo.select();
     ricarica(true);   // aggiorna lo stato dell'invito, senza cancellare il link appena mostrato
   });

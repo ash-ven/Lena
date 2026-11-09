@@ -11,7 +11,8 @@
 })(typeof self !== "undefined" ? self : this, function () {
 
   // registrazioni: [{ tipo, chiave, valore }], con chiave "settimana|giorno|resto" (es. "3|A|2")
-  function riepilogoSettimane(dati, registrazioni) {
+  // «oggi» si può passare (per i test); le settimane che iniziano dopo oggi sono «future»
+  function riepilogoSettimane(dati, registrazioni, oggi = new Date()) {
     const fatte = new Set();      // "3|A|2" = blocco 2 del giorno A, settimana 3, con la spunta
     const toccati = new Set();    // "3|A" = giorno A della settimana 3, con almeno un valore
     for (const r of registrazioni || []) {
@@ -21,6 +22,8 @@
       if (r.tipo === "fatto") fatte.add(r.chiave);
     }
 
+    const [aa, mm, gg] = String(dati.inizio || "").split("-").map(Number);
+    const oggi0 = new Date(oggi.getFullYear(), oggi.getMonth(), oggi.getDate());
     const settimane = [];
     for (let n = 1; n <= dati.settimane; n++) {
       let completati = 0, iniziati = 0;
@@ -31,11 +34,17 @@
         if (tutti) completati++;
         if (toccati.has(`${n}|${g.id}`)) iniziati++;
       }
-      settimane.push({
+      const sett = {
         settimana: n,
         etichetta: n < dati.settimane ? `Settimana ${n}` : "Settimana di scarico",
         completati, iniziati, totale: dati.giorni.length,
-      });
+      };
+      if (aa) {
+        const inizioSett = new Date(aa, mm - 1, gg + 7 * (n - 1));
+        sett.futura = inizioSett > oggi0 && completati === 0 && iniziati === 0;
+        sett.inizioData = `${inizioSett.getFullYear()}-${String(inizioSett.getMonth() + 1).padStart(2, "0")}-${String(inizioSett.getDate()).padStart(2, "0")}`;
+      }
+      settimane.push(sett);
     }
     return settimane;
   }

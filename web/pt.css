@@ -175,7 +175,9 @@ body.pt .elenco-clienti a{color:var(--testo)}
 .settimane{list-style:none;margin:var(--spazio-3) 0 0;padding:0;display:grid;gap:var(--spazio-2)}
 .settimane li{padding:var(--spazio-3);border-radius:var(--raggio-controllo);background:var(--superficie-alta)}
 .settimane .testo-sett{display:flex;justify-content:space-between;gap:var(--spazio-3);flex-wrap:wrap;font-variant-numeric:tabular-nums}
-.settimane progress{width:100%;height:10px;margin-top:var(--spazio-2);accent-color:var(--brace)}
+.settimane .barra-sett{height:10px;margin-top:var(--spazio-2);border-radius:999px;background:var(--superficie);border:1px solid var(--bordo-campo);overflow:hidden}
+.settimane .barra-sett i{display:block;height:100%;background:var(--brace);border-radius:999px}
+.settimane li.futura{background:transparent;border:1px dashed var(--bordo-superficie);color:var(--testo-secondario)}
 .totale-progressi{font-weight:600;margin:var(--spazio-2) 0;font-variant-numeric:tabular-nums}
 
 .zona-pericolo{border-color:var(--errore)}
@@ -216,6 +218,7 @@ select.scelta{min-height:48px;padding:var(--spazio-2) var(--spazio-3);font:inher
 .nome-trainer{font-family:var(--font-titoli);font-weight:700;font-size:20px;line-height:26px}
 .bio-trainer{white-space:pre-line;overflow-wrap:anywhere}
 .contatto-trainer{overflow-wrap:anywhere}
+.contatto-link{display:inline-block;padding:11px 0;text-decoration:underline}
 .intestazione-cliente{display:flex;align-items:center;gap:var(--spazio-5);min-width:0}
 .intestazione-cliente .titolo{margin:0;min-width:0;overflow-wrap:anywhere}
 .testata-cliente h1.titolo{font-size:clamp(30px,7vw,52px);line-height:1.05}
@@ -311,3 +314,4 @@ details.altro > summary:hover{color:var(--testo)}
   .azioni-testata .bottone.secondario{flex:1 1 0;padding-left:var(--spazio-2);padding-right:var(--spazio-2);justify-content:center}
   .azioni-testata #apri-nuovo{flex:1 0 100%;justify-content:center}
 }
+.invito-manda{margin:var(--spazio-3) 0 var(--spazio-4)}

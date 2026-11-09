@@ -22,6 +22,23 @@
     }
   }
 
+  // Il contatto scritto dal trainer, con email, telefono e link web cliccabili (gli altri testi restano testo semplice).
+  // Gli indirizzi si costruiscono solo da forme riconosciute: https://..., nome@dominio.it, numeri di almeno 9 cifre (così una data non diventa un telefono).
+  function collegamenti(testo) {
+    const nodi = []; let da = 0;
+    for (const m of String(testo).matchAll(/(https?:\/\/[^\s<>"]+)|([^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+)|(\+?\d[\d ().-]{6,}\d)/g)) {
+      const t = m[0];
+      if (m[3] && t.replace(/\D/g, "").length < 9) continue;
+      if (m.index > da) nodi.push(testo.slice(da, m.index));
+      nodi.push(m[1] ? el("a", { class: "contatto-link", href: t, target: "_blank", rel: "noopener" }, t)
+        : m[2] ? el("a", { class: "contatto-link", href: `mailto:${t}` }, t)
+        : el("a", { class: "contatto-link", href: `tel:${t.replace(/[^\d+]/g, "")}` }, t));
+      da = m.index + t.length;
+    }
+    if (da < testo.length) nodi.push(testo.slice(da));
+    return nodi;
+  }
+
   // La scheda con avatar, nome, presentazione e contatto
   function disegnaScheda(contenitore, profilo, urlFoto) {
     const av = el("div", { class: "avatar" });
@@ -29,7 +46,7 @@
     contenitore.replaceChildren(av, el("div", { class: "scheda-trainer-testo" },
       el("p", { class: "nome-trainer" }, profilo.nome),
       profilo.bio ? el("p", { class: "bio-trainer" }, profilo.bio) : null,
-      profilo.contatto ? el("p", { class: "contatto-trainer" }, el("span", { class: "nota" }, "Contatto: "), profilo.contatto) : null));
+      profilo.contatto ? el("p", { class: "contatto-trainer" }, el("span", { class: "nota" }, "Contatto: "), collegamenti(profilo.contatto)) : null));
   }
 
   // ---------- foto: si ritaglia quadrata e si riduce QUI, nel browser (toglie anche i dati nascosti della fotocamera, come la posizione) ----------

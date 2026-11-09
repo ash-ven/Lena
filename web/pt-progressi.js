@@ -37,9 +37,13 @@
     const settimane = LenaProgressi.riepilogoSettimane(dati, registrazioni);
     const tot = LenaProgressi.totale(settimane);
     $("progressi-totale").textContent = `In tutto: ${tot.completati} ${tot.completati === 1 ? "allenamento completato" : "allenamenti completati"} su ${tot.totali}`;
-    $("progressi-settimane").replaceChildren(...settimane.map((x) => el("li", {},
-      el("div", { class: "testo-sett" }, el("span", {}, LenaProgressi.frase(x))),
-      el("progress", { max: x.totale, value: x.completati, "aria-label": `${x.etichetta}: ${x.completati} su ${x.totale}` }))));
+    $("progressi-settimane").replaceChildren(...settimane.map((x) => x.futura
+      // una settimana che non è ancora iniziata non è un «0 su 3»: si dice quando parte
+      ? el("li", { class: "futura" }, el("div", { class: "testo-sett" }, el("span", {}, `${x.etichetta}: parte il ${LenaPt.dataBreve(x.inizioData)}`)))
+      : el("li", {},
+        el("div", { class: "testo-sett" }, el("span", {}, LenaProgressi.frase(x))),
+        el("div", { class: "barra-sett", role: "img", "aria-label": `${x.etichetta}: ${x.completati} su ${x.totale}` },
+          el("i", { style: `width:${x.totale ? Math.round(100 * x.completati / x.totale) : 0}%` })))));
 
     const ultimo = registrazioni.reduce((m, r) => (m && m > r.aggiornata_il ? m : r.aggiornata_il), null);
     $("progressi-aggiornati").textContent = ultimo ? `Ultimo salvataggio del cliente: ${LenaPt.dataOra(ultimo)}.` : "Il cliente non ha ancora segnato niente su questa scheda.";

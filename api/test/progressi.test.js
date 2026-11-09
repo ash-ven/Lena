@@ -53,3 +53,13 @@ test("un giorno senza blocchi non risulta mai completato", () => {
   assert.equal(riepilogoSettimane(d, [])[0].completati, 0);
   assert.equal(riepilogoSettimane(d, [...tutti(1, "A", 4), ...tutti(1, "B", 3)])[0].completati, 2);
 });
+
+test("settimane future: non sono un «0 su 3», sono «future» e dicono quando partono; quelle con qualcosa di segnato non lo sono mai", () => {
+  const { riepilogoSettimane } = require("../../web/progressi.js");
+  const dati = { inizio: "2026-11-02", settimane: 4, giorni: [{ id: "A", blocchi: [{}] }, { id: "B", blocchi: [{}] }] };
+  const s = riepilogoSettimane(dati, [], new Date(2026, 10, 10));   // 10 novembre: settimana 2 in corso
+  assert.deepEqual(s.map((x) => x.futura), [false, false, true, true]);
+  assert.equal(s[2].inizioData, "2026-11-16");
+  const con = riepilogoSettimane(dati, [{ tipo: "kg", chiave: "3|A|1", valore: "50" }], new Date(2026, 10, 10));
+  assert.equal(con[2].futura, false, "se ha già segnato qualcosa non è «futura»");
+});

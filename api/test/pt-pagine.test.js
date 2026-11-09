@@ -176,3 +176,15 @@ test("uscita: le bozze delle schede del trainer si cancellano dal browser; la te
   const css = fs.readFileSync(path.join(web, "pagine.css"), "utf8");
   assert.match(css, /header \.sopra\{flex-wrap:wrap\}/);
 });
+
+test("lato trainer: serie in lettere avvisate, link video senza https completati, invito con un solo avviso e invio con un tocco, contatto cliccabile, «la vede subito» solo se il cliente è registrato", () => {
+  const web = path.join(__dirname, "..", "..", "web"), r = (f) => fs.readFileSync(path.join(web, f), "utf8");
+  assert.match(r("pt-editor.js"), /non come numero: il cliente non vedrà i pallini delle serie/);
+  assert.match(r("pt-editor.js"), /const conHttps = /);
+  assert.match(r("pt-editor.js"), /cliente\.registrato \?/);
+  assert.match(r("pt-converti.js"), /cliente\.registrato \?/);
+  assert.match(r("pt-cliente.js"), /Manda su WhatsApp/);
+  assert.match(r("profilo-comune.js"), /mailto:\$\{t\}/);
+  assert.match(r("pt-progressi.js"), /barra-sett/);
+  assert.doesNotMatch(r("pt-progressi.js"), /el\("progress"/);
+});

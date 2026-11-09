@@ -101,7 +101,7 @@
       const titolo = dati.info.titolo || "La scheda";
       azzera();
       $("conv-file").value = "";
-      $("conv-messaggi").append(messaggio("ok", "Scheda inviata", [`«${titolo}» è stata caricata: il cliente la vede subito.`]));
+      $("conv-messaggi").append(messaggio("ok", "Scheda inviata", [`«${titolo}» è stata caricata: ${cliente.registrato ? "il cliente la vede subito." : "il cliente la vedrà appena entra con il suo invito."}`]));
       aggiornaPulsante();
       if (suInviata) await suInviata();
       return;

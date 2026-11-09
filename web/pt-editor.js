@@ -262,10 +262,12 @@
   // ---------- da modulo a «dati» ----------
   const testo = (v) => String(v == null ? "" : v).trim().replace(/\s+/g, " ");
   const oNull = (v) => (testo(v) ? testo(v) : null);
-  const indirizzoOk = (v) => !testo(v) || (/^https?:\/\/\S+$/i.test(testo(v)) && testo(v).length <= 2000);
+  // un link scritto senza https:// (es. youtube.com/...) lo completa Lena; un altro tipo di indirizzo (javascript:, ftp:...) resta com'è e viene rifiutato
+  const conHttps = (v) => { const t = testo(v); return t && !/^[a-z][a-z0-9+.-]*:/i.test(t) && /^[^\s/]+\.[^\s/]+/.test(t) ? `https://${t}` : t; };
+  const indirizzoOk = (v) => !testo(v) || (/^https?:\/\/\S+$/i.test(conHttps(v)) && conHttps(v).length <= 2000);
 
   function costruisci() {
-    const errori = [], err = (m) => errori.push(m);
+    const errori = [], err = (m) => errori.push(m), avvisiScheda = [];
     const s = stato;
     const settimane = Number(s.settimane), scarico = s.scarico === "" ? 0 : Number(s.scarico);
     if (!testo(s.titolo)) err("Scrivi il titolo della scheda.");
@@ -280,7 +282,7 @@
     r.esercizi.forEach((e, i) => {
       if (!testo(e.nome)) { if (testo(e.video)) err(`Riscaldamento, esercizio ${i + 1}: c'è il video ma manca il nome.`); return; }
       if (!indirizzoOk(e.video)) err(`Riscaldamento, «${testo(e.nome)}»: il link al video deve iniziare con http:// o https://.`);
-      rEs.push([testo(e.nome), oNull(e.video)]);
+      rEs.push([testo(e.nome), oNull(conHttps(e.video))]);
     });
     if (!rEs.length) err("Riscaldamento: aggiungi almeno un esercizio (il cliente lo vede all'inizio di ogni allenamento).");
 
@@ -294,6 +296,7 @@
           if (!nm) return err(`${dove}: manca il nome dell'esercizio.`);
           if (!b.perSettimana && !testo(b.serie)) err(`${dove} («${nm}»): scrivi le serie.`);
           if (!b.perSettimana && !testo(b.rip)) err(`${dove} («${nm}»): scrivi le ripetizioni.`);
+          if (!b.perSettimana && testo(b.serie) && !/^\d{1,2}$/.test(testo(b.serie))) avvisiScheda.push(`${dove} («${nm}»): le serie sono scritte «${testo(b.serie)}», non come numero: il cliente non vedrà i pallini delle serie. Scrivi per esempio 3.`);
           if (!indirizzoOk(b.video)) err(`${dove} («${nm}»): il link al video deve iniziare con http:// o https://.`);
           let schema = null;
           if (b.perSettimana) {
@@ -306,7 +309,7 @@
           }
           // con lo schema, serie e ripetizioni base sono quelle della prima settimana (la scheda mostra comunque quelle della settimana scelta)
           const base1 = schema && /^(\d+)x(\d+)$/.exec(schema[0] || "");
-          blocchi.push({ tipo: "esercizio", nome: nm, serie: base1 ? base1[1] : testo(b.serie), rip: base1 ? base1[2] : testo(b.rip), rec: testo(b.rec) || "/", video: oNull(b.video),
+          blocchi.push({ tipo: "esercizio", nome: nm, serie: base1 ? base1[1] : testo(b.serie), rip: base1 ? base1[2] : testo(b.rip), rec: testo(b.rec) || "/", video: oNull(conHttps(b.video)),
             note: oNull(b.note), schema, progressione: oNull(b.progressione) });
         } else {
           const min = Number(b.minuti);
@@ -315,7 +318,7 @@
           b.esercizi.forEach((e, k) => {
             if (!testo(e.nome)) { if (testo(e.rip) || testo(e.video)) err(`${dove}, esercizio ${k + 1}: manca il nome.`); return; }
             if (!indirizzoOk(e.video)) err(`${dove}, «${testo(e.nome)}»: il link al video deve iniziare con http:// o https://.`);
-            ex.push({ nome: testo(e.nome), rip: testo(e.rip), video: oNull(e.video) });
+            ex.push({ nome: testo(e.nome), rip: testo(e.rip), video: oNull(conHttps(e.video)) });
           });
           if (!ex.length) err(`${dove}: il circuito non ha esercizi.`);
           blocchi.push({ tipo: "circuito", formato: `${b.formato} ${min}'`, rec: oNull(b.rec), esercizi: ex });
@@ -335,7 +338,7 @@
       giorni,
     };
     if (!errori.length) { const e = LenaValidaScheda.erroreScheda(dati); if (e) err(`La scheda non è valida: ${e}.`); }
-    const avvisi = errori.length || !window.LenaParoleSalute ? [] : LenaParoleSalute.avvisi(dati);
+    const avvisi = errori.length ? [] : [...avvisiScheda, ...(window.LenaParoleSalute ? LenaParoleSalute.avvisi(dati) : [])];
     return { dati, errori, avvisi };
   }
 
@@ -372,7 +375,7 @@
     inCorso = false; $("ed-invia").disabled = false; $("ed-invia").textContent = "Invia al cliente";
     if (r.stato === 201) {
       cancellaBozza();
-      LenaPt.ricordaMessaggio(`Scheda «${dati.info.titolo}» inviata: ${cliente.nome} la vede subito.`);
+      LenaPt.ricordaMessaggio(`Scheda «${dati.info.titolo}» inviata: ${cliente.registrato ? `${cliente.nome} la vede subito` : `${cliente.nome} la vedrà appena entra con il suo invito`}.`);
       location.assign(`/pt-cliente.html?id=${idCliente}`);
       return;
     }
