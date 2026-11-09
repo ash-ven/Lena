@@ -197,3 +197,13 @@ test("dopo una sessione scaduta il cliente torna alla pagina di prima (solo pagi
   assert.match(r("scheda-server.js"), /Lena\.loginScaduto\(\)/);
   assert.match(r("profilo-comune.js"), /non ha ancora scritto la sua presentazione/);
 });
+
+test("ritocchi: Nome Cognome ovunque, «Inviata», testo semplice per l'esportazione, scarico senza numeri base", () => {
+  const r = (f) => leggi(f);
+  assert.doesNotMatch(r("pt.js"), /`\$\{c\.cognome\} \$\{c\.nome\}`/);   // nell'elenco si scrive sempre «Nome Cognome»
+  assert.match(r("pt-cliente.js"), /`Inviata il /);
+  assert.doesNotMatch(r("pt-cliente.js"), /`Caricata il /);
+  assert.match(r("pt-cliente.html"), /Scarica i dati del cliente/);
+  assert.doesNotMatch(r("pt-cliente.html"), /Esporta dati \(JSON\)/);
+  assert.match(r("scheda.js"), /const scar = !!e\.schema && !v\.daSchema && n === DATI\.settimane && n > e\.schema\.length/);
+});

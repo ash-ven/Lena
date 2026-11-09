@@ -55,7 +55,7 @@
     lista.replaceChildren(...schede.map((s, i) => el("li", {},
       el("span", { class: "titolo-scheda" }, s.titolo || "Scheda"),
       i === 0 ? el("span", { class: "etichetta" }, "la vede il cliente") : null,
-      el("div", { class: "nota" }, `Caricata il ${LenaPt.dataBreve(s.creata_il)} · ${s.settimane} settimane dal ${LenaPt.dataBreve(s.inizio)}`
+      el("div", { class: "nota" }, `Inviata il ${LenaPt.dataBreve(s.creata_il)} · ${s.settimane} settimane dal ${LenaPt.dataBreve(s.inizio)}`
         + (s.registrazioni ? ` · ${s.registrazioni} valori segnati` : "")),
       el("div", { class: "azioni-scheda" },
         el("a", { class: "azione-testo", href: `/pt-editor.html?cliente=${id}&base=${s.id}` }, "Modifica (nuova versione)"),

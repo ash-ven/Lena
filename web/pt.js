@@ -34,7 +34,7 @@
       return el("li", {}, el("a", { href: `/pt-cliente.html?id=${c.id}` },
         avatar(c),
         el("span", { class: "corpo-cliente" },
-          el("span", { class: "nome-cliente" }, `${c.cognome} ${c.nome}`),
+          el("span", { class: "nome-cliente" }, `${c.nome} ${c.cognome}`),
           el("span", { class: "dettaglio" },
             r.stato.tipo === "neutro" ? null : el("span", { class: `stato ${r.stato.tipo}` }, r.stato.breve),
             LenaPt.haBozza(c.id) ? el("span", { class: "stato bozza" }, "Bozza in corso") : null, r.testo),
@@ -58,7 +58,7 @@
     $("elenco-scadenze").replaceChildren(...urgenti.map(({ c, s }) => el("li", {}, el("a", { href: `/pt-cliente.html?id=${c.id}` },
       avatar(c),
       el("span", { class: "corpo-cliente" },
-        el("span", { class: "nome-cliente" }, `${c.cognome} ${c.nome}`),
+        el("span", { class: "nome-cliente" }, `${c.nome} ${c.cognome}`),
         el("span", { class: "dettaglio" }, `La scheda finisce il ${LenaPt.dataBreve(s.data)}.`)),
       el("span", { class: "conto" }, el("span", { class: "solo-lettori" }, s.testo),
         el("b", { "aria-hidden": "true" }, s.giorni === 0 ? "Oggi" : String(Math.abs(s.giorni))),
@@ -97,7 +97,7 @@
     const lista = attivi().filter((c) => normalizza(`${c.nome} ${c.cognome} ${c.cognome} ${c.nome}`).includes(q));
     $("elenco-scelta").replaceChildren(...lista.map((c) => el("li", {}, el("a", { href: indirizzoScelta(c) },
       avatar(c),
-      el("span", { class: "corpo-cliente" }, el("span", { class: "nome-cliente" }, `${c.cognome} ${c.nome}`)),
+      el("span", { class: "corpo-cliente" }, el("span", { class: "nome-cliente" }, `${c.nome} ${c.cognome}`)),
       el("span", { class: "icona i-avanti vai", "aria-hidden": "true" })))));
     $("scelta-nessuno").hidden = lista.length > 0 || !attivi().length;
   }

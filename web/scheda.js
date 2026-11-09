@@ -261,14 +261,18 @@ function cardEsercizio(g, i, e){
   const card = el("section",{class:"card" + (fatto(k) ? " fatto" : "")});
   card.append(el("div",{class:"testa"}, el("span",{class:"num"}, i), el("h4",{class:"nome"}, e.nome), spunta(k,"spunta")));
   const v = valoriSettimana(e, n);
-  card.append(el("div",{class:"dati"},
-    el("div",{class:"dato"}, el("small",{}, "Serie"), el("b",{}, v.serie)),
-    el("div",{class:"dato"}, el("small",{}, "Ripetizioni"), el("b",{}, v.rip)),
-    el("div",{class:"dato"}, el("small",{}, "Recupero"), el("b",{}, e.rec))));
-  if (e.schema && !v.daSchema){   // con lo schema leggibile i numeri grandi qui sopra sono già quelli della settimana
-    const scar = n > e.schema.length;
-    card.append(el("div",{class:"questa" + (scar ? " scarico" : "")},
-      el("small",{}, scar ? "Settimana di scarico" : `Schema · settimana ${n}`), el("b",{}, scar ? "Scarico" : e.schema[n-1])));
+  // Settimana di scarico (l'ultima, oltre lo schema): i numeri base non valgono, quindi non si mostrano in grande: resta il riquadro «Scarico»
+  const scar = !!e.schema && !v.daSchema && n === DATI.settimane && n > e.schema.length;
+  card.append(scar
+    ? el("div",{class:"dati", style:"grid-template-columns:1fr"}, el("div",{class:"dato"}, el("small",{}, "Recupero"), el("b",{}, e.rec)))
+    : el("div",{class:"dati"},
+        el("div",{class:"dato"}, el("small",{}, "Serie"), el("b",{}, v.serie)),
+        el("div",{class:"dato"}, el("small",{}, "Ripetizioni"), el("b",{}, v.rip)),
+        el("div",{class:"dato"}, el("small",{}, "Recupero"), el("b",{}, e.rec))));
+  if (scar) {
+    card.append(el("div",{class:"questa scarico"}, el("small",{}, "Settimana di scarico"), el("b",{}, "Scarico")));
+  } else if (e.schema && !v.daSchema && e.schema[n-1]) {   // schema scritto in un modo che non si legge come serie × ripetizioni: si mostra com'è
+    card.append(el("div",{class:"questa"}, el("small",{}, `Schema · settimana ${n}`), el("b",{}, e.schema[n-1])));
   }
   const campi = el("div",{class:"campi"}, campo("kg", k, `Kg · sett. ${n}`, "—"));
   if (e.progressione) campi.append(campo("rip", k, "Rip. fatte", "es. 10-10-9-8", parseInt(v.serie,10)));
