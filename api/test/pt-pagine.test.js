@@ -122,3 +122,9 @@ test("dall'elenco clienti si può anche caricare un Excel: porta alla pagina del
   assert.match(js, /\/pt-cliente\.html\?id=\$\{c\.id\}&carica=1/);
   assert.match(cli, /get\("carica"\) === "1"\) \$\("apri-convertitore"\)\.click\(\)/);
 });
+
+test("editor: il cursore dopo «Aggiungi esercizio» parte sempre dal giorno giusto (i blocchi hanno lo stesso numero in ogni giorno)", () => {
+  const js = fs.readFileSync(path.join(__dirname, "..", "..", "web", "pt-editor.js"), "utf8");
+  assert.doesNotMatch(js, /daFocalizzare = `\[data-id="blocco-/, "ricerca del campo non limitata al giorno: finisce nel Giorno A");
+  assert.match(js, /dentroGiorno\(g\)\} \[data-id="blocco-\$\{g\.blocchi\.length - 1\}"\]/);
+});

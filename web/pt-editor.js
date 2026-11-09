@@ -205,7 +205,7 @@
           el("div", { class: "testa-voce" }, el("strong", {}, `Esercizio ${k + 1}`), comandi(b.esercizi, k, `blocco-${i}-ex-${k}`)),
           campoNome(e), campo("Ripetizioni", e, "rip", { max: 30, segnaposto: "10" }), campoVideo(e)))),
       el("div", { class: "azioni-pt" }, el("button", { class: "bottone secondario", type: "button", onclick: () => {
-        b.esercizi.push({ nome: "", rip: "", video: "" }); daFocalizzare = `[data-id="blocco-${i}-ex-${b.esercizi.length - 1}"] input`; salvaBozza(); disegna(); } },
+        b.esercizi.push({ nome: "", rip: "", video: "" }); daFocalizzare = `${dentroGiorno(g)} [data-id="blocco-${i}-ex-${b.esercizi.length - 1}"] input`; salvaBozza(); disegna(); } },
         el("span", { class: "icona i-piu", "aria-hidden": "true" }), "Aggiungi esercizio al circuito")));
   }
 
@@ -213,7 +213,7 @@
     const lettera = LETTERE[n];
     const aggiungi = (nuovo, tipo) => {
       if (g.blocchi.length >= MAX_BLOCCHI) return;
-      g.blocchi.push(nuovo); daFocalizzare = `[data-id="blocco-${g.blocchi.length - 1}"] input`; salvaBozza(); disegna();
+      g.blocchi.push(nuovo); daFocalizzare = `${dentroGiorno(g)} [data-id="blocco-${g.blocchi.length - 1}"] input`; salvaBozza(); disegna();
     };
     return el("section", { class: "pannello giorno", "aria-labelledby": `t-g${n}`, "data-id": `giorno-${n}`, "data-g": String(n + 1) },
       el("div", { class: "testa-voce" }, el("div", { class: "titolo-giorno-riga" }, el("span", { class: "pastiglia-giorno", "aria-hidden": "true" }, lettera), el("h2", { class: "titolo-giorno", id: `t-g${n}` }, `Giorno ${lettera}`)),
@@ -232,6 +232,10 @@
       })(), el("span", {}, "Chiudi con lo stretching")),
       g.stretching ? campo("Durata dello stretching", g, "stretchingDurata", { max: 20, segnaposto: "5-10'" }) : null);
   }
+
+  // I blocchi si chiamano «blocco-0, blocco-1…» in OGNI giorno: per mettere il cursore nel posto giusto la ricerca deve partire dal giorno,
+  // altrimenti trova per primo il blocco con lo stesso numero del Giorno A (e chi scrive subito lo sovrascrive).
+  const dentroGiorno = (g) => `[data-id="giorno-${stato.giorni.indexOf(g)}"]`;
 
   function disegna() {
     const radice = $("editor");
