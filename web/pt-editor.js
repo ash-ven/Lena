@@ -22,6 +22,7 @@
   const LETTERE = "ABCDEFGHIJKLMN";
 
   const idCliente = (() => { const v = new URLSearchParams(location.search).get("cliente"); return /^[1-9]\d{0,8}$/.test(v || "") ? Number(v) : null; })();
+  const idBase = (() => { const v = new URLSearchParams(location.search).get("base"); return /^[1-9]\d{0,8}$/.test(v || "") ? Number(v) : null; })();   // scheda da cui partire (modifica o copia)
   let cliente = null, stato = null, chiudiCornice = null, contatore = 0, daFocalizzare = null, inCorso = false;
 
   $("esci").addEventListener("click", () => Lena.esci());
@@ -401,8 +402,27 @@
     $("nome-cliente").textContent = `${cliente.nome} ${cliente.cognome}`;
     document.title = `Crea scheda · ${cliente.nome} ${cliente.cognome} · Lena`;
 
-    const bozza = leggiBozza();
-    stato = bozza || nuovoStato();
+    let bozza = leggiBozza();
+    let base = null;   // { stato, titolo } se si parte da una scheda già inviata
+    if (idBase) {
+      const b = await LenaPt.chiama("GET", `/api/schede/${idBase}`);
+      if (b.stato === 200 && b.json && b.json.dati) {
+        base = { stato: LenaDaScheda.statoDaDati(b.json.dati, oggi()), titolo: b.json.dati.info.titolo || "senza titolo", daAltro: b.json.cliente_id !== idCliente };
+        // una bozza in corso per questo cliente non si butta via di nascosto
+        if (bozza && !confirm("Per questo cliente hai una bozza in corso. Vuoi sostituirla con la copia della scheda scelta?\n\nOK = sostituisci la bozza. Annulla = tieni la bozza.")) base = null;
+        else bozza = null;
+      } else {
+        $("bozza-avviso").replaceChildren(messaggio("avviso", "Non ho trovato la scheda da cui partire", ["Puoi comunque compilarne una nuova."]));
+      }
+    }
+    stato = bozza || (base && base.stato) || nuovoStato();
+    if (base) {
+      $("bozza-avviso").replaceChildren(messaggio("info", `Sei partito dalla scheda «${base.titolo}»`, [
+        base.daAltro ? "Controlla titolo, obiettivo e date prima di inviarla a questo cliente." : "Sistema quello che serve e invia: il cliente vedrà questa come nuova versione.",
+        "Quello che il cliente ha già segnato (kg, spunte) resta sulla scheda vecchia e non passa a questa.",
+        "Se la vecchia scheda aveva note o campi particolari arrivati da Excel, qui potrebbero mancare: guarda l'anteprima."]));
+      salvaBozza();
+    }
     if (bozza) {
       $("bozza-avviso").replaceChildren(messaggio("info", "Ho ripreso la bozza che stavi scrivendo", []),
         el("button", { class: "bottone secondario piccolo", type: "button", onclick: () => {

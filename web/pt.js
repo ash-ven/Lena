@@ -70,12 +70,16 @@
     clienti = r.json;
     disegnaScadenze();
     disegnaElenco();
+    if (copiaDa && !copiaAperta) { copiaAperta = true; apriScelta(true, "copia"); }
   }
 
   // ---------- crea una scheda da qui: si sceglie il cliente e si apre l'editor ----------
   const attivi = () => clienti.filter((c) => !c.rapporto_finito_il);
   let modoScelta = "crea";   // "crea" = editor; "carica" = caricamento di un Excel (nella pagina del cliente)
-  const indirizzoScelta = (c) => modoScelta === "carica" ? `/pt-cliente.html?id=${c.id}&carica=1` : `/pt-editor.html?cliente=${c.id}`;
+  // «Copia per un altro cliente» arriva dalla pagina di un cliente con ?copia=ID della scheda da copiare
+  const copiaDa = (() => { const v = new URLSearchParams(location.search).get("copia"); return /^[1-9]\d{0,8}$/.test(v || "") ? Number(v) : null; })();
+  let copiaAperta = false;
+  const indirizzoScelta = (c) => modoScelta === "copia" ? `/pt-editor.html?cliente=${c.id}&base=${copiaDa}` : modoScelta === "carica" ? `/pt-cliente.html?id=${c.id}&carica=1` : `/pt-editor.html?cliente=${c.id}`;
   function disegnaScelta() {
     const q = normalizza($("cerca-scelta").value);
     const lista = attivi().filter((c) => normalizza(`${c.nome} ${c.cognome} ${c.cognome} ${c.nome}`).includes(q));
@@ -90,7 +94,7 @@
     $("scelta-cliente").hidden = !aperto;
     for (const [bottone, m] of [["apri-scelta", "crea"], ["apri-carica", "carica"]]) $(bottone).setAttribute("aria-expanded", String(aperto && modoScelta === m));
     if (aperto) {
-      $("scelta-descrizione").textContent = modoScelta === "carica" ? "Scegli il cliente: poi carichi il file Excel con la sua scheda." : "Scegli il cliente: poi compili la scheda qui, in Lena.";
+      $("scelta-descrizione").textContent = modoScelta === "copia" ? "Scegli il cliente a cui dare una copia di questa scheda: la apri nell'editor, cambi quello che serve e la invii." : modoScelta === "carica" ? "Scegli il cliente: poi carichi il file Excel con la sua scheda." : "Scegli il cliente: poi compili la scheda qui, in Lena.";
       const vuoto = !attivi().length;
       $("scelta-vuoto").hidden = !vuoto; $("scelta-corpo").hidden = vuoto;
       $("cerca-scelta").value = ""; disegnaScelta();
