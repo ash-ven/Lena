@@ -5,6 +5,8 @@ const db = require("./db");
 const { NOME_COOKIE, opzioniCookie, emailPulita, hashCodice } = require("./aiuti");
 const { VERSIONE_INFORMATIVA } = require("./config");
 const { TIPO_INFORMATIVA, registraConsenso } = require("./consensi");
+const { inviaEmail } = require("./posta");
+const crypto = require("crypto");
 
 const router = express.Router();
 const DURATA_SESSIONE = 7 * 24 * 3600 * 1000;   // 7 giorni
@@ -106,6 +108,67 @@ router.post("/registra-cliente", async (req, res) => {
   res.status(201).json({ id: esito.utente.id, ruolo: esito.utente.ruolo });
 });
 
+// ---------- recupero della password ----------
+// Il link per scegliere una nuova password arriva per email, vale 1 ora e si usa una volta sola.
+// La risposta è SEMPRE la stessa, che l'email abbia un account o no: altrimenti si scoprirebbe chi è registrato.
+// Per questo la risposta parte subito e l'invio dell'email (più lento) avviene dopo.
+const DURATA_RECUPERO_MINUTI = 60;
+const ATTESA_RECUPERO_SECONDI = 120;   // non si manda un'altra email allo stesso account prima di 2 minuti (niente «bombardamento»)
+const ERRORE_RECUPERO = "Questo link non è valido: può essere scaduto, già usato o copiato in modo incompleto. Chiedine uno nuovo.";
+
+async function mandaLinkRecupero(email) {
+  const r = await db.query("SELECT id FROM utente WHERE email = $1", [email]);
+  if (!r.rows[0]) return;
+  const utenteId = r.rows[0].id;
+  const recente = await db.query(
+    "SELECT 1 FROM reimposta_password WHERE utente_id = $1 AND creato_il > now() - make_interval(secs => $2)", [utenteId, ATTESA_RECUPERO_SECONDI]);
+  if (recente.rows[0]) return;
+  const codice = crypto.randomBytes(32).toString("base64url");
+  await db.transazione(async (client) => {
+    await client.query("DELETE FROM reimposta_password WHERE utente_id = $1 AND usato_il IS NULL", [utenteId]);   // resta valido un solo link
+    await client.query(
+      "INSERT INTO reimposta_password (utente_id, codice_hash, scade_il) VALUES ($1, $2, now() + make_interval(mins => $3))",
+      [utenteId, hashCodice(codice), DURATA_RECUPERO_MINUTI]);
+  });
+  const base = (process.env.URL_BASE || `http://localhost:${process.env.PORT || 3001}`).replace(/\/+$/, "");
+  await inviaEmail({
+    a: email,
+    oggetto: "Lena: scegli una nuova password",
+    testo: `Hai chiesto di cambiare la password di Lena.\n\nApri questo link e scegline una nuova (vale ${DURATA_RECUPERO_MINUTI} minuti e si può usare una volta sola):\n\n${base}/nuova-password.html?codice=${codice}\n\nSe non sei stato tu, ignora questa email: la tua password non cambia.\n`,
+  });
+}
+
+// POST /api/auth/password-dimenticata  { email }
+router.post("/password-dimenticata", async (req, res) => {
+  const email = emailPulita((req.body || {}).email);
+  if (!email) return res.status(400).json({ errore: "Scrivi un indirizzo email valido, per esempio nome@esempio.it." });
+  res.json({ ok: true });
+  try { await mandaLinkRecupero(email); } catch (err) { console.error("# [recupero password]", err.message); }
+});
+
+// POST /api/auth/nuova-password  { codice, password }
+router.post("/nuova-password", async (req, res) => {
+  const corpo = req.body || {};
+  const codice = String(corpo.codice || "");
+  const password = String(corpo.password || "");
+  if (!codice || codice.length > 100) return res.status(400).json({ errore: ERRORE_RECUPERO });
+  if (password.length < 10) return res.status(400).json({ errore: "La password deve avere almeno 10 caratteri" });
+  if (Buffer.byteLength(password) > 72) return res.status(400).json({ errore: "La password è troppo lunga (massimo 72 caratteri)" });
+  const passwordHash = await bcrypt.hash(password, 12);
+  const ok = await db.transazione(async (client) => {
+    const t = await client.query(
+      "SELECT id, utente_id FROM reimposta_password WHERE codice_hash = $1 AND usato_il IS NULL AND scade_il > now() FOR UPDATE", [hashCodice(codice)]);
+    if (!t.rows[0]) return false;
+    // nuova password + tutti gli accessi aperti finora smettono di valere (vedi richiediLogin)
+    await client.query("UPDATE utente SET password_hash = $2, sessioni_dal = now() WHERE id = $1", [t.rows[0].utente_id, passwordHash]);
+    await client.query("UPDATE reimposta_password SET usato_il = now() WHERE id = $1", [t.rows[0].id]);
+    await client.query("DELETE FROM reimposta_password WHERE utente_id = $1 AND usato_il IS NULL", [t.rows[0].utente_id]);
+    return true;
+  });
+  if (!ok) return res.status(400).json({ errore: ERRORE_RECUPERO });
+  res.json({ ok: true });
+});
+
 // POST /api/auth/logout
 router.post("/logout", (req, res) => {
   res.clearCookie(NOME_COOKIE, opzioniCookie());
@@ -123,8 +186,10 @@ async function richiediLogin(req, res, next) {
   } catch (err) {
     return res.status(401).json({ errore: "Devi fare il login" });
   }
-  const r = await db.query("SELECT id, ruolo FROM utente WHERE id = $1", [dati.id]);
+  const r = await db.query("SELECT id, ruolo, sessioni_dal FROM utente WHERE id = $1", [dati.id]);
   if (!r.rows[0]) return res.status(401).json({ errore: "Devi fare il login" });
+  // un accesso aperto prima dell'ultimo cambio di password non vale più (iat è in secondi: si confronta in secondi)
+  if (r.rows[0].sessioni_dal && !(dati.iat >= Math.floor(r.rows[0].sessioni_dal.getTime() / 1000))) return res.status(401).json({ errore: "Devi fare il login" });
   req.utente = { id: r.rows[0].id, ruolo: r.rows[0].ruolo };
   next();
 }

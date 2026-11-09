@@ -33,6 +33,7 @@ function creaApp(opzioni = {}) {
     limiteAccesso = 10,     // tentativi SBAGLIATI di login/registrazione per IP...
     limiteGenerale = 600,   // ...e richieste in totale per IP...
     finestraMinuti = 15,    // ...ogni 15 minuti
+    limiteRecupero = 5,     // richieste di recupero password per IP, ogni 15 minuti
     limiteRiconferma = 5,   // tentativi di riconferma password per cancellare l'account, per utente, ogni 15 minuti
     produzione = process.env.NODE_ENV === "production",
   } = opzioni;
@@ -60,7 +61,10 @@ function creaApp(opzioni = {}) {
   // Le risposte dell'API contengono dati personali e di salute: il browser non deve tenerne copie
   app.use("/api", (req, res, next) => { res.set("Cache-Control", "no-store"); next(); });
   app.use("/api", generale);
-  app.use(["/api/auth/login", "/api/auth/registra-cliente"], accesso);
+  app.use(["/api/auth/login", "/api/auth/registra-cliente", "/api/auth/nuova-password"], accesso);
+  app.use("/api/auth/password-dimenticata", rateLimit({
+    windowMs: finestraMinuti * 60 * 1000, limit: limiteRecupero, standardHeaders: "draft-8", legacyHeaders: false, message: risposta429,
+  }));
 
   app.use("/api/auth", rottaAuth);
   app.use("/api/clienti", rottaClienti);

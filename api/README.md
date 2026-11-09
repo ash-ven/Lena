@@ -646,3 +646,28 @@ Oggi tutto è pensato per girare sul tuo PC. Prima di mettere Lena su un server 
 - Si riempie da sola: `creaScheda` (in `operazioni.js`) chiama `imparaDallaScheda` (in `libreria.js`) per **ogni** scheda salvata, quindi vale sia per l'editor sia per gli Excel. Un video nuovo sostituisce il vecchio; se manca, resta quello ricordato. Se l'apprendimento fallisce, la scheda è salvata comunque.
 - `GET /api/pt/esercizi?q=testo` (solo trainer): fino a 8 esercizi suoi che contengono il testo, i più usati per primi. Senza testo restituisce `[]`.
 - Test: `api/test/libreria.test.js`.
+
+## Recupero della password
+
+Chi dimentica la password (trainer o cliente) va su «Hai dimenticato la password?» nel login, scrive la sua email e riceve un link:
+
+- il link vale **1 ora** e si usa **una volta sola**; un nuovo link annulla il precedente;
+- la risposta è **sempre la stessa** (anche se l'email non ha un account), così non si scopre chi è registrato;
+- non si può chiedere più di un link ogni 2 minuti per lo stesso account, e al massimo 5 richieste ogni 15 minuti per indirizzo;
+- dopo il cambio, **gli accessi già aperti smettono di valere** (se qualcuno conosceva la vecchia password e aveva una sessione aperta, viene buttato fuori);
+- nel database c'è solo l'impronta del codice (tabella `reimposta_password`), mai il codice.
+
+**Database: migrazione 10 (da applicare PRIMA di riavviare il server, altrimenti il login non funziona):**
+
+```powershell
+Get-Content db\initdb\10_reimposta_password.sql | docker exec -i lena-db psql -U lena -d lena
+```
+
+**Spedire le email.** Serve un servizio che offra SMTP. In `api/.env` si impostano `SMTP_HOST`, `SMTP_PORT` (587 di solito), `SMTP_USER`, `SMTP_PASS` ed `EMAIL_DA` (il mittente, per esempio `"Lena <noreply@tuodominio.it>"`). Alcune scelte, tutte con un piano gratuito (controlla i limiti attuali sul loro sito): Brevo, Resend, Mailjet. Quasi tutte vogliono che tu verifichi un dominio tuo per mandare da un indirizzo tuo: con un indirizzo generico (gmail.com) le email finiscono nello spam o non partono.
+
+**Senza servizio di posta (sviluppo).** Se `SMTP_HOST` o `EMAIL_DA` mancano, l'email non parte: il testo, con il link, viene scritto nella finestra dove gira il server. Basta copiare il link e aprirlo per provare tutto. In produzione (`NODE_ENV=production`) senza configurazione il link non viene scritto da nessuna parte.
+
+**Privacy.** Il servizio di posta vede l'email della persona e il link: è un fornitore (responsabile del trattamento) da nominare nell'informativa privacy e da citare nelle condizioni d'uso. L'email non contiene mai dati di allenamento né di salute.
+
+**Se il trainer non riceve l'email** (servizio non ancora configurato): resta il comando di emergenza `node reimposta-password.js email nuovaPassword`, che cambia la password direttamente dal database.
+
