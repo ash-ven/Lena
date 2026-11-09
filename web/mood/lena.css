@@ -10,9 +10,12 @@
    scheda decide il mood, non l'interruttore scuro/chiaro del sito.
 
    Ogni giorno del programma ha il suo colore, per posizione (1 = Giorno A … 7 = Giorno G), mai dai dati.
-   Si vede nella testata del giorno, nelle linguette dei giorni, nella barra di avanzamento e nei passi
-   della modalità allenamento. Pulsanti e spunte restano brace.
-   Contrasti (calcolati): scritta della testata su ogni colore ≥ 5,0:1; ogni colore sulla superficie ≥ 3,0:1.
+   TUTTO ciò che nella scheda è colorato prende il colore del giorno aperto: testata, nomi dei giorni,
+   barra di avanzamento, pulsanti pieni, spunte, pallini delle serie, timer, gradi del completamento.
+   Il brace di Lena resta solo fuori dalla scheda (logo, parte base).
+   Contrasti (calcolati): scritta sopra il colore (--su-g) ≥ 5,0:1; colore sul fondo ≥ 3,3:1 e sulla
+   superficie ≥ 3,0:1, quindi il colore del giorno si usa come TESTO solo grande (≥ 19 px in grassetto)
+   o per segni e riempimenti; il testo piccolo resta neutro (--testo, --testo-secondario).
    Regole complete: design-sistema/README.md e la nota «mood delle schede».
    =========================================================================== */
 
@@ -55,10 +58,11 @@
   --scheda-font-titoli: "Space Grotesk", system-ui, sans-serif;
   --scheda-font-testo: "Inter", system-ui, sans-serif;
 
-  /* accento della scheda (scheda.css lo chiama --c): brace, non il colore del giorno */
-  --c: var(--brace);
+  /* accento della scheda (scheda.css lo chiama --c): il colore del giorno; il testo piccolo resta neutro */
+  --c: var(--g, var(--brace));
   --c-chiaro: var(--superficie-alta);
-  --c-scuro: var(--testo-brace);
+  --c-scuro: var(--testo);
+  --anello-attivo: var(--g, var(--brace));
 
   /* i 7 colori dei giorni e la scritta che ci va sopra */
   --giorno-1: #ff4a1c; --su-giorno-1: #0b0d10;   /* A fiamma      5,8:1 */
@@ -128,24 +132,26 @@
 [data-mood="lena"] .questa b { color: var(--testo); }
 [data-mood="lena"] .lista .rip,
 [data-mood="lena"] details.prog summary,
-[data-mood="lena"] table.tutte tr.sel td { color: var(--testo-brace); }
+[data-mood="lena"] table.tutte tr.sel td { color: var(--testo); }
+[data-mood="lena"] table.tutte tr.sel td:first-child { box-shadow: inset 3px 0 0 var(--g); padding-left: 8px; }
 [data-mood="lena"] .formato { color: var(--testo); }
 
 /* ---------- barra dei giorni e delle settimane ---------- */
 [data-mood="lena"] .giorni { grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); }
+/* linguette: nessun riempimento colorato; il nome del giorno è scritto nel suo colore (19 px grassetto = testo
+   grande, basta 3:1: il colore più scuro, il cremisi, fa 3,3:1 sul fondo). Il giorno aperto ha il bordo colorato. */
 [data-mood="lena"] .giorno-btn {
-  border-radius: var(--raggio-controllo); border-color: var(--bordo-superficie); background: var(--superficie);
-  box-shadow: inset 0 4px 0 var(--gb);   /* la linguetta: una striscia del colore del giorno */
-  padding-top: 11px;
-  transition: background-color var(--tempo-cambio) ease-out, color var(--tempo-cambio) ease-out;
+  border-radius: var(--raggio-controllo); border: 2px solid var(--bordo-superficie); background: transparent;
+  padding: 9px 4px; transition: border-color var(--tempo-cambio) ease-out;
 }
-[data-mood="lena"] .giorno-btn b { font-size: 17px; white-space: nowrap; }
-@media (max-width: 360px) { [data-mood="lena"] .giorno-btn { padding-left: 2px; padding-right: 2px; } [data-mood="lena"] .giorno-btn b { font-size: 15px; } }
-[data-mood="lena"] .giorno-btn[aria-pressed="true"] { background: var(--gb); border-color: var(--gb); color: var(--su-gb); box-shadow: none; }
-[data-mood="lena"] .giorno-btn[aria-pressed="true"] span { color: var(--su-gb); }
+[data-mood="lena"] .giorno-btn b { font-size: 19px; white-space: nowrap; color: var(--gb); }
+[data-mood="lena"] .giorno-btn span { color: var(--testo-secondario); }
+[data-mood="lena"] .giorno-btn[aria-pressed="true"] { background: var(--superficie); border-color: var(--gb); color: var(--testo); }
+[data-mood="lena"] .giorno-btn[aria-pressed="true"] b { color: var(--gb); }
+[data-mood="lena"] .giorno-btn[aria-pressed="true"] span { color: var(--testo); }
 [data-mood="lena"] .sett button { border-color: var(--bordo-superficie); color: var(--testo); border-radius: var(--raggio-controllo); }
 [data-mood="lena"] .sett button[aria-pressed="true"] { background: var(--testo); border-color: var(--testo); color: var(--sfondo); }
-[data-mood="lena"] .sett button.oggi:not([aria-pressed="true"]) { border-color: var(--brace); color: var(--testo-brace); }
+[data-mood="lena"] .sett button.oggi:not([aria-pressed="true"]) { border-color: var(--g); color: var(--testo); }
 
 /* ---------- testata del giorno: la fascia del colore del giorno ---------- */
 [data-mood="lena"] .titolo-giorno {
@@ -172,7 +178,7 @@
 [data-mood="lena"] .questa { background: var(--superficie-alta); border-radius: var(--raggio-controllo); }
 [data-mood="lena"] .questa small { color: var(--testo-secondario); }
 [data-mood="lena"] .campo input { border-bottom-color: var(--bordo-campo); color: var(--testo); }
-[data-mood="lena"] .campo input:focus { border-bottom-color: var(--brace); }
+[data-mood="lena"] .campo input:focus { border-bottom-color: var(--g); }
 [data-mood="lena"] .campo input::placeholder { color: var(--testo-secondario); }
 [data-mood="lena"] .circ .lista input { background: var(--sfondo); border-bottom-color: var(--bordo-campo); color: var(--testo); border-radius: 8px 8px 0 0; }
 [data-mood="lena"] .lista a.mini { color: var(--testo); border-color: var(--bordo-superficie); border-radius: var(--raggio-controllo); }
@@ -181,31 +187,32 @@
 /* ---------- pulsanti ---------- */
 [data-mood="lena"] .btn { border-radius: var(--raggio-controllo); border-color: var(--bordo-campo); background: transparent; color: var(--testo); }
 [data-mood="lena"] .btn.pieno,
-[data-mood="lena"] .focus-piede button.avanti { background: var(--brace); border-color: var(--brace); color: var(--su-brace); font-weight: 600; }
+[data-mood="lena"] .focus-piede button.avanti { background: var(--g); border-color: var(--g); color: var(--su-g); font-weight: 600;
+  transition: background-color var(--tempo-cambio) ease-out, color var(--tempo-cambio) ease-out; }
 [data-mood="lena"] .focus-piede button { border-radius: var(--raggio-riquadro); border-color: var(--bordo-campo); background: var(--superficie); color: var(--testo); }
-[data-mood="lena"] :focus-visible { outline: 2px solid var(--anello-attivo, var(--brace)); outline-offset: 2px; }
+[data-mood="lena"] :focus-visible { outline: 2px solid var(--anello-attivo); outline-offset: 2px; }
 
-/* ---------- spunte: brace, segno scuro, scatto secco ---------- */
+/* ---------- spunte: colore del giorno, segno nel colore della scritta, scatto secco ---------- */
 [data-mood="lena"] .spunta { border-radius: var(--raggio-controllo); border: 2px solid var(--bordo-campo); }
 [data-mood="lena"] .lista .pallino { border-radius: 7px; border: 2px solid var(--bordo-campo); }
 [data-mood="lena"] .spunta[aria-pressed="true"],
-[data-mood="lena"] .lista .pallino[aria-pressed="true"] { background: var(--brace); border-color: var(--brace); }
+[data-mood="lena"] .lista .pallino[aria-pressed="true"] { background: var(--g); border-color: var(--g); }
 [data-mood="lena"] .spunta svg path,
-[data-mood="lena"] .lista .pallino svg path { stroke: var(--su-brace); stroke-width: 2.5; }
+[data-mood="lena"] .lista .pallino svg path { stroke: var(--su-g); stroke-width: 2.5; }
 [data-mood="lena"] .scatta svg { animation: lena-scatta 140ms var(--curva-secca); }
 @keyframes lena-scatta { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-[data-mood="lena"] .card.fatto .nome { text-decoration-color: var(--brace); }
+[data-mood="lena"] .card.fatto .nome { text-decoration-color: var(--g); }
 
 /* pallini delle serie */
-[data-mood="lena"] .puntini i { border-color: var(--brace); }
-[data-mood="lena"] .puntini i.on { background: var(--brace); }
+[data-mood="lena"] .puntini i { border-color: var(--g); }
+[data-mood="lena"] .puntini i.on { background: var(--g); }
 
 /* ---------- allenamento completato: i gradi salgono ---------- */
 [data-mood="lena"] .completato { text-align: center; padding: 22px 16px 18px; margin: 4px 0 14px; border-radius: var(--raggio-riquadro);
   background: var(--superficie); border: 1px solid var(--bordo-superficie); }
 [data-mood="lena"] .completato svg { width: 64px; height: 64px; display: block; margin: 0 auto; }
 [data-mood="lena"] .completato .basso { stroke: var(--testo); }
-[data-mood="lena"] .completato .alto { stroke: var(--brace); }
+[data-mood="lena"] .completato .alto { stroke: var(--g); }
 [data-mood="lena"] .completato p { font-family: var(--scheda-font-titoli); font-weight: 700; font-size: 20px; margin: 10px 0 0; }
 [data-mood="lena"] .completato.appena path { opacity: 0; transform: translateY(10px); animation: lena-sale 260ms var(--curva-secca) forwards; }
 [data-mood="lena"] .completato.appena path:nth-child(2) { animation-delay: 120ms; }
@@ -219,15 +226,16 @@
 [data-mood="lena"] .focus-testa .dove b { color: var(--testo); }
 
 /* ---------- timer: superficie scura, numero che lampeggia una volta in brace a fine recupero ---------- */
-[data-mood="lena"] .timer { background: var(--superficie-alta); color: var(--testo); border: 1px solid var(--bordo-campo);
+[data-mood="lena"] .timer { background: var(--superficie); color: var(--testo); border: 1px solid var(--bordo-campo);
   border-radius: var(--raggio-riquadro); box-shadow: 0 10px 30px rgba(0, 0, 0, .5); }
 [data-mood="lena"] .timer .cosa { color: var(--testo-secondario); opacity: 1; }
 [data-mood="lena"] .timer .barra-t { background: var(--sfondo); }
-[data-mood="lena"] .timer .barra-t i { background: var(--brace); }
-[data-mood="lena"] .timer button { background: var(--superficie); color: var(--testo); border: 1px solid var(--bordo-campo); border-radius: var(--raggio-controllo); }
-[data-mood="lena"] .timer.finito { background: var(--superficie-alta); border-color: var(--brace); }
-[data-mood="lena"] .timer.finito .tempo { color: var(--testo-brace); animation: lena-lampo 420ms ease-out; }
-@keyframes lena-lampo { 0% { color: var(--su-brace); background: var(--brace); } 100% { background: transparent; } }
+[data-mood="lena"] .timer .barra-t i { background: var(--g); }
+[data-mood="lena"] .timer button { background: var(--superficie-alta); color: var(--testo); border: 1px solid var(--bordo-campo); border-radius: var(--raggio-controllo); }
+[data-mood="lena"] .timer.finito { border-color: var(--g); }
+/* «Via!» è grande (30 px): nel colore del giorno basta 3:1, e sulla superficie il colore più scuro (cremisi) fa 3,0:1 */
+[data-mood="lena"] .timer.finito .tempo { color: var(--g); animation: lena-lampo 420ms ease-out; }
+@keyframes lena-lampo { 0% { color: var(--su-g); background: var(--g); } 100% { background: transparent; } }
 [data-mood="lena"] .timer .tempo { border-radius: 6px; padding: 0 4px; margin-left: -4px; }
 
 /* ---------- chi ha chiesto meno movimento vede solo il risultato ---------- */
