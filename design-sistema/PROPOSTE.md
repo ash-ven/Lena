@@ -22,3 +22,5 @@ Cose che nel sito servono ma il sistema "Performance lab" non ha ancora. Sono st
 
 - **Logo**: gli SVG sono stati ricostruiti a mano dalle immagini del logo (simbolo Gradi + LENA con la A a chevron), non sono i file originali del sistema: se hai gli originali, sostituiscili in `design-sistema/assets/Logos/` e in `web/logo/` (stessi nomi).
 - **Scheda del cliente**: resta con il suo tema (`web/tema.css`, `web/scheda.css`), identico a quella scaricabile. Va ridisegnata in un secondo momento, insieme alla scheda scaricabile.
+
+| 14 | Pannello arancio con i gradi (login e registrazione, schermo largo) | `/login.html`, `/registrati.html` | Dà alle pagine d'ingresso la stessa identità della home. |

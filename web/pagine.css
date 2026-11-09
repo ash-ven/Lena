@@ -123,3 +123,16 @@ body.semplice a.scelta{color:var(--testo)}
 .scelta:hover{border-color:var(--brace)}
 .scelta:focus-visible{outline:2px solid var(--anello-attivo);outline-offset:2px}
 .home-avviso{margin:0;max-width:520px;text-align:center;color:var(--testo-secondario)}
+
+/* Login e registrazione: su schermo largo, a sinistra un pannello arancio con i gradi (come nella home), a destra il modulo (PROPOSTA) */
+.lato-brace{display:none}
+@media (min-width:860px){
+  body.semplice .pagina.con-lato{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);padding:0;align-items:stretch;justify-content:stretch}
+  .con-lato .lato-brace{display:flex;flex-direction:column;justify-content:flex-end;gap:var(--spazio-6);padding:var(--spazio-10);background:var(--brace);color:var(--su-brace);min-height:100vh}
+  .con-lato .gradi-lato{width:min(100%,360px);height:auto;align-self:flex-start;margin:auto 0}
+  .con-lato .lato-brace p{margin:0;font-family:var(--font-titoli);font-weight:700;font-size:clamp(28px,3.4vw,44px);line-height:1.1;max-width:12ch}
+  .con-lato .riquadro{align-self:center;justify-self:center;background:transparent;border:0;padding:var(--spazio-6) var(--spazio-8)}
+  .angolo{z-index:2}
+}
+/* telefono: il riquadro ha una barra arancio in alto */
+@media (max-width:859px){.con-lato .riquadro{border-top:4px solid var(--brace)}}
