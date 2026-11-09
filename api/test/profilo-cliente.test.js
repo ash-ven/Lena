@@ -130,3 +130,19 @@ test("un cliente SENZA scheda entra comunque: la scheda non c'è (404) ma il pro
 test("dopo l'uscita si torna alla schermata iniziale, non al login", () => {
   assert.match(leggi("api.js"), /location\.replace\("\/"\);[^\n]*uscita/);
 });
+
+test("mood della scheda: predefinito «lena», il cliente lo cambia, valori inventati rifiutati, il trainer non usa la rotta", async () => {
+  const { MOOD, PREDEFINITO } = require("../mood");
+  const s = await entra("pc-cli1");
+  const r = await s("GET", "/api/me/mood");
+  assert.equal(r.stato, 200); assert.equal(r.json.mood, PREDEFINITO); assert.deepEqual(r.json.disponibili.map((m) => m.id), MOOD.map((m) => m.id));
+  const altro = MOOD.find((m) => m.id !== PREDEFINITO).id;
+  assert.equal((await s("PUT", "/api/me/mood", { mood: altro })).json.mood, altro);
+  assert.equal((await s("GET", "/api/me/mood")).json.mood, altro);
+  assert.equal((await s("PUT", "/api/me/mood", { mood: "../etc" })).stato, 400);
+  assert.equal((await s("PUT", "/api/me/mood", {})).stato, 400);
+  assert.equal((await s("GET", "/api/me/mood")).json.mood, altro, "dopo un rifiuto resta la scelta precedente");
+  assert.equal((await (await entra("pc-cli2"))("GET", "/api/me/mood")).json.mood, PREDEFINITO, "la scelta è di ognuno");
+  assert.equal((await sessione(() => BASE)("GET", "/api/me/mood")).stato, 401);
+  assert.equal((await (await entra("pc-pt1"))("GET", "/api/me/mood")).stato, 403);
+});

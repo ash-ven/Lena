@@ -133,10 +133,52 @@
     };
   }
 
+  // ---------- l'aspetto (mood) della scheda: si sceglie qui, si salva sul profilo, la scheda si ricarica con il nuovo ----------
+  function bottoneAspetto(info) {
+    const crea = (tag, classe, testo) => { const e = document.createElement(tag); if (classe) e.className = classe; if (testo) e.textContent = testo; return e; };
+    const pannello = crea("div", "aspetto"); pannello.hidden = true;
+    const corpo = crea("div", "aspetto-corpo");
+    corpo.setAttribute("role", "dialog"); corpo.setAttribute("aria-modal", "true"); corpo.setAttribute("aria-labelledby", "aspetto-titolo");
+    const titolo = crea("h2", "", "Aspetto della scheda"); titolo.id = "aspetto-titolo";
+    const errore = crea("p", "aspetto-errore"); errore.setAttribute("role", "alert"); errore.hidden = true;
+    const lista = crea("ul", "aspetto-lista");
+    let attuale = info.mood;
+    const apri = crea("button", "profilo-icona"); apri.type = "button";
+    apri.setAttribute("aria-label", "Cambia l'aspetto della scheda"); apri.setAttribute("aria-haspopup", "dialog");
+    const ic = crea("span", "icona i-aspetto"); ic.setAttribute("aria-hidden", "true"); apri.append(ic);
+    const chiudi = crea("button", "aspetto-chiudi", "Chiudi"); chiudi.type = "button";
+    const chiudiPannello = () => { pannello.hidden = true; apri.focus(); };
+
+    for (const m of info.disponibili) {
+      const li = crea("li");
+      const b = crea("button", "aspetto-scelta"); b.type = "button";
+      b.setAttribute("aria-pressed", String(m.id === attuale));
+      const testi = crea("span"); testi.append(crea("b", "", m.nome), crea("span", "sotto", m.descrizione));
+      b.append(testi);
+      if (m.id === attuale) { const ok = crea("span", "icona i-ok"); ok.setAttribute("aria-hidden", "true"); b.append(ok); }
+      b.addEventListener("click", async () => {
+        if (m.id === attuale) return chiudiPannello();
+        errore.hidden = true;
+        const r = await Lena.chiama("PUT", "/api/me/mood", { mood: m.id });
+        if (r.stato === 200) return location.replace(location.pathname);   // ricarica senza ?mood=, con quello appena scelto
+        errore.textContent = Lena.messaggioComune(r) || "Non sono riuscita a salvare la scelta. Riprova tra poco.";
+        errore.hidden = false;
+      });
+      li.append(b); lista.append(li);
+    }
+    corpo.append(titolo, crea("p", "", "Scegli come vuoi vedere la tua scheda. Gli esercizi e i tuoi progressi restano gli stessi."), lista, errore, chiudi);
+    pannello.append(corpo); document.body.append(pannello);
+    apri.addEventListener("click", () => { pannello.hidden = false; lista.querySelector("button").focus(); });
+    chiudi.addEventListener("click", chiudiPannello);
+    pannello.addEventListener("click", (e) => { if (e.target === pannello) chiudiPannello(); });
+    pannello.addEventListener("keydown", (e) => { if (e.key === "Escape") chiudiPannello(); });
+    return apri;
+  }
+
   // ---------- avvio ----------
   async function avvia() {
     mostraStato("Un attimo…", "Sto caricando la tua scheda.", []);
-    const [me, sch] = await Promise.all([Lena.chiama("GET", "/api/auth/me"), Lena.chiama("GET", "/api/me/scheda")]);
+    const [me, sch, md] = await Promise.all([Lena.chiama("GET", "/api/auth/me"), Lena.chiama("GET", "/api/me/scheda"), Lena.chiama("GET", "/api/me/mood")]);
 
     if (me.stato === 401 || sch.stato === 401) return vaiAlLogin();
     if (me.stato === 200 && me.json.ruolo === "pt") return location.replace("/pt.html");
@@ -153,12 +195,13 @@
     window.LENA_ARCHIVIO = creaArchivio(me.json, scheda, registrazioni);
     document.title = `${scheda.dati.info.titolo || "La tua scheda"} · Lena`;
 
-    // Il mood della scheda (la sua estetica). Predefinito «lena». Quando il cliente potrà sceglierlo, arriverà dal server;
-    // per ora, PROVVISORIO, si può provare un altro mood aggiungendo ?mood=<nome> all'indirizzo (solo i mood che esistono).
-    // Va messo PRIMA di scheda.js, che lo legge.
+    // Il mood della scheda (la sua estetica): quello scelto dal cliente, altrimenti «lena». Se il server non lo dice, «lena».
+    // Va messo PRIMA di scheda.js, che lo legge. (?mood=<nome> nell'indirizzo resta per provare un mood senza salvarlo.)
     const MOOD_ESISTENTI = ["lena", "motori"];
+    const salvato = md.stato === 200 ? md.json.mood : null;
     const richiesto = new URLSearchParams(location.search).get("mood");
-    document.documentElement.setAttribute("data-mood", MOOD_ESISTENTI.includes(richiesto) ? richiesto : "lena");
+    document.documentElement.setAttribute("data-mood",
+      MOOD_ESISTENTI.includes(richiesto) ? richiesto : MOOD_ESISTENTI.includes(salvato) ? salvato : "lena");
     try {
       await caricaScript("/scheda.js");   // costruisce la pagina e la mostra
       if (!document.getElementById("giorni") || !document.getElementById("giorni").children.length) throw new Error("scheda vuota");
@@ -183,7 +226,9 @@
       const ic = document.createElement("span"); ic.className = "icona i-indietro"; ic.setAttribute("aria-hidden", "true");
       casa.append(ic);
       const gruppo = document.createElement("span"); gruppo.className = "icone-testata";
-      gruppo.append(casa, a); sopra.append(gruppo);
+      gruppo.append(casa);
+      if (md.stato === 200) gruppo.append(bottoneAspetto(md.json));
+      gruppo.append(a); sopra.append(gruppo);
     }
   }
 

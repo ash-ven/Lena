@@ -7,6 +7,7 @@ const { leggiRegistrazioni } = require("./schede");
 const { NOME_COOKIE, opzioniCookie } = require("./aiuti");
 const { esportaCliente, cancellaCliente } = require("./operazioni");
 const { vista, èJpeg, MAX_FOTO } = require("./profilo-trainer");
+const { MOOD, PREDEFINITO, èMood } = require("./mood");
 
 // Le rotte del cliente su se stesso. È una funzione per poter scegliere il limite dei tentativi (i test lo alzano o lo abbassano).
 function creaRotteMe({ limiteRiconferma = 5, finestraMinuti = 15 } = {}) {
@@ -54,6 +55,22 @@ function creaRotteMe({ limiteRiconferma = 5, finestraMinuti = 15 } = {}) {
     const r = await db.query("UPDATE cliente c SET foto = NULL, foto_aggiornata_il = NULL WHERE c.utente_id = $1 RETURNING " + COLONNE_PROFILO, [req.utente.id]);
     if (!r.rows[0]) return res.status(404).json({ errore: "Non ho trovato il tuo profilo" });
     res.json(vistaProfilo(r.rows[0]));
+  });
+
+  // ---------- il mood della mia scheda ----------
+  // GET /api/me/mood  → { mood, disponibili }   (chi non ha scelto ha il predefinito)
+  router.get("/mood", async (req, res) => {
+    const r = await db.query("SELECT mood FROM cliente WHERE utente_id = $1", [req.utente.id]);
+    if (!r.rows[0]) return res.status(404).json({ errore: "Non ho trovato il tuo profilo" });
+    res.json({ mood: èMood(r.rows[0].mood) ? r.rows[0].mood : PREDEFINITO, disponibili: MOOD });
+  });
+  // PUT /api/me/mood  { mood }
+  router.put("/mood", async (req, res) => {
+    const scelto = (req.body || {}).mood;
+    if (!èMood(scelto)) return res.status(400).json({ errore: "Questo aspetto non esiste." });
+    const r = await db.query("UPDATE cliente SET mood = $2 WHERE utente_id = $1 RETURNING mood", [req.utente.id, scelto]);
+    if (!r.rows[0]) return res.status(404).json({ errore: "Non ho trovato il tuo profilo" });
+    res.json({ mood: r.rows[0].mood, disponibili: MOOD });
   });
 
   // ---------- il mio trainer: solo il SUO profilo, mai quello di un altro ----------
