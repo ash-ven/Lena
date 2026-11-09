@@ -144,8 +144,8 @@ test("elenco clienti: un cliente nuovo parte da zero in ogni campo", async () =>
   const elenco = (await A("GET", "/api/clienti")).json;
   const mio = elenco.find((x) => x.id === c.id);
   assert.deepEqual({ ...mio, creato_il: typeof mio.creato_il, ultima_attivita: typeof mio.ultima_attivita }, {
-    id: c.id, nome: "Elena", cognome: "Bianchi", creato_il: "string", ultima_attivita: "string", rapporto_finito_il: null, registrato: false, schede: 0,
-    scheda_recente_id: null, ultimo_progresso: null, invito_scade_il: null, invito_attivo: false,
+    id: c.id, nome: "Elena", cognome: "Bianchi", creato_il: "string", ultima_attivita: "string", rapporto_finito_il: null, registrato: false, ha_foto: false, foto_aggiornata_il: null, in_allenamento_dal: null,
+    scheda_scade_il: null, giorni_alla_scadenza: null, schede: 0, scheda_recente_id: null, ultimo_progresso: null, invito_scade_il: null, invito_attivo: false,
   });
 });
 

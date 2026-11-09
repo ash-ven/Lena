@@ -154,7 +154,9 @@ test("nessun file del sito chiama indirizzi esterni (niente CDN, font o librerie
   for (const f of file) {
     const testo = leggi(f);
     // gli indirizzi ammessi sono solo quelli che NON fanno richieste: lo spazio dei nomi di un file SVG
-    const esterni = [...testo.matchAll(/https?:\/\/[^\s"'`)<>]+/g)].map((m) => m[0]).filter((u) => u !== "http://www.w3.org/2000/svg");
+    const esterni = [...testo.matchAll(/https?:\/\/[^\s"'`)<>]+/g)].map((m) => m[0]).filter((u) => u !== "http://www.w3.org/2000/svg")
+      // «https://…» nei suggerimenti e nei messaggi d'errore non è un indirizzo: conta solo ciò che ha un nome di sito
+      .filter((u) => /^https?:\/\/[a-z0-9-]+(\.[a-z0-9-]+)+/i.test(u));
     // esempi.com compare solo come testo di esempio nei commenti della documentazione, non in questi file: se compare è un errore
     assert.deepEqual(esterni, [], `${f}: contiene indirizzi esterni`);
     assert.doesNotMatch(testo, /@import|url\(\s*["']?https?:/i, `${f}: importa risorse esterne`);
