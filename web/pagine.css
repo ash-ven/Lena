@@ -145,5 +145,6 @@ button.profilo-icona{background:transparent;font:inherit;cursor:pointer;padding:
 .aspetto-scelta .icona{margin-left:auto;flex:none}
 .aspetto-errore{color:var(--errore);font-size:14px;margin:0 0 var(--spazio-3)}
 .aspetto-chiudi{width:100%;min-height:44px;font:inherit;color:inherit;background:transparent;border:1px solid var(--bordo-campo);border-radius:10px;cursor:pointer}
-/* telefoni molto stretti (320 px): le tre icone della testata non stanno accanto al titolo, vanno a capo a destra */
-@media (max-width:380px){header .sopra{flex-wrap:wrap}.icone-testata{margin-left:auto}}
+/* testata della scheda: se le icone, la scritta e lo stato del salvataggio non stanno su una riga (qualunque larghezza di telefono), le icone vanno a capo a destra */
+header .sopra{flex-wrap:wrap}
+.icone-testata{margin-left:auto}

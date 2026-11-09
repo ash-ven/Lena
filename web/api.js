@@ -39,6 +39,8 @@
       return false;
     }
     if (dopo) dopo();
+    // Su un dispositivo condiviso non deve restare nulla di ciò che il trainer stava scrivendo: le bozze delle schede si cancellano all'uscita
+    try { for (const k of Object.keys(localStorage)) if (k.startsWith("lena:bozza:")) localStorage.removeItem(k); } catch (e) { /* memoria bloccata */ }
     location.replace("/");   // dopo l'uscita si torna alla schermata iniziale di Lena, non al login
     return true;
   }

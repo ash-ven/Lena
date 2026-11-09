@@ -169,3 +169,10 @@ test("scheda del cliente: «Chiudi» in modalità allenamento, segno «fatto» s
   assert.match(js, /c\.rec && c\.rec !== "\/"/);
   assert.match(srv, /stato === "salvato" && !haSalvato/);
 });
+
+test("uscita: le bozze delle schede del trainer si cancellano dal browser; la testata della scheda va a capo invece di sbordare", () => {
+  const web = path.join(__dirname, "..", "..", "web");
+  assert.match(fs.readFileSync(path.join(web, "api.js"), "utf8"), /startsWith\("lena:bozza:"\)\) localStorage\.removeItem/);
+  const css = fs.readFileSync(path.join(web, "pagine.css"), "utf8");
+  assert.match(css, /header \.sopra\{flex-wrap:wrap\}/);
+});
