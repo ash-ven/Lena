@@ -33,6 +33,7 @@ function creaApp(opzioni = {}) {
     limiteAccesso = 10,     // tentativi SBAGLIATI di login/registrazione per IP...
     limiteGenerale = 600,   // ...e richieste in totale per IP...
     finestraMinuti = 15,    // ...ogni 15 minuti
+    limiteIscrizionePt = 5, // iscrizioni di trainer per IP, ogni ora
     limiteRecupero = 5,     // richieste di recupero password per IP, ogni 15 minuti
     limiteRiconferma = 5,   // tentativi di riconferma password per cancellare l'account, per utente, ogni 15 minuti
     produzione = process.env.NODE_ENV === "production",
@@ -64,6 +65,10 @@ function creaApp(opzioni = {}) {
   app.use("/api", (req, res, next) => { res.set("Cache-Control", "no-store"); next(); });
   app.use("/api", generale);
   app.use(["/api/auth/login", "/api/auth/registra-cliente", "/api/auth/nuova-password"], accesso);
+  // Iscrizione dei trainer: conta ogni richiesta (anche quelle riuscite), perché è aperta a tutti
+  app.use("/api/auth/registra-pt", rateLimit({
+    windowMs: 60 * 60 * 1000, limit: limiteIscrizionePt, standardHeaders: "draft-8", legacyHeaders: false, message: risposta429,
+  }));
   app.use("/api/auth/password-dimenticata", rateLimit({
     windowMs: finestraMinuti * 60 * 1000, limit: limiteRecupero, standardHeaders: "draft-8", legacyHeaders: false, message: risposta429,
   }));

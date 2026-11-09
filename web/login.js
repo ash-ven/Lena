@@ -20,7 +20,12 @@
     document.title = "Accesso trainer · Lena";
     $("titolo-login").textContent = "Area trainer.";
     $("testo-login").textContent = "Entra per gestire i tuoi clienti e le loro schede.";
-    $("sotto-login").textContent = "Gli account trainer li attiva chi gestisce Lena. Se ti serve, contattaci.";
+    const sotto = $("sotto-login");
+    const link = document.createElement("a");
+    link.href = "/registrati-pt.html";
+    link.textContent = "Crea il tuo account";
+    sotto.textContent = "Sei un trainer e non hai ancora un account? ";
+    sotto.append(link);
   } else if (ruolo === "cliente") {
     document.title = "Accesso cliente · Lena";
   }

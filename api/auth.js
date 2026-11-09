@@ -108,6 +108,41 @@ router.post("/registra-cliente", async (req, res) => {
   res.status(201).json({ id: esito.utente.id, ruolo: esito.utente.ruolo });
 });
 
+// POST /api/auth/registra-pt  { nome, email, password }
+// Un trainer si crea l'account da solo. Poi è già dentro (cookie). Le condizioni d'uso da trainer le accetta
+// al primo accesso (richiediCondizioniPt). Chi gestisce Lena può chiudere l'iscrizione con REGISTRAZIONE_PT=chiusa.
+router.post("/registra-pt", async (req, res) => {
+  if (String(process.env.REGISTRAZIONE_PT || "").trim().toLowerCase() === "chiusa") {
+    return res.status(403).json({ errore: "Le iscrizioni dei trainer sono chiuse al momento.", codice: "ISCRIZIONE_CHIUSA" });
+  }
+  const corpo = req.body || {};
+  const nome = String(corpo.nome || "").trim();
+  const email = emailPulita(corpo.email);
+  const password = String(corpo.password || "");
+
+  if (!nome) return res.status(400).json({ errore: "Scrivi il tuo nome" });
+  if (nome.length > 100) return res.status(400).json({ errore: "Il nome è troppo lungo (massimo 100 caratteri)" });
+  if (!email) return res.status(400).json({ errore: "Email non valida" });
+  if (password.length < 10) return res.status(400).json({ errore: "La password deve avere almeno 10 caratteri" });
+  if (Buffer.byteLength(password) > 72) return res.status(400).json({ errore: "La password è troppo lunga (massimo 72 caratteri)" });
+
+  const passwordHash = await bcrypt.hash(password, 12);
+  const esito = await db.transazione(async (client) => {
+    const u = await client.query(
+      `INSERT INTO utente (email, password_hash, ruolo) VALUES ($1, $2, 'pt')
+       ON CONFLICT (email) DO NOTHING RETURNING id, ruolo`,
+      [email, passwordHash]
+    );
+    if (!u.rows[0]) return { stato: 409, errore: "Questa email è già registrata" };
+    await client.query("INSERT INTO pt (utente_id, nome) VALUES ($1, $2)", [u.rows[0].id, nome]);
+    return { stato: 201, utente: u.rows[0] };
+  });
+
+  if (esito.errore) return res.status(esito.stato).json({ errore: esito.errore });
+  apriSessione(res, esito.utente);
+  res.status(201).json({ id: esito.utente.id, ruolo: esito.utente.ruolo });
+});
+
 // ---------- recupero della password ----------
 // Il link per scegliere una nuova password arriva per email, vale 1 ora e si usa una volta sola.
 // La risposta è SEMPRE la stessa, che l'email abbia un account o no: altrimenti si scoprirebbe chi è registrato.

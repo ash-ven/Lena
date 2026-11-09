@@ -166,7 +166,7 @@ Il sito fa già tutto. Questi script restano per i casi in cui il sito non è di
 
 | Comando | Quando serve |
 |---|---|
-| `node crea-pt.js email password "Nome"` | creare un account da PT (email valida, password da 10 a 72 caratteri). **Unico modo** per creare un PT: dal sito non si può |
+| `node crea-pt.js email password "Nome"` | creare un account da PT (email valida, password da 10 a 72 caratteri). da terminale; i trainer si iscrivono anche da soli dal sito (`/registrati-pt.html`) |
 | `node carica-scheda.js <id-cliente> <file.json>` | caricare una scheda (il JSON del convertitore) senza passare dal sito |
 | `node crea-invito.js <id-cliente>` | creare l'invito e stampare il link senza passare dal sito |
 | `node riempi-libreria.js [--prova \| --esegui]` | **una volta sola**: riempie la libreria esercizi di ogni trainer con quelli delle schede già caricate prima che la libreria esistesse. Senza argomenti è solo un elenco; si può rilanciare senza danni |
