@@ -1,0 +1,249 @@
+/* ===========================================================================
+   MOOD «BOTANICO» DELLA SCHEDA DEL CLIENTE (chiaro; categoria interna: girly) — nome provvisorio
+   Studio di pilates e fiori essiccati: fondo rosa polvere con rametti di foglie salvia disegnati a tratto,
+   titoli in Cormorant Garamond corsivo, riquadri chiari arrotondati (14 px).
+   Si attiva con data-mood="botanico" su <html>. Stessa struttura di tutti i mood (scheda.js).
+
+   TUTTO ciò che è colorato e ha una funzione prende il colore del giorno (--g), scritta sopra bianca.
+   Il verde salvia dei rametti è decorazione fissa.
+   Colori dei giorni (fiori e foglie essiccati): lampone, salvia, prugna, terracotta, glicine, eucalipto, malva.
+   Contrasti (calcolati): bianco su ogni colore ≥ 5,4:1; ogni colore sul fondo ≥ 4,1:1 e sui riquadri ≥ 5,0:1.
+   Animazioni: fiorellino che si apre sulla spunta; petali che cadono al cambio di giorno (e i rametti ondeggiano);
+   avanzamento a boccioli che sbocciano; respiro guidato durante il recupero; peonia disegnata a tratto a fine allenamento.
+   =========================================================================== */
+@font-face { font-family: "Cormorant Garamond"; src: url("/fonts/cormorant-garamond-latin-700-italic.woff2") format("woff2"); font-weight: 700; font-style: italic; font-display: swap; }
+
+:root[data-mood="botanico"] {
+  color-scheme: light;
+  --sfondo: #f1dcdc;               /* rosa polvere */
+  --superficie: #fbf4f2;
+  --superficie-alta: #ebcfd2;
+  --testo: #3a2428;                /* 9,8:1 o più */
+  --testo-secondario: #734c52;     /* 5,0:1 o più */
+  --bordo-campo: #8e7177;          /* 3,0:1 o più */
+  --bordo-superficie: #e7c9cc;
+  --divisorio: #ecd3d5;
+  --salvia: #8fa88e;               /* decorazione */
+  --polline: #e9c46a;              /* centro dei fiori: decorazione */
+  --errore: #c8203f;
+  --conferma: #17603b;
+  --brace: #e84800;
+  --su-brace: #0b0d10;
+
+  --colore-sfondo: var(--sfondo);
+  --colore-carta: var(--superficie);
+  --colore-testo: var(--testo);
+  --colore-testo-tenue: var(--testo-secondario);
+  --colore-linea: var(--divisorio);
+  --colore-ok-sfondo: #e2efe0;
+  --colore-ok-bordo: #17603b;
+  --colore-ok-testo: #17603b;
+  --colore-avviso-sfondo: #f8ead6;
+  --colore-avviso-bordo: #d4a86a;
+  --colore-avviso-testo: #6a4a12;
+  --colore-errore-sfondo: #f8dde0;
+  --colore-errore-bordo: #c8203f;
+  --colore-errore-testo: #8a1a2c;
+  --scheda-font-titoli: "Cormorant Garamond", Georgia, serif;
+  --scheda-font-testo: "Inter", system-ui, sans-serif;
+
+  --c: var(--g, #b0306a);
+  --c-chiaro: var(--superficie-alta);
+  --c-scuro: var(--testo);
+  --anello-attivo: var(--g, #b0306a);
+
+  --giorno-1: #b0306a; --su-giorno-1: #ffffff;   /* A lampone    6,0:1 */
+  --giorno-2: #4f6b4c; --su-giorno-2: #ffffff;   /* B salvia     5,9:1 */
+  --giorno-3: #6e3a5e; --su-giorno-3: #ffffff;   /* C prugna     8,6:1 */
+  --giorno-4: #a9502f; --su-giorno-4: #ffffff;   /* D terracotta 5,4:1 */
+  --giorno-5: #6a5394; --su-giorno-5: #ffffff;   /* E glicine    6,4:1 */
+  --giorno-6: #3e6461; --su-giorno-6: #ffffff;   /* F eucalipto  6,6:1 */
+  --giorno-7: #8a4f7d; --su-giorno-7: #ffffff;   /* G malva      6,0:1 */
+
+  --raggio: 14px;
+  --rametto: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 110 150' fill='none' stroke='%238fa88e' stroke-width='1.6'%3E%3Cpath d='M90 150 C80 100 70 60 40 10'/%3E%3Cpath d='M78 110 C60 104 50 92 48 78 C64 82 74 94 78 110Z'/%3E%3Cpath d='M68 78 C84 70 94 58 96 44 C80 50 70 62 68 78Z'/%3E%3Cpath d='M56 50 C40 46 30 36 28 22 C44 26 54 36 56 50Z'/%3E%3C/svg%3E");
+}
+:root[data-mood="botanico"][data-giorno="1"] { --g: var(--giorno-1); --su-g: var(--su-giorno-1); }
+:root[data-mood="botanico"][data-giorno="2"] { --g: var(--giorno-2); --su-g: var(--su-giorno-2); }
+:root[data-mood="botanico"][data-giorno="3"] { --g: var(--giorno-3); --su-g: var(--su-giorno-3); }
+:root[data-mood="botanico"][data-giorno="4"] { --g: var(--giorno-4); --su-g: var(--su-giorno-4); }
+:root[data-mood="botanico"][data-giorno="5"] { --g: var(--giorno-5); --su-g: var(--su-giorno-5); }
+:root[data-mood="botanico"][data-giorno="6"] { --g: var(--giorno-6); --su-g: var(--su-giorno-6); }
+:root[data-mood="botanico"][data-giorno="7"] { --g: var(--giorno-7); --su-g: var(--su-giorno-7); }
+[data-mood="botanico"] .giorno-btn[data-giorno="1"] { --gb: var(--giorno-1); }
+[data-mood="botanico"] .giorno-btn[data-giorno="2"] { --gb: var(--giorno-2); }
+[data-mood="botanico"] .giorno-btn[data-giorno="3"] { --gb: var(--giorno-3); }
+[data-mood="botanico"] .giorno-btn[data-giorno="4"] { --gb: var(--giorno-4); }
+[data-mood="botanico"] .giorno-btn[data-giorno="5"] { --gb: var(--giorno-5); }
+[data-mood="botanico"] .giorno-btn[data-giorno="6"] { --gb: var(--giorno-6); }
+[data-mood="botanico"] .giorno-btn[data-giorno="7"] { --gb: var(--giorno-7); }
+
+/* ---------- fondo rosa polvere; un rametto in alto a destra che ondeggia al cambio di giorno ---------- */
+[data-mood="botanico"] body { background: var(--sfondo); color: var(--testo); position: relative; }
+[data-mood="botanico"] body:not(.semplice)::before {
+  content: ""; position: absolute; right: 0; top: 0; width: 100px; height: 150px; pointer-events: none;
+  background: var(--rametto) no-repeat center / contain; transform-origin: 90% 100%;
+}
+:root[data-mood="botanico"].cambia body::before { animation: botanico-ondeggia 900ms ease-in-out; }
+@keyframes botanico-ondeggia { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-5deg); } 65% { transform: rotate(3deg); } }
+/* i petali del nuovo giorno che cadono (uno strato fisso, invisibile se non durante il cambio) */
+[data-mood="botanico"] body:not(.semplice)::after {
+  content: ""; position: fixed; left: 0; right: 0; top: -40px; height: 60vh; pointer-events: none; z-index: 30; opacity: 0;
+  background:
+    radial-gradient(6px 9px at 8% 10%, var(--g) 98%, transparent) ,
+    radial-gradient(6px 9px at 22% 30%, var(--g) 98%, transparent),
+    radial-gradient(5px 8px at 37% 6%, var(--g) 98%, transparent),
+    radial-gradient(6px 9px at 51% 24%, var(--g) 98%, transparent),
+    radial-gradient(5px 8px at 66% 12%, var(--g) 98%, transparent),
+    radial-gradient(6px 9px at 80% 34%, var(--g) 98%, transparent),
+    radial-gradient(5px 8px at 93% 8%, var(--g) 98%, transparent);
+}
+:root[data-mood="botanico"].cambia body::after { animation: botanico-petali 1300ms ease-in; }
+@keyframes botanico-petali { 0% { opacity: 0; transform: translateY(0) rotate(0); } 12% { opacity: .9; } 100% { opacity: 0; transform: translate(24px, 45vh) rotate(8deg); } }
+[data-mood="botanico"] .barra { background: var(--sfondo); }
+
+/* ---------- titoli: Cormorant Garamond corsivo; testo e numeri: Inter ---------- */
+[data-mood="botanico"] h1,
+[data-mood="botanico"] .titolo-giorno h2,
+[data-mood="botanico"] .giorno-btn b,
+[data-mood="botanico"] h3.sezione,
+[data-mood="botanico"] .formato,
+[data-mood="botanico"] .stretch b,
+[data-mood="botanico"] .settimana-oggi strong,
+[data-mood="botanico"] .focus-testa .dove b,
+[data-mood="botanico"] .completato p,
+[data-mood="botanico"] .timer .tempo { font-family: var(--scheda-font-titoli); font-style: italic; font-weight: 700; }
+[data-mood="botanico"] h1 { font-size: 36px; line-height: 1.05; }
+[data-mood="botanico"] h3.sezione { font-size: 26px; border-bottom-color: var(--bordo-superficie); }
+[data-mood="botanico"] h3.sezione span { font-family: var(--scheda-font-testo); font-style: normal; }
+[data-mood="botanico"] .nome { font-family: var(--scheda-font-testo); font-weight: 600; font-size: 17px; }
+[data-mood="botanico"] .chi, [data-mood="botanico"] .titolo-giorno small, [data-mood="botanico"] .risc .istr, [data-mood="botanico"] .nota { font-style: normal; }
+[data-mood="botanico"] .dato b, [data-mood="botanico"] .questa b, [data-mood="botanico"] .campo input, [data-mood="botanico"] .circ .lista input,
+[data-mood="botanico"] .lista .rip, [data-mood="botanico"] table.tutte td:last-child, [data-mood="botanico"] .num {
+  font-family: var(--scheda-font-testo); font-style: normal; font-weight: 600; font-variant-numeric: tabular-nums; }
+[data-mood="botanico"] .dato b, [data-mood="botanico"] .questa b, [data-mood="botanico"] .formato { color: var(--testo); }
+[data-mood="botanico"] .lista .rip, [data-mood="botanico"] details.prog summary, [data-mood="botanico"] table.tutte tr.sel td { color: var(--testo); }
+[data-mood="botanico"] table.tutte tr.sel td:first-child { box-shadow: inset 3px 0 0 var(--g); padding-left: 8px; }
+
+/* ---------- linguette dei giorni ---------- */
+[data-mood="botanico"] .giorni { grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); }
+[data-mood="botanico"] .giorno-btn { border-radius: 12px; border: 1px solid var(--bordo-superficie); background: var(--superficie); padding: 8px 4px; }
+[data-mood="botanico"] .giorno-btn b { font-size: 22px; white-space: nowrap; color: var(--gb); }
+[data-mood="botanico"] .giorno-btn span { color: var(--testo-secondario); }
+[data-mood="botanico"] .giorno-btn[aria-pressed="true"] { border: 2px solid var(--gb); color: var(--testo); }
+[data-mood="botanico"] .giorno-btn[aria-pressed="true"] b { color: var(--gb); }
+[data-mood="botanico"] .giorno-btn[aria-pressed="true"] span { color: var(--testo); }
+[data-mood="botanico"] .sett button { border-color: var(--bordo-superficie); color: var(--testo); border-radius: 999px; background: var(--superficie); }
+[data-mood="botanico"] .sett button[aria-pressed="true"] { background: var(--testo); border-color: var(--testo); color: var(--superficie); }
+[data-mood="botanico"] .sett button.oggi:not([aria-pressed="true"]) { border-color: var(--g); color: var(--testo); }
+
+/* ---------- testata del giorno ---------- */
+[data-mood="botanico"] .titolo-giorno { display: block; margin: 20px 0 10px; }
+[data-mood="botanico"] .titolo-giorno h2 { color: var(--g); font-size: 46px; line-height: 1; }
+[data-mood="botanico"] .titolo-giorno small { display: block; color: var(--testo); font-size: 15px; font-weight: 600; margin-top: 4px; }
+
+/* avanzamento: un bocciolo per blocco, che sboccia quando il blocco è fatto */
+[data-mood="botanico"] .avanzamento { height: auto; background: none; margin: 0 0 12px; overflow: visible; }
+[data-mood="botanico"] .avanzamento > i { display: none; }
+[data-mood="botanico"] .avanzamento .tappe { display: flex; gap: 12px; flex-wrap: wrap; }
+[data-mood="botanico"] .avanzamento .tappe b { width: 24px; height: 24px; border-radius: 50%; position: relative;
+  background: radial-gradient(circle, var(--g) 0 3px, transparent 3.5px), radial-gradient(circle, transparent 0 7px, var(--g) 7.5px 8.5px, transparent 9px); }
+[data-mood="botanico"] .avanzamento .tappe b.on {
+  background:
+    radial-gradient(circle at 50% 50%, var(--polline) 0 3.5px, transparent 4px),
+    radial-gradient(4px 6px at 50% 22%, var(--g) 98%, transparent),
+    radial-gradient(4px 6px at 79% 42%, var(--g) 98%, transparent),
+    radial-gradient(4px 6px at 68% 77%, var(--g) 98%, transparent),
+    radial-gradient(4px 6px at 32% 77%, var(--g) 98%, transparent),
+    radial-gradient(4px 6px at 21% 42%, var(--g) 98%, transparent);
+}
+[data-mood="botanico"] .avanzamento .tappe b.nuovo { animation: botanico-sboccia 380ms cubic-bezier(.2, .9, .3, 1.3); }
+@keyframes botanico-sboccia { from { transform: scale(.35) rotate(-30deg); } to { transform: none; } }
+
+/* ---------- riquadri ---------- */
+[data-mood="botanico"] .card { border-radius: var(--raggio); border: 1px solid var(--bordo-superficie); background: var(--superficie); }
+[data-mood="botanico"] .card.fatto { opacity: 1; }
+[data-mood="botanico"] .card.fatto > * { opacity: .6; }
+[data-mood="botanico"] .card.fatto .nome { text-decoration-color: var(--g); }
+[data-mood="botanico"] .num, [data-mood="botanico"] .circ .testa .num { background: var(--superficie-alta); color: var(--testo); border-radius: 50%; }
+[data-mood="botanico"] .dato, [data-mood="botanico"] .campo { background: var(--sfondo); border-radius: 10px; }
+[data-mood="botanico"] .questa { background: var(--superficie-alta); border-radius: 10px; }
+[data-mood="botanico"] .questa small { color: var(--testo-secondario); }
+[data-mood="botanico"] .campo input { border-bottom-color: var(--bordo-campo); color: var(--testo); }
+[data-mood="botanico"] .campo input:focus { border-bottom-color: var(--g); }
+[data-mood="botanico"] .campo input::placeholder { color: var(--testo-secondario); }
+[data-mood="botanico"] .circ .lista input { background: var(--sfondo); border-bottom-color: var(--bordo-campo); color: var(--testo); }
+[data-mood="botanico"] .lista a.mini { color: var(--testo); border-color: var(--bordo-superficie); border-radius: 999px; }
+[data-mood="botanico"] .lista li { border-bottom-color: var(--divisorio); }
+[data-mood="botanico"] .salvataggio { border-radius: var(--raggio); }
+[data-mood="botanico"] .nota::before { color: var(--g); }
+
+/* ---------- pulsanti ---------- */
+[data-mood="botanico"] .btn { border-radius: 999px; border-color: var(--bordo-campo); background: var(--superficie); color: var(--testo); }
+[data-mood="botanico"] .btn.pieno,
+[data-mood="botanico"] .focus-piede button.avanti { background: var(--g); border-color: var(--g); color: var(--su-g); font-weight: 700; }
+[data-mood="botanico"] .inizia { border-radius: var(--raggio); }
+[data-mood="botanico"] .focus-piede button { border-radius: var(--raggio); border-color: var(--bordo-campo); background: var(--superficie); color: var(--testo); }
+[data-mood="botanico"] :focus-visible { outline: 2px solid var(--anello-attivo); outline-offset: 2px; }
+
+/* ---------- spunte: tonde, con un fiorellino che si apre ---------- */
+[data-mood="botanico"] .spunta, [data-mood="botanico"] .lista .pallino { position: relative; border-radius: 50%; border: 2px solid var(--bordo-campo); }
+[data-mood="botanico"] .spunta[aria-pressed="true"],
+[data-mood="botanico"] .lista .pallino[aria-pressed="true"] { background: var(--g); border-color: var(--g); }
+[data-mood="botanico"] .spunta svg path, [data-mood="botanico"] .lista .pallino svg path { stroke: var(--su-g); stroke-width: 2.5; }
+[data-mood="botanico"] .scatta::after {
+  content: ""; position: absolute; inset: -12px; pointer-events: none; opacity: 0;
+  background:
+    radial-gradient(5px 9px at 50% 12%, var(--g) 98%, transparent),
+    radial-gradient(5px 9px at 86% 38%, var(--g) 98%, transparent),
+    radial-gradient(5px 9px at 72% 82%, var(--g) 98%, transparent),
+    radial-gradient(5px 9px at 28% 82%, var(--g) 98%, transparent),
+    radial-gradient(5px 9px at 14% 38%, var(--g) 98%, transparent);
+  animation: botanico-fiorellino 520ms ease-out;
+}
+@keyframes botanico-fiorellino { 0% { opacity: 0; transform: scale(.3) rotate(-30deg); } 40% { opacity: .8; } 100% { opacity: 0; transform: scale(1.25) rotate(10deg); } }
+[data-mood="botanico"] .puntini i { border-color: var(--g); }
+[data-mood="botanico"] .puntini i.on { background: var(--g); }
+
+/* ---------- allenamento completato: una peonia che si disegna a tratto (senza stelo) ---------- */
+[data-mood="botanico"] .completato { text-align: center; padding: 18px 16px 18px; margin: 4px 0 14px; border-radius: var(--raggio);
+  background: var(--superficie); border: 1px solid var(--bordo-superficie); }
+[data-mood="botanico"] .completato .gradi { display: none; }
+[data-mood="botanico"] .completato .peonia { display: block; width: 96px; height: 84px; margin: 0 auto; }
+[data-mood="botanico"] .completato .peonia path { fill: none; stroke: var(--g); stroke-width: 2.2; stroke-linecap: round; }
+[data-mood="botanico"] .completato p { font-size: 30px; margin: 6px 0 0; color: var(--testo); }
+[data-mood="botanico"] .completato.appena .peonia path { stroke-dasharray: 400; stroke-dashoffset: 400; animation: botanico-traccia 900ms ease-out forwards; }
+[data-mood="botanico"] .completato.appena .peonia path:nth-child(3) { animation-delay: 400ms; }
+[data-mood="botanico"] .completato.appena p { animation: botanico-appare 400ms 800ms both; }
+@keyframes botanico-traccia { to { stroke-dashoffset: 0; } }
+@keyframes botanico-appare { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ---------- modalità allenamento ---------- */
+[data-mood="botanico"] .focus { background: var(--sfondo); }
+[data-mood="botanico"] .focus-passi i { background: var(--superficie-alta); }
+[data-mood="botanico"] .focus-passi i.fatto { background: var(--g); }
+[data-mood="botanico"] .focus-passi i.ora { background: var(--testo); }
+[data-mood="botanico"] .focus-testa .dove b { color: var(--g); font-size: 24px; }
+[data-mood="botanico"] .focus-piede { background: var(--sfondo); }
+
+/* ---------- timer: durante il recupero un cerchio respira ---------- */
+[data-mood="botanico"] .timer { background: var(--superficie); color: var(--testo); border: 1px solid var(--bordo-superficie); border-radius: var(--raggio);
+  box-shadow: 0 8px 24px rgba(58, 36, 40, .15); }
+[data-mood="botanico"] .timer .cosa { color: var(--testo-secondario); opacity: 1; }
+[data-mood="botanico"] .timer .tempo { font-size: 36px; }
+[data-mood="botanico"] .timer .barra-t { background: var(--superficie-alta); }
+[data-mood="botanico"] .timer .barra-t i { background: var(--g); }
+[data-mood="botanico"] .timer button { background: var(--superficie); color: var(--testo); border: 1px solid var(--bordo-campo); border-radius: 999px; }
+[data-mood="botanico"] .timer .luci { display: block; flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; background: var(--g); opacity: .25; transform: scale(.5); }
+[data-mood="botanico"] .timer .luci i { display: none; }
+[data-mood="botanico"] .timer.on:not(.finito) .luci { animation: botanico-respiro 4s ease-in-out infinite; }
+@keyframes botanico-respiro { 0%, 100% { transform: scale(.5); opacity: .2; } 50% { transform: scale(1); opacity: .45; } }
+[data-mood="botanico"] .timer.finito { border-color: var(--g); }
+[data-mood="botanico"] .timer.finito .tempo { color: var(--g); }
+[data-mood="botanico"] .timer.finito .luci { opacity: .45; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-mood="botanico"] *, [data-mood="botanico"] *::before, [data-mood="botanico"] *::after,
+  :root[data-mood="botanico"] body::before, :root[data-mood="botanico"] body::after { animation: none !important; transition: none !important; }
+  [data-mood="botanico"] .scatta::after { display: none; }
+}
