@@ -8,3 +8,8 @@ node_modules/
 
 # documenti di lavoro (privacy, screenshot): restano sul PC, non nel repository pubblico
 docs/
+
+# avanzi nella cartella principale (l'app vera sta in api/ e web/): non vanno pubblicati
+/package.json
+/package-lock.json
+/lena-design-sistema.zip

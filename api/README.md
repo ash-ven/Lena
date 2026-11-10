@@ -661,6 +661,22 @@ Chi dimentica la password (trainer o cliente) va su «Hai dimenticato la passwor
 Get-Content db\initdb\10_reimposta_password.sql | docker exec -i lena-db psql -U lena -d lena
 ```
 
+### Backup del database su Neon
+
+Il piano gratuito di Neon conserva la cronologia solo per poco: con dati veri serve un backup nostro. Da PowerShell, nella cartella del progetto (Docker acceso):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\backup-neon.ps1
+```
+
+Lo script chiede la stringa di connessione di Neon (senza mostrarla), fa `pg_dump` con un contenitore PostgreSQL 18 (la stessa versione di Neon), controlla che il file si legga e tiene gli ultimi 14. I file finiscono in `C:\Users\<tu>\backup-lena`, **fuori dal progetto**: contengono dati veri e non vanno mai pubblicati. Quando ci sono clienti veri, conviene copiarli anche su un disco esterno o su un cloud personale.
+
+**Ripristinare** (in un database vuoto, per esempio un nuovo progetto Neon; la stringa va nella variabile `$u` tra virgolette):
+
+```powershell
+docker run --rm -v C:\Users\<tu>\backup-lena:/backup postgres:18 pg_restore --no-owner --clean --if-exists -d "$u" /backup/lena-AAAA-MM-GG-HHMM.dump
+```
+
 ### L'app sul telefono (PWA)
 
 Lena si può mettere sul telefono come un'app: icona, schermo intero, apertura più rapida. Serve https (online su Render va; in locale solo su `localhost`).
