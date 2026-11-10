@@ -6,6 +6,10 @@
 <meta name="theme-color" content="#0B0D10">
 <title>Il tuo profilo · Lena</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icone-app/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lena">
 <script src="/tema.js"></script>
 <link rel="stylesheet" href="/sistema.css">
 <link rel="stylesheet" href="/pt.css">
@@ -86,6 +90,16 @@
       <div class="azioni-pt"><button class="bottone" type="submit" id="salva-titolare">Salva</button></div>
     </form>
 
+    <section class="pannello" id="installa" hidden aria-labelledby="t-installa">
+      <h2 class="sezione-pt" id="t-installa">Metti Lena sul telefono</h2>
+      <p>Così la apri dall'icona, come un'app, a tutto schermo.</p>
+      <ul>
+        <li><strong>iPhone (Safari):</strong> tocca «Condividi», poi «Aggiungi alla schermata Home».</li>
+        <li><strong>Android (Chrome):</strong> tocca i tre puntini, poi «Installa app» o «Aggiungi a schermata Home».</li>
+      </ul>
+      <div class="azioni-pt"><button class="bottone" type="button" id="installa-bottone" hidden>Installa Lena</button></div>
+    </section>
+
     <section aria-labelledby="t-anteprima">
       <h2 class="sezione-pt" id="t-anteprima">Come ti vede un cliente</h2>
       <div class="pannello scheda-trainer" id="anteprima"></div>
@@ -95,6 +109,7 @@
 <footer class="piede-legale"><a href="/privacy.html">Informativa privacy</a> · <a href="/condizioni-pt.html">Condizioni d'uso per i professionisti</a></footer>
 <noscript><p>Per usare Lena serve JavaScript attivo nel browser.</p></noscript>
 <script src="/api.js"></script>
+<script src="/pwa.js"></script>
 <script src="/pt-comune.js"></script>
 <script src="/profilo-comune.js"></script>
 <script src="/pt-profilo.js"></script>

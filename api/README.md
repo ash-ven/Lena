@@ -661,6 +661,16 @@ Chi dimentica la password (trainer o cliente) va su «Hai dimenticato la passwor
 Get-Content db\initdb\10_reimposta_password.sql | docker exec -i lena-db psql -U lena -d lena
 ```
 
+### L'app sul telefono (PWA)
+
+Lena si può mettere sul telefono come un'app: icona, schermo intero, apertura più rapida. Serve https (online su Render va; in locale solo su `localhost`).
+
+- `web/manifest.webmanifest` e le icone in `web/icone-app/` (192, 512, maschera per Android, 180 per iPhone), disegnate con le stesse forme di `web/favicon.svg`.
+- `web/sw.js` è il service worker. **Non salva mai dati delle persone**: lascia passare l'API (`/api/`), gli indirizzi con parametri (codici di invito e di recupero) e tutto ciò che non è GET; tiene solo una copia dei file del sito. Prima va in rete, così dopo un aggiornamento si vede subito la versione nuova. Se cambia la logica di cosa si copia, cambia `VERSIONE` in `sw.js`.
+- Senza rete si vede `web/offline.html`. La scheda **non** si apre offline: i dati restano solo sul server finché la pagina non è caricata (i valori segnati senza rete, a pagina già aperta, partono appena torna la rete, come prima).
+- `web/pwa.js` registra il service worker e mostra il riquadro «Metti Lena sul telefono» (in «Il mio account» e nel profilo del trainer), con il pulsante «Installa» su Android e le istruzioni a parole per iPhone.
+- Il test è `api/test/pwa.test.js`.
+
 ### Dati del titolare (migrazione 11)
 
 Ogni trainer è il titolare dei dati dei suoi clienti. Nella pagina «Il tuo profilo» inserisce nome (o palestra), indirizzo ed email per la privacy: compaiono nell'informativa che leggono i suoi clienti (prima di registrarsi, dal link di invito; dopo, dal loro account). **Senza questi dati un trainer non può creare inviti.** Chi gestisce Lena (Asiha Venturi) è scritto direttamente nei testi.
