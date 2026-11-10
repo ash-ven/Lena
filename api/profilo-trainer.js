@@ -5,8 +5,9 @@ const db = require("./db");
 const { richiediLogin, richiediRuolo } = require("./auth");
 const { richiediCondizioniPt } = require("./consensi");
 const { cerca: cercaEsercizi } = require("./libreria");
+const { emailPulita } = require("./aiuti");
 
-const MAX_NOME = 100, MAX_BIO = 500, MAX_CONTATTO = 100;
+const MAX_NOME = 100, MAX_BIO = 500, MAX_CONTATTO = 100, MAX_TITOLARE = 150, MAX_INDIRIZZO = 250;
 const MAX_FOTO = 400 * 1024;   // il browser la riduce a ~512 px: di solito sono 30-80 KB
 
 // Un testo libero di una riga o più: niente caratteri di controllo (tranne a capo e tab), spazi ai bordi tolti.
@@ -40,6 +41,34 @@ router.use(async (req, res, next) => {
 router.get("/profilo", async (req, res) => {
   const r = await db.query(`SELECT ${COLONNE} FROM pt WHERE id = $1`, [req.ptId]);
   res.json(vista(r.rows[0]));
+});
+
+// I dati del titolare del trattamento (il trainer stesso, o la palestra): compaiono nell'informativa dei suoi clienti.
+const vistaTitolare = (r) => {
+  const nome = r.titolare_nome || "", indirizzo = r.titolare_indirizzo || "", email = r.titolare_email || "";
+  return { nome, indirizzo, email, completo: !!(nome && indirizzo && email) };
+};
+
+// GET /api/pt/titolare
+router.get("/titolare", async (req, res) => {
+  const r = await db.query("SELECT titolare_nome, titolare_indirizzo, titolare_email FROM pt WHERE id = $1", [req.ptId]);
+  res.json(vistaTitolare(r.rows[0]));
+});
+
+// PUT /api/pt/titolare  { nome, indirizzo, email }: tutti e tre obbligatori
+router.put("/titolare", async (req, res) => {
+  const c = req.body || {};
+  const nome = testoPulito(c.nome, MAX_TITOLARE);
+  const indirizzo = testoPulito(c.indirizzo, MAX_INDIRIZZO);
+  const email = emailPulita(c.email);
+  if (!nome) return res.status(400).json({ errore: `Scrivi il tuo nome o quello della palestra (al massimo ${MAX_TITOLARE} caratteri)` });
+  if (!indirizzo) return res.status(400).json({ errore: `Scrivi un indirizzo (al massimo ${MAX_INDIRIZZO} caratteri)` });
+  if (!email) return res.status(400).json({ errore: "Scrivi un'email valida a cui i clienti possono scriverti per la privacy" });
+  const r = await db.query(
+    "UPDATE pt SET titolare_nome = $2, titolare_indirizzo = $3, titolare_email = $4 WHERE id = $1 RETURNING titolare_nome, titolare_indirizzo, titolare_email",
+    [req.ptId, nome, indirizzo, email]
+  );
+  res.json(vistaTitolare(r.rows[0]));
 });
 
 // GET /api/pt/esercizi?q=squat: gli esercizi già usati che corrispondono (la libreria che si riempie da sola)
@@ -88,4 +117,4 @@ router.get("/foto", async (req, res) => {
   res.type("image/jpeg").send(r.rows[0].foto);
 });
 
-module.exports = { router, vista, COLONNE, èJpeg, MAX_FOTO };
+module.exports = { router, vista, vistaTitolare, COLONNE, èJpeg, MAX_FOTO };

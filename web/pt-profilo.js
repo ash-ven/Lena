@@ -37,6 +37,27 @@
     else esito.append(messaggio("errore", testoErrore(r, "salvare il profilo")));
   });
 
+  // ---------- dati del titolare (per l'informativa dei clienti) ----------
+  let inCorsoTitolare = false;
+  function disegnaTitolare(t) { $("t-nome").value = t.nome; $("t-indirizzo").value = t.indirizzo; $("t-email").value = t.email; }
+  $("modulo-titolare").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    if (inCorsoTitolare) return;
+    const esito = $("esito-titolare");
+    esito.replaceChildren();
+    const dati = { nome: $("t-nome").value.trim(), indirizzo: $("t-indirizzo").value.trim(), email: $("t-email").value.trim() };
+    if (!dati.nome) { esito.append(messaggio("errore", "Scrivi il tuo nome o quello della palestra.")); $("t-nome").focus(); return; }
+    if (!dati.indirizzo) { esito.append(messaggio("errore", "Scrivi l'indirizzo.")); $("t-indirizzo").focus(); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dati.email)) { esito.append(messaggio("errore", "Scrivi un'email valida, per esempio nome@esempio.it.")); $("t-email").focus(); return; }
+    inCorsoTitolare = true;
+    $("salva-titolare").disabled = true;
+    const r = await LenaPt.chiama("PUT", "/api/pt/titolare", dati);
+    inCorsoTitolare = false;
+    $("salva-titolare").disabled = false;
+    if (r.stato === 200) { disegnaTitolare(r.json); esito.append(messaggio("ok", "Dati salvati. Ora puoi invitare i tuoi clienti.")); }
+    else esito.append(messaggio("errore", testoErrore(r, "salvare i dati")));
+  });
+
   // ---------- foto ----------
   $("p-foto").addEventListener("change", async (ev) => {
     const esito = $("esito-foto");
@@ -67,5 +88,7 @@
     profilo = r.json;
     $("pagina").hidden = false;
     disegna();
+    const t = await LenaPt.chiama("GET", "/api/pt/titolare");
+    if (t.stato === 200) disegnaTitolare(t.json);
   })();
 })();

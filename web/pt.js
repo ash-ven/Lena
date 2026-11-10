@@ -170,5 +170,13 @@
       return;
     }
     carica();
+    // I dati del titolare servono all'informativa dei clienti: senza, non si può invitare nessuno
+    const t = await LenaPt.chiama("GET", "/api/pt/titolare");
+    if (t.stato === 200 && !t.json.completo) {
+      $("messaggio-pagina").append(LenaPt.messaggio("avviso", "Completa i dati per l'informativa privacy", [
+        el("span", {}, "Prima di invitare i tuoi clienti serve il tuo nome (o della palestra), l'indirizzo e un'email per la privacy. ",
+          el("a", { href: "/pt-profilo.html" }, "Vai al tuo profilo"), "."),
+      ]));
+    }
   })();
 })();

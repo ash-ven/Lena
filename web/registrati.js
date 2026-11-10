@@ -17,6 +17,9 @@
     mostra("errore", testo);
   }
 
+  // L'informativa mostra i dati del trainer che ti ha invitato: la pagina li trova dal codice dell'invito
+  if (codice) $("link-informativa").href = "/privacy.html?codice=" + encodeURIComponent(codice);
+
   if (!codice) soloMessaggio("Questo link non è completo: manca il codice dell'invito. Chiedi al tuo PT di mandartene uno nuovo.");
 
   $("mostra").addEventListener("change", (ev) => {

@@ -142,6 +142,13 @@
     const r = await LenaPt.chiama("POST", `/api/clienti/${id}/invito`);
     invitoInCorso = false;
     $("crea-invito").disabled = false;
+    if (r.stato === 409 && r.json && r.json.codice === "DATI_TITOLARE_MANCANTI") {
+      zona.append(messaggio("avviso", "Prima completa i dati per l'informativa privacy", [
+        el("span", {}, "I tuoi clienti leggono nell'informativa chi è il titolare dei loro dati: serve il tuo nome (o della palestra), l'indirizzo e un'email. ",
+          el("a", { href: "/pt-profilo.html" }, "Vai al tuo profilo"), "."),
+      ]));
+      return;
+    }
     if (r.stato !== 201) {
       zona.append(messaggio("errore", r.stato === 409 ? "Questo cliente ha già un account" : "Non sono riuscito a creare l'invito", [LenaPt.testoErrore(r, "creare l'invito")]));
       if (r.stato === 409) ricarica(true);

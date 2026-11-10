@@ -28,6 +28,18 @@ function creaRotteMe({ limiteRiconferma = 5, finestraMinuti = 15 } = {}) {
     res.json({ scheda: r.rows[0], registrazioni: await leggiRegistrazioni(r.rows[0].id) });
   });
 
+  // GET /api/me/titolare: chi è il titolare dei MIEI dati (il mio trainer), per l'informativa
+  router.get("/titolare", async (req, res) => {
+    const r = await db.query(
+      `SELECT p.titolare_nome AS nome, p.titolare_indirizzo AS indirizzo, p.titolare_email AS email
+         FROM cliente c JOIN pt p ON p.id = c.pt_id WHERE c.utente_id = $1`,
+      [req.utente.id]
+    );
+    const t = r.rows[0];
+    if (!t || !t.nome || !t.indirizzo || !t.email) return res.status(404).json({ errore: "Non trovato" });
+    res.json(t);
+  });
+
   // ---------- il mio profilo: nome (lo scrive il trainer), foto (la scelgo io), da quando mi alleno ----------
   const COLONNE_PROFILO = `c.nome, c.cognome, (c.foto IS NOT NULL) AS ha_foto, c.foto_aggiornata_il,
          (SELECT min(s.inizio) FROM scheda s WHERE s.cliente_id = c.id) AS in_allenamento_dal`;

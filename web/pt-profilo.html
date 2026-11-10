@@ -65,6 +65,27 @@
       <div class="azioni-pt"><button class="bottone" type="submit" id="salva-profilo">Salva</button></div>
     </form>
 
+    <form class="pannello" id="modulo-titolare" novalidate aria-labelledby="t-titolare">
+      <h2 class="sezione-pt" id="t-titolare">Dati per l'informativa privacy</h2>
+      <p class="nota">Sei tu il titolare dei dati dei tuoi clienti. Questi dati compaiono nell'informativa che leggono i tuoi clienti, quando si registrano e dopo. Sono obbligatori: finché non li inserisci non puoi invitare nessuno.</p>
+      <div class="campo-pt">
+        <label for="t-nome">Il tuo nome, o quello della palestra</label>
+        <input id="t-nome" type="text" maxlength="150" autocomplete="organization" required>
+      </div>
+      <div class="campo-pt">
+        <label for="t-indirizzo">Indirizzo</label>
+        <input id="t-indirizzo" type="text" maxlength="250" autocomplete="street-address" required>
+        <span class="aiuto-pt">Via, numero, CAP e città.</span>
+      </div>
+      <div class="campo-pt">
+        <label for="t-email">Email per la privacy</label>
+        <input id="t-email" type="email" maxlength="100" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" required>
+        <span class="aiuto-pt">A questo indirizzo i clienti possono scriverti per chiedere di vedere, correggere o cancellare i loro dati.</span>
+      </div>
+      <div id="esito-titolare" role="alert"></div>
+      <div class="azioni-pt"><button class="bottone" type="submit" id="salva-titolare">Salva</button></div>
+    </form>
+
     <section aria-labelledby="t-anteprima">
       <h2 class="sezione-pt" id="t-anteprima">Come ti vede un cliente</h2>
       <div class="pannello scheda-trainer" id="anteprima"></div>

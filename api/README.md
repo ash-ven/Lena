@@ -661,6 +661,18 @@ Chi dimentica la password (trainer o cliente) va su «Hai dimenticato la passwor
 Get-Content db\initdb\10_reimposta_password.sql | docker exec -i lena-db psql -U lena -d lena
 ```
 
+### Dati del titolare (migrazione 11)
+
+Ogni trainer è il titolare dei dati dei suoi clienti. Nella pagina «Il tuo profilo» inserisce nome (o palestra), indirizzo ed email per la privacy: compaiono nell'informativa che leggono i suoi clienti (prima di registrarsi, dal link di invito; dopo, dal loro account). **Senza questi dati un trainer non può creare inviti.** Chi gestisce Lena (Asiha Venturi) è scritto direttamente nei testi.
+
+**Database: migrazione 11 (da applicare PRIMA di riavviare il server; sia sul database locale sia su Neon):**
+
+```powershell
+Get-Content db\initdb\11_titolare.sql | docker exec -i lena-db psql -U lena -d lena
+```
+
+Per Neon: stesso comando ma con `psql "$u"` al posto di `psql -U lena -d lena` (con `$u` impostata come per le altre migrazioni).
+
 **Spedire le email.** Come in Loadout: **Brevo** spedisce (tramite la sua API https, quindi funziona anche su Render gratuito, che blocca le porte SMTP) e un indirizzo **Gmail** dedicato fa da mittente (Gmail non spedisce niente). Piano gratuito di Brevo: controlla i limiti attuali nella tua area (in Loadout erano 300 email al giorno).
 
 1. Brevo → **Mittenti** → aggiungi il Gmail → Brevo manda un link di conferma in quella casella → aprilo.

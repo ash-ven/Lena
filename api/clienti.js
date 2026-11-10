@@ -108,6 +108,12 @@ router.post("/", async (req, res) => {
 router.post("/:id/invito", async (req, res) => {
   if (req.cliente.utente_id) return res.status(409).json({ errore: "Questo cliente ha già un account" });
 
+  // L'informativa che il cliente leggerà mostra i dati del suo trainer (il titolare): senza, non si invita nessuno
+  const t = await db.query("SELECT titolare_nome, titolare_indirizzo, titolare_email FROM pt WHERE id = $1", [req.ptId]);
+  if (!t.rows[0] || !t.rows[0].titolare_nome || !t.rows[0].titolare_indirizzo || !t.rows[0].titolare_email) {
+    return res.status(409).json({ errore: "Prima di invitare un cliente compila i dati per l'informativa privacy nella pagina «Il tuo profilo».", codice: "DATI_TITOLARE_MANCANTI" });
+  }
+
   const { codice, scadeIl } = await creaInvito(req.cliente.id);
   res.status(201).json({ codice, scade_il: scadeIl });
 });

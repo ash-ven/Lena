@@ -58,7 +58,7 @@ async function creaPtNelDb(nomeEmail, nome) {
   const hash = await bcrypt.hash(PASSWORD_PT, 4);   // costo basso: è solo per i test, così sono veloci
   const u = await db.query(
     "INSERT INTO utente (email, password_hash, ruolo) VALUES ($1, $2, 'pt') RETURNING id", [email(nomeEmail), hash]);
-  await db.query("INSERT INTO pt (utente_id, nome) VALUES ($1, $2)", [u.rows[0].id, nome]);
+  await db.query("INSERT INTO pt (utente_id, nome, titolare_nome, titolare_indirizzo, titolare_email) VALUES ($1, $2, $2, 'Via Prova 1, Milano', $3)", [u.rows[0].id, nome, email(nomeEmail)]);
   await db.query("INSERT INTO consenso (utente_id, tipo, versione) VALUES ($1, 'condizioni_pt', $2)", [u.rows[0].id, VERSIONE_CONDIZIONI_PT]);
   return u.rows[0].id;
 }
