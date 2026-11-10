@@ -230,6 +230,14 @@ Dalla scheda, il pulsante **«Il mio account e i miei dati»** porta a `/account
   node pulizia.js --esegui   # cancella davvero (cliente, schede, valori, inviti, account e consensi), un cliente alla volta
   ```
 
+- **Sul sito online (Neon):** dalla cartella del progetto, in PowerShell:
+
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File scripts\pulizia-neon.ps1
+  ```
+
+  Chiede la stringa di Neon (come il backup, non si vede mentre la incolli), mostra l'elenco e cancella solo se scrivi `CANCELLA`. Prima, se non l'hai fatto da poco, lancia `scripts\backup-neon.ps1`.
+  Da farne una volta al mese circa.
 - **Perché è manuale, per ora:** una cancellazione è **definitiva**, e una cancellazione automatica *sbagliata* (periodo sbagliato, una data errata, un test dimenticato) è peggio di una cancellazione dimenticata.
   Finché il periodo non è deciso con il professionista e l'elenco della prova non è stato controllato un po' di volte, si lancia a mano.
 - **Come programmarla più avanti** (su Windows, con l'Utilità di pianificazione): si crea un'attività che lancia ogni settimana `node pulizia.js` **in modalità prova** e avvisa se l'elenco non è vuoto;
