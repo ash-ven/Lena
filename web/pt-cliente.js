@@ -59,10 +59,28 @@
         + (s.registrazioni ? ` · ${s.registrazioni} valori segnati` : "")),
       el("div", { class: "azioni-scheda" },
         el("a", { class: "azione-testo", href: `/pt-editor.html?cliente=${id}&base=${s.id}` }, "Modifica (nuova versione)"),
-        el("a", { class: "azione-testo", href: `/pt.html?copia=${s.id}` }, "Copia per un altro cliente")))));
+        el("a", { class: "azione-testo", href: `/pt.html?copia=${s.id}` }, "Copia per un altro cliente"),
+        el("button", { class: "azione-testo", type: "button", onclick: (ev) => chiediCancellaScheda(ev.currentTarget.closest(".azioni-scheda"), s) }, "Cancella")))));
     $("schede-vuoto").hidden = schede.length > 0;
     $("bozza-nota").hidden = !LenaPt.haBozza(id);
     $("bozza-link").href = `/pt-editor.html?cliente=${id}`;
+  }
+
+  // Cancellare una scheda: prima una conferma sul posto (cancella anche i valori segnati: non si può annullare)
+  function chiediCancellaScheda(zona, s) {
+    const dentro = [...zona.childNodes];
+    const annulla = el("button", { class: "bottone secondario piccolo", type: "button", onclick: () => zona.replaceChildren(...dentro) }, "Annulla");
+    const conferma = el("button", { class: "bottone pericolo piccolo", type: "button" }, "Sì, cancella");
+    conferma.addEventListener("click", async () => {
+      conferma.disabled = true; annulla.disabled = true;
+      const r = await LenaPt.chiama("DELETE", `/api/schede/${s.id}`);
+      if (r.stato === 200) { LenaPt.ricordaMessaggio("Scheda cancellata."); location.reload(); return; }
+      zona.replaceChildren(messaggio("errore", "Non ho cancellato la scheda", [LenaPt.testoErrore(r, "cancellare la scheda")]), ...dentro);
+    });
+    const valori = s.registrazioni ? ` e i suoi ${s.registrazioni} valori segnati dal cliente` : "";
+    zona.replaceChildren(
+      el("p", { class: "nota", role: "alert" }, `Cancello la scheda «${s.titolo || "Scheda"}»${valori}. Non si può annullare.`),
+      el("div", { class: "azioni-pt" }, conferma, annulla));
   }
 
   function disegnaInvito() {
@@ -218,6 +236,29 @@
     $("cancella").textContent = "Cancella cliente";
     $("cancella").disabled = !uguali();
     $("cancella-esito").replaceChildren(messaggio("errore", "Non ho cancellato niente", [LenaPt.testoErrore(r, "cancellare il cliente")]));
+  });
+
+  // ---------- modifica del nome ----------
+  $("apri-nome").addEventListener("click", () => {
+    const aperto = !$("modulo-nome").hidden;
+    $("modulo-nome").hidden = aperto;
+    $("apri-nome").setAttribute("aria-expanded", String(!aperto));
+    if (!aperto) { $("nome-nuovo").value = cliente.nome; $("cognome-nuovo").value = cliente.cognome; $("nome-esito").replaceChildren(); $("nome-nuovo").focus(); }
+  });
+  $("annulla-nome").addEventListener("click", () => { $("modulo-nome").hidden = true; $("apri-nome").setAttribute("aria-expanded", "false"); });
+  let nomeInCorso = false;
+  $("modulo-nome").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    if (nomeInCorso) return;
+    const esito = $("nome-esito");
+    esito.replaceChildren();
+    const nome = $("nome-nuovo").value.trim(), cognome = $("cognome-nuovo").value.trim();
+    if (!nome || !cognome) { esito.append(messaggio("errore", "Servono nome e cognome.")); return; }
+    nomeInCorso = true; $("salva-nome").disabled = true;
+    const r = await LenaPt.chiama("PUT", `/api/clienti/${id}/nome`, { nome, cognome });
+    nomeInCorso = false; $("salva-nome").disabled = false;
+    if (r.stato === 200) { LenaPt.ricordaMessaggio("Nome aggiornato."); location.reload(); return; }
+    esito.append(messaggio("errore", LenaPt.testoErrore(r, "salvare il nome")));
   });
 
   // ---------- avvio ----------

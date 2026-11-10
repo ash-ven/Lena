@@ -164,6 +164,7 @@ body.pt .elenco-clienti a{color:var(--testo)}
 .schede-lista:not(:empty){padding-bottom:var(--spazio-2);border-bottom:1px solid var(--divisorio)}
 .schede-lista .titolo-scheda{font-weight:600}
 .schede-lista .azioni-scheda{display:flex;flex-wrap:wrap;column-gap:var(--spazio-5);margin-top:var(--spazio-1)}
+button.azione-testo{background:none;border:0;padding:0;font:inherit;font-weight:600;cursor:pointer}
 .azione-testo{display:inline-flex;align-items:center;min-height:44px;font-weight:600;color:var(--testo-brace);text-decoration:underline;text-underline-offset:3px}
 .schede-lista .nota{margin:var(--spazio-1) 0 0;font-variant-numeric:tabular-nums}
 /* PROPOSTA: etichetta neutra accanto al titolo di una scheda */

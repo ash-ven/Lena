@@ -103,6 +103,24 @@ router.post("/", async (req, res) => {
   res.status(201).json(r.rows[0]);
 });
 
+// PUT /api/clienti/:id/nome  { nome, cognome }: corregge il nome del cliente. Il nuovo nome si riporta anche dentro le schede
+// già inviate (dati.info), così il cliente le vede con il nome giusto.
+router.put("/:id/nome", async (req, res) => {
+  const corpo = req.body || {};
+  const nome = typeof corpo.nome === "string" ? corpo.nome.replace(/\s+/g, " ").trim() : "";
+  const cognome = typeof corpo.cognome === "string" ? corpo.cognome.replace(/\s+/g, " ").trim() : "";
+  if (!nome || !cognome) return res.status(400).json({ errore: "Servono nome e cognome" });
+  if ([...nome].length > 100 || [...cognome].length > 100) return res.status(400).json({ errore: "Nome o cognome troppo lunghi" });
+  if (/[\u0000-\u001F\u007F]/.test(nome + cognome)) return res.status(400).json({ errore: "Nome o cognome contengono caratteri non ammessi" });
+  await db.transazione(async (client) => {
+    await client.query("UPDATE cliente SET nome = $2, cognome = $3 WHERE id = $1", [req.cliente.id, nome, cognome]);
+    await client.query(
+      `UPDATE scheda SET dati = jsonb_set(jsonb_set(dati, '{info,nome}', to_jsonb($2::text)), '{info,cognome}', to_jsonb($3::text))
+        WHERE cliente_id = $1 AND dati ? 'info'`, [req.cliente.id, nome, cognome]);
+  });
+  res.json({ nome, cognome });
+});
+
 // ---------- note private del trainer su questo cliente (un solo campo di testo) ----------
 // Le vede solo il trainer; il cliente le riceve se scarica i propri dati (esportaCliente). NON contano come "attività" del cliente.
 const MAX_NOTE = 2000;

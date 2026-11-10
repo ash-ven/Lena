@@ -39,9 +39,29 @@
         <div>
           <h1 class="titolo" id="nome-cliente"></h1>
           <p class="riga-cliente" id="riga-stato"></p>
+          <button class="azione-testo" type="button" id="apri-nome" aria-expanded="false" aria-controls="modulo-nome">Modifica nome</button>
         </div>
       </div>
     </div>
+
+    <form class="pannello" id="modulo-nome" novalidate hidden aria-labelledby="t-nome">
+      <h2 class="sezione-pt" id="t-nome">Modifica nome</h2>
+      <p class="nota">Il nuovo nome compare anche nelle schede già inviate.</p>
+      <div class="campo-pt">
+        <label for="nome-nuovo">Nome</label>
+        <input id="nome-nuovo" type="text" maxlength="100" autocomplete="off" required>
+      </div>
+      <div class="campo-pt">
+        <label for="cognome-nuovo">Cognome</label>
+        <input id="cognome-nuovo" type="text" maxlength="100" autocomplete="off" required>
+      </div>
+      <div id="nome-esito" role="alert"></div>
+      <div class="azioni-pt">
+        <button class="bottone" type="submit" id="salva-nome">Salva</button>
+        <button class="bottone secondario" type="button" id="annulla-nome">Annulla</button>
+      </div>
+    </form>
+
     <div id="prossimo-passo"></div>
 
     <!-- ===== Schede e caricamento dell'Excel ===== -->

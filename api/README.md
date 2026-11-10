@@ -728,3 +728,9 @@ Per Neon: stesso comando ma con `psql "$u"` al posto di `psql -U lena -d lena` (
 
 **Se il trainer non riceve l'email** (servizio non ancora configurato): resta il comando di emergenza `node reimposta-password.js email nuovaPassword`, che cambia la password direttamente dal database.
 
+
+## Rinominare un cliente e cancellare una scheda
+
+- `PUT /api/clienti/:id/nome` `{nome, cognome}` corregge il nome (obbligatori, max 100 caratteri). Il nome nuovo viene riportato anche dentro le schede già inviate (`dati.info`), così il cliente le vede giuste.
+- `DELETE /api/schede/:id` (solo il trainer proprietario) cancella **una** scheda e i valori che il cliente ci aveva segnato. Il cliente vede sempre la scheda più recente: se si cancella quella, torna visibile la precedente. Nella pagina del cliente c'è una conferma sul posto, perché non si può annullare.
+- Nessuna migrazione.

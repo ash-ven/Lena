@@ -48,6 +48,13 @@ router.get("/:id", richiediRuolo("pt"), async (req, res) => {
   res.json(riga);
 });
 
+// DELETE /api/schede/:id: cancella UNA scheda e i valori che il cliente ci ha segnato (a cascata). Solo PT, solo le sue.
+// Il cliente vede sempre la scheda più recente: se si cancella quella, torna visibile la precedente (o nessuna).
+router.delete("/:id", richiediRuolo("pt"), async (req, res) => {
+  await db.query("DELETE FROM scheda WHERE id = $1", [req.scheda.id]);
+  res.json({ ok: true });
+});
+
 // GET /api/schede/:id/registrazioni: cosa ha segnato il cliente (solo PT: il cliente le riceve con /api/me/scheda)
 router.get("/:id/registrazioni", richiediRuolo("pt"), async (req, res) => {
   res.json(await leggiRegistrazioni(req.scheda.id));
