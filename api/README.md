@@ -751,3 +751,7 @@ Nella sezione «Progressi» della pagina del cliente, sotto le settimane, c'è l
 ## Settimana di scarico senza pallini
 
 Nella settimana di scarico (l'ultima, oltre lo schema `NxM` dell'esercizio) la scheda non mostra più i pallini delle serie né i pulsanti «Serie fatta»: le serie base non valgono in quella settimana. L'esercizio si chiude con la spunta in alto. Vale per gli esercizi con uno schema settimana per settimana.
+
+## Appunti per me (separati dalle note)
+
+Nella pagina di un cliente, oltre alle «Note private» (che il cliente riceve se scarica i suoi dati), c'è la sezione **«Appunti per me»**: un campo di testo (fino a 4000 caratteri) che vede solo il trainer del cliente e che **non compare in nessuna esportazione** (né «Il mio account» del cliente, né «Scarica i dati del cliente» del trainer). Rotte: `GET/PUT /api/clienti/:id/appunti`. Migrazione `db/initdb/13_appunti_trainer.sql` (colonne su `cliente`, quindi spariscono con il cliente). Stesso avviso morbido sui dati di salute. Tenere gli appunti fuori dall'esportazione è una scelta legale: da far rileggere insieme ai testi (informativa e condizioni citano le note, non ancora gli appunti).

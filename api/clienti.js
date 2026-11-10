@@ -140,6 +140,25 @@ router.put("/:id/note", async (req, res) => {
   res.json({ testo: r.rows[0].note_trainer || "", aggiornateIl: r.rows[0].note_trainer_aggiornate_il });
 });
 
+// ---------- appunti del trainer (separati dalle note) ----------
+// Solo del trainer: NON compaiono in nessuna esportazione (né quella del cliente né quella del trainer). Spariscono con il cliente.
+const MAX_APPUNTI = 4000;
+router.get("/:id/appunti", async (req, res) => {
+  const r = await db.query("SELECT appunti_trainer, appunti_trainer_aggiornati_il FROM cliente WHERE id = $1", [req.cliente.id]);
+  res.json({ testo: r.rows[0].appunti_trainer || "", aggiornatiIl: r.rows[0].appunti_trainer_aggiornati_il });
+});
+router.put("/:id/appunti", async (req, res) => {
+  const grezzo = (req.body || {}).testo;
+  if (grezzo !== undefined && grezzo !== null && typeof grezzo !== "string") return res.status(400).json({ errore: "Gli appunti devono essere un testo" });
+  const testo = String(grezzo || "").replace(/\r\n/g, "\n").trim();
+  if ([...testo].length > MAX_APPUNTI) return res.status(400).json({ errore: `Gli appunti possono avere al massimo ${MAX_APPUNTI} caratteri` });
+  if (/[\u0000-\u0008\u000B-\u001F\u007F]/.test(testo)) return res.status(400).json({ errore: "Gli appunti contengono caratteri non ammessi" });
+  const r = await db.query(
+    `UPDATE cliente SET appunti_trainer = NULLIF($2, ''), appunti_trainer_aggiornati_il = CASE WHEN $2 = '' THEN NULL ELSE now() END
+      WHERE id = $1 RETURNING appunti_trainer, appunti_trainer_aggiornati_il`, [req.cliente.id, testo]);
+  res.json({ testo: r.rows[0].appunti_trainer || "", aggiornatiIl: r.rows[0].appunti_trainer_aggiornati_il });
+});
+
 // POST /api/clienti/:id/invito: crea il codice con cui il cliente si registra.
 // Il codice si vede SOLO in questa risposta: nel database resta solo la sua impronta.
 router.post("/:id/invito", async (req, res) => {

@@ -119,6 +119,21 @@
       <div class="azioni-pt"><button class="bottone" type="button" id="note-salva">Salva le note</button></div>
     </section>
 
+    <!-- ===== Appunti per me ===== -->
+    <section class="pannello" aria-labelledby="t-appunti">
+      <h2 class="sezione-pt" id="t-appunti">Appunti per me</h2>
+      <p class="nota">Un blocco note solo tuo su questo cliente. <strong>Non entra nel file che il cliente può scaricare</strong> e non lo vede nessun altro. Se il cliente cancella il suo account o lo cancelli tu, spariscono con lui.</p>
+      <p class="avviso-pt avviso" role="note"><strong>Non inserire dati di salute.</strong>Infortuni, patologie, farmaci, allergie: in questa fase Lena non può contenerli.</p>
+      <div class="campo-pt">
+        <label for="appunti-testo">Appunti per me su questo cliente</label>
+        <textarea id="appunti-testo" rows="8" maxlength="4000"></textarea>
+        <span class="aiuto-pt" id="appunti-conta">0 su 4000</span>
+      </div>
+      <div id="appunti-salute" role="status"></div>
+      <div id="appunti-esito" role="status"></div>
+      <div class="azioni-pt"><button class="bottone" type="button" id="appunti-salva">Salva gli appunti</button></div>
+    </section>
+
     <!-- ===== Progressi ===== -->
     <section class="pannello" aria-labelledby="t-progressi">
       <h2 class="sezione-pt" id="t-progressi">Progressi</h2>
