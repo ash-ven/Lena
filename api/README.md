@@ -661,6 +661,18 @@ Chi dimentica la password (trainer o cliente) va su «Hai dimenticato la passwor
 Get-Content db\initdb\10_reimposta_password.sql | docker exec -i lena-db psql -U lena -d lena
 ```
 
+### Note private sul cliente (migrazione 12)
+
+Nella pagina di un cliente il trainer ha un campo «Note private» (fino a 2000 caratteri). Le vede solo lui; **il cliente le riceve se scarica i suoi dati** («Il mio account»), perché sono dati che lo riguardano (diritto di accesso). Un avviso morbido segnala le parole che sembrano dati di salute (`parole-salute.js`), senza bloccare. Le note non contano come attività del cliente (non spostano la scadenza di conservazione) e se ne vanno con il cliente.
+
+**Database: migrazione 12 (da applicare PRIMA di mettere online il codice; sia in locale sia su Neon):**
+
+```powershell
+Get-Content db\initdb\12_note_trainer.sql | docker exec -i lena-db psql -U lena -d lena
+```
+
+Per Neon: `psql "$u"` al posto di `psql -U lena -d lena`.
+
 ### Backup del database su Neon
 
 Il piano gratuito di Neon conserva la cronologia solo per poco: con dati veri serve un backup nostro. Da PowerShell, nella cartella del progetto (Docker acceso):

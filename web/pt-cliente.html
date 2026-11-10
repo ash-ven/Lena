@@ -84,6 +84,21 @@
       <div class="azioni-pt"><button class="bottone secondario" type="button" id="crea-invito">Crea invito</button></div>
     </section>
 
+    <!-- ===== Note private ===== -->
+    <section class="pannello" aria-labelledby="t-note">
+      <h2 class="sezione-pt" id="t-note">Note private</h2>
+      <p class="nota">Appunti tuoi su questo cliente: obiettivi, preferenze, cose da ricordare. Le vedi solo tu. <strong>Se il cliente scarica i suoi dati, le riceve anche lui</strong>: scrivile di conseguenza.</p>
+      <p class="avviso-pt avviso" role="note"><strong>Non inserire dati di salute.</strong>Infortuni, patologie, farmaci, allergie: in questa fase Lena non può contenerli.</p>
+      <div class="campo-pt">
+        <label for="note-testo">Note su questo cliente</label>
+        <textarea id="note-testo" rows="6" maxlength="2000"></textarea>
+        <span class="aiuto-pt" id="note-conta">0 su 2000</span>
+      </div>
+      <div id="note-salute" role="status"></div>
+      <div id="note-esito" role="status"></div>
+      <div class="azioni-pt"><button class="bottone" type="button" id="note-salva">Salva le note</button></div>
+    </section>
+
     <!-- ===== Progressi ===== -->
     <section class="pannello" aria-labelledby="t-progressi">
       <h2 class="sezione-pt" id="t-progressi">Progressi</h2>
@@ -141,6 +156,7 @@
 <script src="/registrazioni.js"></script>
 <script src="/vendor/xlsx.full.min.js"></script>
 <script src="/parole-salute.js"></script>
+<script src="/pt-note.js"></script>
 <script src="/convertitore.js"></script>
 <script src="/pt-comune.js"></script>
 <script src="/profilo-comune.js"></script>

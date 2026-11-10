@@ -103,6 +103,25 @@ router.post("/", async (req, res) => {
   res.status(201).json(r.rows[0]);
 });
 
+// ---------- note private del trainer su questo cliente (un solo campo di testo) ----------
+// Le vede solo il trainer; il cliente le riceve se scarica i propri dati (esportaCliente). NON contano come "attività" del cliente.
+const MAX_NOTE = 2000;
+router.get("/:id/note", async (req, res) => {
+  const r = await db.query("SELECT note_trainer, note_trainer_aggiornate_il FROM cliente WHERE id = $1", [req.cliente.id]);
+  res.json({ testo: r.rows[0].note_trainer || "", aggiornateIl: r.rows[0].note_trainer_aggiornate_il });
+});
+router.put("/:id/note", async (req, res) => {
+  const grezzo = (req.body || {}).testo;
+  if (grezzo !== undefined && grezzo !== null && typeof grezzo !== "string") return res.status(400).json({ errore: "Le note devono essere un testo" });
+  const testo = String(grezzo || "").replace(/\r\n/g, "\n").trim();
+  if ([...testo].length > MAX_NOTE) return res.status(400).json({ errore: `Le note possono avere al massimo ${MAX_NOTE} caratteri` });
+  if (/[\u0000-\u0008\u000B-\u001F\u007F]/.test(testo)) return res.status(400).json({ errore: "Le note contengono caratteri non ammessi" });
+  const r = await db.query(
+    `UPDATE cliente SET note_trainer = NULLIF($2, ''), note_trainer_aggiornate_il = CASE WHEN $2 = '' THEN NULL ELSE now() END
+      WHERE id = $1 RETURNING note_trainer, note_trainer_aggiornate_il`, [req.cliente.id, testo]);
+  res.json({ testo: r.rows[0].note_trainer || "", aggiornateIl: r.rows[0].note_trainer_aggiornate_il });
+});
+
 // POST /api/clienti/:id/invito: crea il codice con cui il cliente si registra.
 // Il codice si vede SOLO in questa risposta: nel database resta solo la sua impronta.
 router.post("/:id/invito", async (req, res) => {
