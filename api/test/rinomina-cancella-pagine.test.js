@@ -21,3 +21,7 @@ test("pagine: la vista dei progressi mostra l'andamento dei kg", () => {
   for (const id of ["progressi-kg", "progressi-kg-vuoto"]) assert.match(h, new RegExp(`id="${id}"`));
   assert.match(w("pt-progressi.js"), /LenaProgressi\.andamentoKg/);
 });
+
+test("scheda: nella settimana di scarico non si mostrano i pallini delle serie", () => {
+  assert.match(w("scheda.js"), /const rs = scar \? null : rigaSerie\(/);
+});

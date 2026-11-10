@@ -277,7 +277,8 @@ function cardEsercizio(g, i, e){
   const campi = el("div",{class:"campi"}, campo("kg", k, `Kg · sett. ${n}`, "—"));
   if (e.progressione) campi.append(campo("rip", k, "Rip. fatte", "es. 10-10-9-8", parseInt(v.serie,10)));
   card.append(campi);
-  const rs = rigaSerie(k, e, v.serie); if (rs) card.append(rs);
+  // Settimana di scarico: le serie base non valgono, quindi niente pallini; si chiude l'esercizio con la spunta in alto
+  const rs = scar ? null : rigaSerie(k, e, v.serie); if (rs) card.append(rs);
   if (e.note) card.append(el("p",{class:"nota"}, e.note));
   if (e.progressione) card.append(el("details",{class:"prog", open: n===1 ? "" : null}, el("summary",{}, "Progressione"), el("p",{}, e.progressione)));
   if (e.schema){

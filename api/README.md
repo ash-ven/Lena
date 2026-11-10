@@ -738,3 +738,7 @@ Per Neon: stesso comando ma con `psql "$u"` al posto di `psql -U lena -d lena` (
 ## Andamento dei kg per esercizio
 
 Nella sezione «Progressi» della pagina del cliente, sotto le settimane, c'è l'elenco degli esercizi con i kg segnati settimana per settimana e la variazione dalla prima all'ultima (es. «+5 kg dalla prima settimana»). Lo calcola `web/progressi.js` (`andamentoKg`) dai valori già salvati: nessuna rotta nuova e nessuna migrazione. Valori non numerici (testo libero) si ignorano; le ripetizioni non fanno parte dell'andamento.
+
+## Settimana di scarico senza pallini
+
+Nella settimana di scarico (l'ultima, oltre lo schema `NxM` dell'esercizio) la scheda non mostra più i pallini delle serie né i pulsanti «Serie fatta»: le serie base non valgono in quella settimana. L'esercizio si chiude con la spunta in alto. Vale per gli esercizi con uno schema settimana per settimana.
