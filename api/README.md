@@ -734,3 +734,7 @@ Per Neon: stesso comando ma con `psql "$u"` al posto di `psql -U lena -d lena` (
 - `PUT /api/clienti/:id/nome` `{nome, cognome}` corregge il nome (obbligatori, max 100 caratteri). Il nome nuovo viene riportato anche dentro le schede già inviate (`dati.info`), così il cliente le vede giuste.
 - `DELETE /api/schede/:id` (solo il trainer proprietario) cancella **una** scheda e i valori che il cliente ci aveva segnato. Il cliente vede sempre la scheda più recente: se si cancella quella, torna visibile la precedente. Nella pagina del cliente c'è una conferma sul posto, perché non si può annullare.
 - Nessuna migrazione.
+
+## Andamento dei kg per esercizio
+
+Nella sezione «Progressi» della pagina del cliente, sotto le settimane, c'è l'elenco degli esercizi con i kg segnati settimana per settimana e la variazione dalla prima all'ultima (es. «+5 kg dalla prima settimana»). Lo calcola `web/progressi.js` (`andamentoKg`) dai valori già salvati: nessuna rotta nuova e nessuna migrazione. Valori non numerici (testo libero) si ignorano; le ripetizioni non fanno parte dell'andamento.

@@ -45,6 +45,16 @@
         el("div", { class: "barra-sett", role: "img", "aria-label": `${x.etichetta}: ${x.completati} su ${x.totale}` },
           el("i", { style: `width:${x.totale ? Math.round(100 * x.completati / x.totale) : 0}%` })))));
 
+    const andamento = LenaProgressi.andamentoKg(dati, registrazioni);
+    const num = (n) => String(n).replace(".", ",");
+    $("progressi-kg-vuoto").hidden = andamento.length > 0;
+    $("progressi-kg").replaceChildren(...andamento.map((a) => el("li", {},
+      el("div", { class: "kg-nome" }, el("strong", {}, a.nome), el("span", { class: "nota" }, ` · ${a.giorno}`)),
+      el("div", { class: "kg-punti" }, a.punti.map((p) => el("span", {}, `Sett. ${p.settimana}: `, el("b", {}, `${num(p.kg)} kg`)))),
+      a.variazione === null ? null
+        : el("div", { class: "kg-var" }, a.variazione === 0 ? "Invariato dalla prima settimana"
+          : `${a.variazione > 0 ? "+" : "−"}${num(Math.abs(a.variazione))} kg dalla prima settimana`))));
+
     const ultimo = registrazioni.reduce((m, r) => (m && m > r.aggiornata_il ? m : r.aggiornata_il), null);
     $("progressi-aggiornati").textContent = ultimo ? `Ultimo salvataggio del cliente: ${LenaPt.dataOra(ultimo)}.` : "Il cliente non ha ancora segnato niente su questa scheda.";
 

@@ -15,3 +15,9 @@ test("pagine: la pagina del cliente ha il modulo per il nome e la conferma per c
   assert.match(j, /Non si può annullare/);
   assert.match(w("pt.css"), /button\.azione-testo/);
 });
+
+test("pagine: la vista dei progressi mostra l'andamento dei kg", () => {
+  const h = w("pt-cliente.html");
+  for (const id of ["progressi-kg", "progressi-kg-vuoto"]) assert.match(h, new RegExp(`id="${id}"`));
+  assert.match(w("pt-progressi.js"), /LenaProgressi\.andamentoKg/);
+});

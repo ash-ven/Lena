@@ -65,5 +65,45 @@
     return { completati, totali };
   }
 
-  return { riepilogoSettimane, frase, totale };
+  // «37,5» o «37.5 kg» -> 37.5; ciò che non è un numero positivo (testo libero, «—») si ignora
+  function numeroKg(v) {
+    const m = String(v == null ? "" : v).trim().replace(",", ".").match(/^(\d+(?:\.\d+)?)\s*(?:kg)?$/i);
+    const n = m ? Number(m[1]) : NaN;
+    return n > 0 ? n : null;
+  }
+
+  // L'andamento dei kg per esercizio, una settimana dopo l'altra.
+  // Chiavi dei kg: "settimana|giorno|blocco" per un esercizio, "settimana|giorno|blocco|n" per l'n-esimo esercizio di un circuito.
+  // Restituisce solo gli esercizi con almeno un valore: [{ giorno, nome, punti:[{settimana, kg}], variazione }]
+  // «variazione» = ultimo valore meno primo (solo se i punti sono almeno due), arrotondata al mezzo etto.
+  function andamentoKg(dati, registrazioni) {
+    const kg = new Map();   // "A|2|" o "A|3|0" -> { settimana: kg }
+    for (const r of registrazioni || []) {
+      if (r.tipo !== "kg") continue;
+      const p = String(r.chiave).split("|");
+      if (p.length < 3 || p.length > 4) continue;
+      const n = Number(p[0]), v = numeroKg(r.valore);
+      if (!Number.isInteger(n) || n < 1 || v === null) continue;
+      const k = `${p[1]}|${p[2]}|${p.length === 4 ? p[3] : ""}`;
+      if (!kg.has(k)) kg.set(k, {});
+      kg.get(k)[n] = v;
+    }
+    const out = [];
+    const aggiungi = (g, chiave, nome) => {
+      const perSett = kg.get(chiave);
+      if (!perSett) return;
+      const punti = Object.keys(perSett).map(Number).sort((a, b) => a - b).map((n) => ({ settimana: n, kg: perSett[n] }));
+      const variazione = punti.length > 1 ? Math.round((punti[punti.length - 1].kg - punti[0].kg) * 2) / 2 : null;
+      out.push({ giorno: g.titolo || `Giorno ${g.id}`, nome, punti, variazione });
+    };
+    for (const g of dati.giorni || []) {
+      (g.blocchi || []).forEach((b, i) => {
+        if (b.tipo === "circuito") (b.esercizi || []).forEach((e, j) => aggiungi(g, `${g.id}|${i + 1}|${j}`, e.nome));
+        else aggiungi(g, `${g.id}|${i + 1}|`, b.nome);
+      });
+    }
+    return out;
+  }
+
+  return { riepilogoSettimane, frase, totale, andamentoKg, numeroKg };
 });

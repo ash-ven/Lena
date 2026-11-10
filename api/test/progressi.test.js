@@ -63,3 +63,37 @@ test("settimane future: non sono un «0 su 3», sono «future» e dicono quando 
   const con = riepilogoSettimane(dati, [{ tipo: "kg", chiave: "3|A|1", valore: "50" }], new Date(2026, 10, 10));
   assert.equal(con[2].futura, false, "se ha già segnato qualcosa non è «futura»");
 });
+
+// ---------- andamento dei kg per esercizio ----------
+const { andamentoKg, numeroKg } = require("../../web/progressi.js");
+const kgReg = (chiave, valore) => ({ tipo: "kg", chiave, valore });
+
+test("numeroKg: legge virgola e «kg», ignora testo e zero", () => {
+  assert.equal(numeroKg("37,5"), 37.5);
+  assert.equal(numeroKg(" 40 kg "), 40);
+  assert.equal(numeroKg("12.5"), 12.5);
+  for (const v of ["", "—", "tanto", "0", "-5", "10-12", null, undefined]) assert.equal(numeroKg(v), null);
+});
+
+test("andamento kg: un esercizio per volta, settimane in ordine, variazione tra primo e ultimo valore", () => {
+  const a = andamentoKg(esempio, [kgReg("3|A|1", "45"), kgReg("1|A|1", "40"), kgReg("2|A|1", "42,5")]);
+  assert.equal(a.length, 1);
+  assert.equal(a[0].nome, "Squat con bilanciere");
+  assert.deepEqual(a[0].punti, [{ settimana: 1, kg: 40 }, { settimana: 2, kg: 42.5 }, { settimana: 3, kg: 45 }]);
+  assert.equal(a[0].variazione, 5);
+});
+
+test("andamento kg: un solo valore non ha variazione; ripetizioni, testo e chiavi strane si ignorano; calo negativo", () => {
+  const a = andamentoKg(esempio, [kgReg("1|B|1", "30"), { tipo: "rip", chiave: "1|A|1", valore: "10" }, kgReg("1|A|2", "boh"), kgReg("x|A|1", "5"), kgReg("1|Z|1", "9")]);
+  assert.equal(a.length, 1);
+  assert.equal(a[0].variazione, null);
+  const b = andamentoKg(esempio, [kgReg("1|A|1", "50"), kgReg("2|A|1", "47,5")]);
+  assert.equal(b[0].variazione, -2.5);
+});
+
+test("andamento kg: gli esercizi di un circuito hanno le loro chiavi a quattro parti; nessun valore = lista vuota", () => {
+  assert.deepEqual(andamentoKg(esempio, []), []);
+  const a = andamentoKg(esempio, [kgReg("1|A|4|0", "12"), kgReg("2|A|4|0", "14"), kgReg("1|A|4|1", "8")]);
+  assert.deepEqual(a.map((x) => x.nome), ["Kettlebell swing", "Salti sul box"]);
+  assert.equal(a[0].variazione, 2);
+});
