@@ -37,6 +37,13 @@ test("ogni pagina (tranne anteprima e offline) collega il manifest; dove c'è ap
   // il riquadro per installare c'è nell'account del cliente e nel profilo del trainer, nascosto di partenza
   for (const f of ["account.html", "pt-profilo.html"]) assert.match(leggi(f), /id="installa" hidden/, `${f}: manca il riquadro «Metti Lena sul telefono»`);
   assert.match(leggi("pwa.js"), /serviceWorker\.register\("\/sw\.js"\)/);
+  // la striscia «Metti Lena sul telefono» in cima alla pagina del cliente e a quella del trainer, nascosta di partenza e chiudibile
+  for (const f of ["benvenuto.html", "pt.html"]) {
+    const h = leggi(f);
+    assert.match(h, /id="installa-invito" hidden/, `${f}: manca la striscia`);
+    assert.match(h, /id="installa-invito-chiudi"/, `${f}: la striscia non si può chiudere`);
+  }
+  assert.match(leggi("pwa.js"), /lena:installa-chiuso/);
 });
 
 test("service worker: non tocca mai l'API, gli indirizzi con parametri, i metodi diversi da GET e i siti esterni", () => {
