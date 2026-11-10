@@ -651,7 +651,8 @@ Oggi tutto è pensato per girare sul tuo PC. Prima di mettere Lena su un server 
 - Tabella `esercizio_libreria` (migrazione `db/initdb/07_libreria_esercizi.sql`): per ogni trainer, nome normalizzato, nome come scritto, ultimo video, numero di usi. Solo nomi e link: nessun dato dei clienti. Sparisce con il trainer.
 - Si riempie da sola: `creaScheda` (in `operazioni.js`) chiama `imparaDallaScheda` (in `libreria.js`) per **ogni** scheda salvata, quindi vale sia per l'editor sia per gli Excel. Un video nuovo sostituisce il vecchio; se manca, resta quello ricordato. Se l'apprendimento fallisce, la scheda è salvata comunque.
 - `GET /api/pt/esercizi?q=testo` (solo trainer): fino a 8 esercizi suoi che contengono il testo, i più usati per primi. Senza testo restituisce `[]`.
-- Test: `api/test/libreria.test.js`.
+- **Elenco di partenza** (`api/catalogo-esercizi.js`, circa 560 nomi: gambe, glutei, petto, schiena, spalle, braccia, addome, cardio, funzionale, mobilità, stretching, elastici e TRX, tante macchine): uguale per tutti i trainer, solo nomi (nessun video, nessuna immagine, nessun dato di nessuno). `GET /api/pt/esercizi?q=` restituisce fino a 8 suggerimenti: prima gli esercizi del trainer, poi quelli dell'elenco che lui non ha già. Nomi in italiano dove c'è un'espressione d'uso comune; se in palestra si dice in inglese (Hip thrust, Face pull) restano così. **Per aggiungere un esercizio** basta una riga in `catalogo-esercizi.js` (nessuna migrazione, nessun database); il test controlla che non ci siano doppioni.
+- Test: `api/test/libreria.test.js`, `api/test/catalogo-esercizi.test.js`.
 
 ## Recupero della password
 

@@ -4,7 +4,7 @@ const express = require("express");
 const db = require("./db");
 const { richiediLogin, richiediRuolo } = require("./auth");
 const { richiediCondizioniPt } = require("./consensi");
-const { cerca: cercaEsercizi } = require("./libreria");
+const { cercaConCatalogo: cercaEsercizi } = require("./libreria");
 const { emailPulita } = require("./aiuti");
 
 const MAX_NOME = 100, MAX_BIO = 500, MAX_CONTATTO = 100, MAX_TITOLARE = 150, MAX_INDIRIZZO = 250;
@@ -71,7 +71,7 @@ router.put("/titolare", async (req, res) => {
   res.json(vistaTitolare(r.rows[0]));
 });
 
-// GET /api/pt/esercizi?q=squat: gli esercizi già usati che corrispondono (la libreria che si riempie da sola)
+// GET /api/pt/esercizi?q=squat: gli esercizi che corrispondono: prima quelli già usati dal trainer (la libreria che si riempie da sola), poi l'elenco di partenza
 router.get("/esercizi", async (req, res) => {
   const q = typeof req.query.q === "string" ? req.query.q.slice(0, 100) : "";
   if (!q.trim()) return res.json([]);

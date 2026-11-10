@@ -2,6 +2,7 @@
 // Ogni volta che una scheda viene salvata (dall'editor o da un Excel), i nomi degli esercizi e i loro video vengono ricordati.
 // L'editor li propone quando il trainer scrive un nome già usato, e ricompila il video.
 const db = require("./db");
+const { ESERCIZI } = require("./catalogo-esercizi");
 
 // "  Squat   Bulgaro " e "squat bulgaro" sono lo stesso esercizio; anche "Pressè" e "presse".
 const chiaveNome = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
@@ -57,6 +58,26 @@ async function cerca(ptId, testo) {
   return r.rows;
 }
 
+// L'elenco di partenza (catalogo-esercizi.js), già con la chiave di confronto. Si calcola una volta sola.
+const CATALOGO = (() => {
+  const viste = new Set(), lista = [];
+  for (const nome of ESERCIZI) { const k = chiaveNome(nome); if (k && !viste.has(k)) { viste.add(k); lista.push({ chiave: k, nome }); } }
+  return lista;
+})();
+
+// Max 8 suggerimenti: prima gli esercizi del trainer (come cerca), poi quelli dell'elenco di partenza che non ha già.
+// Quelli dell'elenco non hanno video né usi: { nome, video: null, usi: 0 }. Si confronta con includes, quindi % e _ non fanno da jolly.
+async function cercaConCatalogo(ptId, testo) {
+  const suoi = await cerca(ptId, testo);
+  if (suoi.length >= 8) return suoi;
+  const k = chiaveNome(testo);
+  if (!k) return suoi;
+  const gia = new Set(suoi.map((e) => chiaveNome(e.nome)));
+  const trovati = CATALOGO.filter((e) => e.chiave.includes(k) && !gia.has(e.chiave));
+  trovati.sort((a, b) => (b.chiave.startsWith(k) - a.chiave.startsWith(k)) || a.nome.localeCompare(b.nome, "it"));
+  return suoi.concat(trovati.slice(0, 8 - suoi.length).map((e) => ({ nome: e.nome, video: null, usi: 0 })));
+}
+
 // ---------- riempire la libreria dalle schede GIÀ salvate ----------
 // La libreria impara solo dalle schede salvate dopo la sua introduzione: questa serve una volta sola per quelle di prima.
 // Dalle schede più vecchie alle più nuove: il nome vale l'ultimo scritto, il video l'ultimo presente, "usi" = in quante schede compare.
@@ -104,4 +125,4 @@ async function riempiDallaStoria({ esegui = false, ptId = null } = {}) {
   return esito;
 }
 
-module.exports = { chiaveNome, eserciziDellaScheda, imparaDallaScheda, cerca, aggregaSchede, riempiDallaStoria };
+module.exports = { chiaveNome, eserciziDellaScheda, imparaDallaScheda, cerca, cercaConCatalogo, CATALOGO, aggregaSchede, riempiDallaStoria };

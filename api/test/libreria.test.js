@@ -41,7 +41,8 @@ test("salvare una scheda riempie la libreria; si cerca per pezzo di nome; i vide
   ] }];
   assert.equal((await s("POST", `/api/clienti/${cl}/schede`, { dati: d })).stato, 201);
   let r = (await s("GET", "/api/pt/esercizi?q=BULGARO")).json;
-  assert.equal(r.length, 1); assert.equal(r[0].nome, "Squat bulgaro"); assert.equal(r[0].video, "https://esempio.it/bulgaro");
+  assert.equal(r[0].nome, "Squat bulgaro"); assert.equal(r[0].video, "https://esempio.it/bulgaro");   // i suoi vengono prima di quelli dell'elenco di partenza
+  assert.equal(r.filter((e) => e.nome.toLowerCase() === "squat bulgaro").length, 1, "un esercizio che ha già non si ripete");
   assert.equal((await s("GET", "/api/pt/esercizi?q=stac")).json[0].video, null);
 
   // seconda scheda: stesso esercizio SENZA video → il video vecchio resta; con video nuovo → lo sostituisce
@@ -55,7 +56,9 @@ test("salvare una scheda riempie la libreria; si cerca per pezzo di nome; i vide
 });
 
 test("la libreria è privata: un altro trainer non vede nulla; senza testo l'elenco è vuoto; serve il login", async () => {
-  assert.deepEqual((await s2("GET", "/api/pt/esercizi?q=squat")).json, []);
+  const altroVede = (await s2("GET", "/api/pt/esercizi?q=squat")).json;   // solo l'elenco di partenza: niente video né usi dell'altro trainer
+  assert.ok(altroVede.length > 0 && altroVede.every((e) => e.video === null && e.usi === 0));
+  assert.ok(!altroVede.some((e) => e.nome === "Stacco rumeno"));
   assert.deepEqual((await s("GET", "/api/pt/esercizi?q=")).json, []);
   assert.equal((await sessione(() => BASE)("GET", "/api/pt/esercizi?q=squat")).stato, 401);
 });
