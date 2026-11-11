@@ -122,6 +122,7 @@ router.post("/registra-pt", async (req, res) => {
 
   if (!nome) return res.status(400).json({ errore: "Scrivi il tuo nome" });
   if (nome.length > 100) return res.status(400).json({ errore: "Il nome è troppo lungo (massimo 100 caratteri)" });
+  if ((nome.match(/\p{L}/gu) || []).length < 2) return res.status(400).json({ errore: "Scrivi il tuo nome: servono almeno due lettere." });
   if (!email) return res.status(400).json({ errore: "Email non valida" });
   if (password.length < 10) return res.status(400).json({ errore: "La password deve avere almeno 10 caratteri" });
   if (Buffer.byteLength(password) > 72) return res.status(400).json({ errore: "La password è troppo lunga (massimo 72 caratteri)" });

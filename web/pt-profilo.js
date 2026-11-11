@@ -26,7 +26,10 @@
     const esito = $("esito-profilo");
     esito.replaceChildren();
     const nome = $("p-nome").value.trim();
-    if (!nome) { esito.append(messaggio("errore", "Scrivi il tuo nome.")); $("p-nome").focus(); return; }
+    const eNome = LenaValidaProfilo.erroreNome(nome);
+    if (eNome) { esito.append(messaggio("errore", eNome)); $("p-nome").focus(); return; }
+    const eContatto = LenaValidaProfilo.erroreContatto($("p-contatto").value);
+    if (eContatto) { esito.append(messaggio("errore", eContatto)); $("p-contatto").focus(); return; }
     inCorso = true;
     $("salva-profilo").disabled = true;
     const r = await LenaPt.chiama("PUT", "/api/pt/profilo", { nome, bio: $("p-bio").value, contatto: $("p-contatto").value });
@@ -52,8 +55,10 @@
     const esito = $("esito-titolare");
     esito.replaceChildren();
     const dati = { nome: $("t-nome").value.trim(), indirizzo: $("t-indirizzo").value.trim(), email: $("t-email").value.trim() };
-    if (!dati.nome) { esito.append(messaggio("errore", "Scrivi il tuo nome o quello della palestra.")); $("t-nome").focus(); return; }
-    if (!dati.indirizzo) { esito.append(messaggio("errore", "Scrivi l'indirizzo.")); $("t-indirizzo").focus(); return; }
+    const eNome = LenaValidaProfilo.erroreNome(dati.nome, "il tuo nome o quello della palestra");
+    if (eNome) { esito.append(messaggio("errore", eNome)); $("t-nome").focus(); return; }
+    const eIndirizzo = LenaValidaProfilo.erroreIndirizzo(dati.indirizzo);
+    if (eIndirizzo) { esito.append(messaggio("errore", eIndirizzo)); $("t-indirizzo").focus(); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dati.email)) { esito.append(messaggio("errore", "Scrivi un'email valida, per esempio nome@esempio.it.")); $("t-email").focus(); return; }
     inCorsoTitolare = true;
     $("salva-titolare").disabled = true;

@@ -26,7 +26,7 @@
     const email = $("email").value.trim();
     const password = $("password").value;
 
-    if (!nome) { mostra("Scrivi il tuo nome."); $("nome").focus(); return; }
+    if ((nome.match(/\p{L}/gu) || []).length < 2) { mostra("Scrivi il tuo nome: servono almeno due lettere."); $("nome").focus(); return; }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       mostra("Scrivi un indirizzo email valido, per esempio nome@esempio.it.");
       $("email").focus();

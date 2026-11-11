@@ -286,6 +286,17 @@ select.scelta{min-height:48px;padding:var(--spazio-2) var(--spazio-3);font:inher
 .sotto-sezione{font-size:16px;line-height:24px;margin:var(--spazio-4) 0 var(--spazio-2)}
 #bozza-avviso .avviso-pt{margin-bottom:var(--spazio-2)}
 #bozza-avviso .bottone{margin-bottom:var(--spazio-4)}
+/* i campi di una riga stanno sempre allineati in alto e non si allargano oltre la loro colonna (la data e i menù hanno una larghezza minima loro) */
+.griglia-campi,.griglia-3{align-items:start}
+.griglia-campi .campo-pt,.griglia-3 .campo-pt{min-width:0}
+.griglia-campi input,.griglia-campi select,.griglia-3 input,.griglia-3 select{min-width:0;max-width:100%}
+@media (max-width:560px){
+  /* La scheda: la data da sola, poi settimane e scarico affiancate. Il circuito: tipo e minuti affiancati, il recupero sotto. */
+  .griglia-dati{grid-template-columns:1fr 1fr}
+  .griglia-dati > .campo-pt:first-child{grid-column:1 / -1}
+  .griglia-circuito{grid-template-columns:1fr 1fr}
+  .griglia-circuito > .campo-pt:last-child{grid-column:1 / -1}
+}
 @media (max-width:480px){
   .griglia-campi{grid-template-columns:1fr 1fr}
   .griglia-campi .doppio{grid-column:span 2}

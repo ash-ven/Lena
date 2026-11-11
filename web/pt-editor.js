@@ -182,7 +182,7 @@
       el("h2", { class: "sezione-pt", id: "t-dati" }, "La scheda"),
       campo("Titolo", stato, "titolo", { max: 100, segnaposto: "Es. Programma forza e tonificazione" }),
       campo("Obiettivo (facoltativo)", stato, "obiettivo", { max: 100, segnaposto: "Es. Tonificazione" }),
-      el("div", { class: "griglia-campi" },
+      el("div", { class: "griglia-campi griglia-dati" },
         campo("Inizia il", stato, "inizio", { tipo: "date" }),
         campo("Settimane in tutto", stato, "settimane", { tipo: "number", min: "1", maxNum: "52", modo: "numeric", aiuto: "Comprese quelle di scarico", alCambio: aggiornaSettimane }),
         campo("Di cui di scarico", stato, "scarico", { tipo: "number", min: "0", maxNum: "51", modo: "numeric", aiuto: "Sono le ultime", alCambio: aggiornaSettimane })));
@@ -255,9 +255,9 @@
       campoNome(b),
       // con lo schema per settimana, serie e ripetizioni stanno SOLO nello schema (un'unica fonte: niente valori «base» che lo contraddicono)
       el("div", { class: b.perSettimana ? "griglia-1" : "griglia-3" },
-        b.perSettimana ? null : campo("Serie", b, "serie", { max: 10, modo: "numeric", segnaposto: "es. 4" }),
-        b.perSettimana ? null : campo("Ripetizioni", b, "rip", { max: 30, segnaposto: "es. 10" }),
-        campo("Recupero", b, "rec", { max: 30, segnaposto: "es. 1'30\"" })),
+        b.perSettimana ? null : campo("Serie", b, "serie", { max: 10, modo: "numeric", segnaposto: "4" }),
+        b.perSettimana ? null : campo("Ripetizioni", b, "rip", { max: 30, segnaposto: "10" }),
+        campo("Recupero", b, "rec", { max: 30, segnaposto: "1'30\"" })),
       cambia, schema,
       campoVideo(b),
       el("details", { class: "altro", open: b.aperto || b.note || b.progressione ? "" : null, ontoggle: (ev) => { b.aperto = ev.target.open; } },
@@ -272,10 +272,10 @@
     formato.addEventListener("change", () => { b.formato = formato.value; salvaBozza(); });
     return el("li", { class: "blocco circuito", "data-id": `blocco-${i}` },
       el("div", { class: "testa-voce" }, el("strong", {}, `${i + 1}. Circuito`), comandi(g.blocchi, i, `blocco-${i}`)),
-      el("div", { class: "griglia-3" },
+      el("div", { class: "griglia-3 griglia-circuito" },
         el("div", { class: "campo-pt" }, el("label", { for: id }, "Tipo"), formato),
         campo("Minuti", b, "minuti", { tipo: "number", min: "1", maxNum: "180", modo: "numeric" }),
-        campo("Recupero (facoltativo)", b, "rec", { max: 30, segnaposto: "1'" })),
+        campo("Recupero", b, "rec", { max: 30, segnaposto: "Facoltativo, es. 1'" })),
       el("p", { class: "nota" }, "EMOM: ogni minuto si fa il lavoro. AMRAP: più giri possibili nel tempo. Il cliente trova un timer già impostato."),
       el("ul", { class: "elenco-editor" }, b.esercizi.map((e, k) =>
         el("li", { class: "voce", "data-voce": "", "data-id": `blocco-${i}-ex-${k}` },

@@ -6,6 +6,7 @@ const { richiediLogin, richiediRuolo } = require("./auth");
 const { richiediCondizioniPt } = require("./consensi");
 const { cercaConCatalogo: cercaEsercizi } = require("./libreria");
 const { emailPulita } = require("./aiuti");
+const { erroreNome, erroreIndirizzo, erroreContatto } = require("../web/valida-profilo");
 
 const MAX_NOME = 100, MAX_BIO = 500, MAX_CONTATTO = 100, MAX_TITOLARE = 150, MAX_INDIRIZZO = 250;
 const MAX_FOTO = 400 * 1024;   // il browser la riduce a ~512 px: di solito sono 30-80 KB
@@ -62,7 +63,9 @@ router.put("/titolare", async (req, res) => {
   const indirizzo = testoPulito(c.indirizzo, MAX_INDIRIZZO);
   const email = emailPulita(c.email);
   if (!nome) return res.status(400).json({ errore: `Scrivi il tuo nome o quello della palestra (al massimo ${MAX_TITOLARE} caratteri)` });
+  if (erroreNome(nome, "il tuo nome o quello della palestra")) return res.status(400).json({ errore: erroreNome(nome, "il tuo nome o quello della palestra") });
   if (!indirizzo) return res.status(400).json({ errore: `Scrivi un indirizzo (al massimo ${MAX_INDIRIZZO} caratteri)` });
+  if (erroreIndirizzo(indirizzo)) return res.status(400).json({ errore: erroreIndirizzo(indirizzo) });
   if (!email) return res.status(400).json({ errore: "Scrivi un'email valida a cui i clienti possono scriverti per la privacy" });
   const r = await db.query(
     "UPDATE pt SET titolare_nome = $2, titolare_indirizzo = $3, titolare_email = $4 WHERE id = $1 RETURNING titolare_nome, titolare_indirizzo, titolare_email",
@@ -85,8 +88,10 @@ router.put("/profilo", async (req, res) => {
   const bio = testoPulito(c.bio, MAX_BIO, { multilinea: true });
   const contatto = testoPulito(c.contatto, MAX_CONTATTO);
   if (!nome) return res.status(400).json({ errore: `Scrivi il tuo nome (al massimo ${MAX_NOME} caratteri)` });
+  if (erroreNome(nome)) return res.status(400).json({ errore: erroreNome(nome) });
   if (bio === null) return res.status(400).json({ errore: `La presentazione può avere al massimo ${MAX_BIO} caratteri` });
   if (contatto === null) return res.status(400).json({ errore: `Il contatto può avere al massimo ${MAX_CONTATTO} caratteri, su una riga` });
+  if (erroreContatto(contatto)) return res.status(400).json({ errore: erroreContatto(contatto) });
   const r = await db.query(
     `UPDATE pt SET nome = $2, bio = NULLIF($3, ''), contatto = NULLIF($4, '') WHERE id = $1 RETURNING ${COLONNE}`,
     [req.ptId, nome, bio, contatto]

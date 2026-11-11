@@ -43,8 +43,12 @@ test("giro completo: PT appena iscritto non può invitare; compila i dati; l'inf
 
   // dati incompleti o sbagliati: rifiutati
   assert.equal((await pt("PUT", "/api/pt/titolare", { nome: "Studio Prova", indirizzo: "", email: "a@b.it" })).stato, 400);
-  assert.equal((await pt("PUT", "/api/pt/titolare", { nome: "Studio Prova", indirizzo: "Via Roma 1, Torino", email: "boh" })).stato, 400);
-  const ok = await pt("PUT", "/api/pt/titolare", { nome: " Studio Prova ", indirizzo: "Via Roma 1, Torino", email: email("privacy").toUpperCase() });
+  // una lettera, un numero o la sola via non bastano: servono via e numero, CAP e città
+  for (const indirizzo of ["x", "1", "Via Roma 1", "Via Roma 1, Torino", "Via Roma, 10121 Torino", "10121 Torino", "Via Roma 1, 10121"])
+    assert.equal((await pt("PUT", "/api/pt/titolare", { nome: "Studio Prova", indirizzo, email: "a@b.it" })).stato, 400, indirizzo);
+  assert.equal((await pt("PUT", "/api/pt/titolare", { nome: "S", indirizzo: "Via Roma 1, 10121 Torino", email: "a@b.it" })).stato, 400);
+  assert.equal((await pt("PUT", "/api/pt/titolare", { nome: "Studio Prova", indirizzo: "Via Roma 1, 10121 Torino", email: "boh" })).stato, 400);
+  const ok = await pt("PUT", "/api/pt/titolare", { nome: " Studio Prova ", indirizzo: "Via Roma 1, 10121 Torino", email: email("privacy").toUpperCase() });
   assert.equal(ok.stato, 200); assert.equal(ok.json.completo, true); assert.equal(ok.json.nome, "Studio Prova"); assert.equal(ok.json.email, email("privacy"));
 
   const inv = await pt("POST", `/api/clienti/${cl.json.id}/invito`);
@@ -53,7 +57,7 @@ test("giro completo: PT appena iscritto non può invitare; compila i dati; l'inf
   // prima di registrarsi: l'informativa si legge con il codice dell'invito, senza accesso
   const anonimo = sessione(() => BASE);
   const t = await anonimo("GET", `/api/privacy/titolare?codice=${encodeURIComponent(inv.json.codice)}`);
-  assert.equal(t.stato, 200); assert.deepEqual(t.json, { nome: "Studio Prova", indirizzo: "Via Roma 1, Torino", email: email("privacy") });
+  assert.equal(t.stato, 200); assert.deepEqual(t.json, { nome: "Studio Prova", indirizzo: "Via Roma 1, 10121 Torino", email: email("privacy") });
   assert.equal((await anonimo("GET", "/api/privacy/titolare?codice=sbagliato")).stato, 404);
   assert.equal((await anonimo("GET", "/api/privacy/titolare")).stato, 404);
   assert.equal((await anonimo("GET", "/api/me/titolare")).stato, 401);

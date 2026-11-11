@@ -67,3 +67,14 @@ test("riscaldamento per giorno: validazione, ritorno nel modulo, libreria e sche
   assert.match(web("scheda.js"), /const R = g\.riscaldamento \|\| DATI\.riscaldamento/);
   assert.match(web("pt-editor.js"), /Uguale per tutti i giorni/);
 });
+
+test("editor da telefono: i campi di una riga non si sovrappongono (data da sola, circuito su due righe, campi allineati in alto)", () => {
+  const css = web("pt.css"), js = web("pt-editor.js");
+  assert.match(js, /griglia-campi griglia-dati/);
+  assert.match(js, /griglia-3 griglia-circuito/);
+  assert.match(css, /\.griglia-campi,\.griglia-3\{align-items:start\}/);
+  assert.match(css, /\.griglia-campi input,\.griglia-campi select,\.griglia-3 input,\.griglia-3 select\{min-width:0;max-width:100%\}/);
+  assert.match(css, /\.griglia-dati > \.campo-pt:first-child\{grid-column:1 \/ -1\}/);
+  assert.match(css, /\.griglia-circuito > \.campo-pt:last-child\{grid-column:1 \/ -1\}/);
+  assert.doesNotMatch(js, /Recupero \(facoltativo\)/, "l'etichetta lunga andava a capo e sfalsava la riga");
+});
