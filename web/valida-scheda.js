@@ -8,7 +8,7 @@
 //   inizio: "2026-10-26",            // data vera, testo AAAA-MM-GG
 //   settimane: 5,                    // intero 1-52 (comprese quelle di scarico)
 //   info: { titolo, nome, cognome, obiettivo, sedute, nota_durata },
-//   riscaldamento: { voce, durata, istruzione, esercizi: [[nome, linkVideo], ...] },
+//   riscaldamento: { voce, durata, istruzione, esercizi: [[nome, linkVideo], ...] },   (in ogni giorno può esserci un «riscaldamento» tutto suo)
 //   giorni: [ { id: "A", titolo, focus, colore: "D49A9A", chiaro, scuro, stretching,
 //               blocchi: [ { tipo: "esercizio", nome, serie, rip, rec, ... }
 //                        | { tipo: "circuito", formato, rec, esercizi: [ { nome, rip, video } ] } ] } ]
@@ -29,6 +29,16 @@ function dataVera(testo) {
   return !isNaN(d) && d.toISOString().slice(0, 10) === testo;   // scarta per esempio il 2026-02-30
 }
 
+// Un riscaldamento (quello comune o quello di un giorno): lista di [nome, video]
+function erroreRiscaldamento(r, dove) {
+  if (!èOggetto(r) || !Array.isArray(r.esercizi)) return `manca «${dove}» con la lista «esercizi»`;
+  for (const voce of r.esercizi) {
+    if (!Array.isArray(voce) || typeof voce[0] !== "string") return "una voce del riscaldamento non è valida";
+    if (!indirizzoOk(voce[1])) return "un video del riscaldamento non ha un indirizzo http o https valido";
+  }
+  return null;
+}
+
 function erroreScheda(dati) {
   if (!èOggetto(dati)) return "manca l'oggetto «dati»";
   if (!dataVera(dati.inizio)) return "data di inizio mancante o non valida (formato AAAA-MM-GG)";
@@ -38,13 +48,8 @@ function erroreScheda(dati) {
   for (const campo of ["titolo", "nome", "cognome", "obiettivo", "nota_durata"])
     if (!testoOpzionale(dati.info[campo])) return `info.${campo} deve essere un testo`;
 
-  if (!èOggetto(dati.riscaldamento) || !Array.isArray(dati.riscaldamento.esercizi))
-    return "manca «riscaldamento» con la lista «esercizi»";
-
-  for (const voce of dati.riscaldamento.esercizi) {
-    if (!Array.isArray(voce) || typeof voce[0] !== "string") return "una voce del riscaldamento non è valida";
-    if (!indirizzoOk(voce[1])) return "un video del riscaldamento non ha un indirizzo http o https valido";
-  }
+  const eRisc = erroreRiscaldamento(dati.riscaldamento, "riscaldamento");
+  if (eRisc) return eRisc;
 
   if (!Array.isArray(dati.giorni) || dati.giorni.length === 0) return "nessun giorno di allenamento";
   if (dati.giorni.length > 14) return "troppi giorni (massimo 14)";
@@ -57,6 +62,7 @@ function erroreScheda(dati) {
     visti.add(id);
     for (const c of ["colore", "chiaro", "scuro"])
       if (g[c] !== undefined && !/^[0-9A-Fa-f]{6}$/.test(String(g[c]))) return `giorno ${id}: colore «${c}» non valido`;
+    if (g.riscaldamento !== undefined) { const e = erroreRiscaldamento(g.riscaldamento, "riscaldamento"); if (e) return `giorno ${id}: ${e}`; }   // facoltativo: se manca vale quello comune
     if (!Array.isArray(g.blocchi)) return `giorno ${id}: manca la lista «blocchi»`;
     if (g.blocchi.length > 100) return `giorno ${id}: troppi blocchi`;
     for (const b of g.blocchi) {

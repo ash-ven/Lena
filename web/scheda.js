@@ -243,7 +243,7 @@ function rigaSerie(k, e, serie){
 
 // ---------- schede ----------
 function cardRiscaldamento(g){
-  const R = DATI.riscaldamento;
+  const R = g.riscaldamento || DATI.riscaldamento;   // un giorno può avere il suo riscaldamento
   const sez = [el("h3",{class:"sezione"}, "Riscaldamento", el("span",{}, `${R.voce} · ${R.durata}`))];
   const lista = el("ul",{class:"lista"});
   R.esercizi.forEach(([nome,url],i) => lista.append(el("li",{onclick:(ev)=>{ if (!ev.target.closest("a, button")) ev.currentTarget.querySelector("button.pallino").click(); }}, spunta(`${g.id}|R|${i}`,"pallino"), el("span",{class:"t"}, nome),

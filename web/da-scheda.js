@@ -31,13 +31,16 @@
   // oggi = data di inizio proposta (AAAA-MM-GG): una copia riparte da oggi, non dalla data della vecchia scheda
   function statoDaDati(dati, oggi) {
     const scarico = scaricoDa(dati), w = Math.max(1, dati.settimane - scarico);
-    const risc = dati.riscaldamento || {};
-    const esRisc = (Array.isArray(risc.esercizi) ? risc.esercizi : []).map((e) => ({ nome: t(e[0]), video: t(e[1]) }));
+    const riscDa = (r) => {
+      const es = (Array.isArray(r && r.esercizi) ? r.esercizi : []).map((e) => ({ nome: t(e[0]), video: t(e[1]) }));
+      return { durata: t(r && r.durata), istruzione: t(r && r.istruzione), esercizi: es.length ? es : [{ nome: "", video: "" }] };
+    };
     return {
       titolo: t(dati.info && dati.info.titolo), obiettivo: t(dati.info && dati.info.obiettivo), inizio: oggi,
       settimane: String(dati.settimane), scarico: String(scarico),
-      risc: { durata: t(risc.durata), istruzione: t(risc.istruzione), esercizi: esRisc.length ? esRisc : [{ nome: "", video: "" }] },
+      risc: riscDa(dati.riscaldamento), riscPerGiorno: dati.giorni.some((g) => g.riscaldamento),
       giorni: dati.giorni.map((g) => ({
+        ...(g.riscaldamento ? { risc: riscDa(g.riscaldamento) } : {}),
         focus: t(g.focus), stretching: Array.isArray(g.stretching), stretchingDurata: Array.isArray(g.stretching) ? t(g.stretching[1]) : "5-10'",
         blocchi: (g.blocchi || []).map((b) => (b.tipo === "circuito" ? circuitoDa(b) : esercizioDa(b, w))),
       })),

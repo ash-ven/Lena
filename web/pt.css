@@ -276,6 +276,14 @@ select.scelta{min-height:48px;padding:var(--spazio-2) var(--spazio-3);font:inher
 .bottone.spento{opacity:.35}
 .pannello.giorno{border-left:4px solid var(--giorno, var(--bordo-superficie))}
 .schema{margin:0 0 var(--spazio-3)}
+.combo{position:relative}
+.suggerimenti{position:absolute;top:100%;left:0;right:0;z-index:20;margin:var(--spazio-1) 0 0;padding:0;list-style:none;background:var(--superficie);border:1px solid var(--bordo-campo);border-radius:var(--raggio-controllo);overflow:hidden}
+.suggerimenti[hidden]{display:none}
+.suggerimenti li{display:flex;align-items:center;justify-content:space-between;gap:var(--spazio-3);min-height:44px;padding:var(--spazio-2) var(--spazio-3);cursor:pointer;font-size:16px;line-height:24px;border-left:4px solid transparent}
+.suggerimenti li:hover,.suggerimenti li[aria-selected="true"]{background:var(--superficie-alta);border-left-color:var(--bordo-campo)}
+.suggerimenti .nome-sugg{min-width:0;overflow-wrap:anywhere}
+.suggerimenti .con-video{flex:none;font-size:12px;line-height:16px;color:var(--testo-secondario)}
+.sotto-sezione{font-size:16px;line-height:24px;margin:var(--spazio-4) 0 var(--spazio-2)}
 #bozza-avviso .avviso-pt{margin-bottom:var(--spazio-2)}
 #bozza-avviso .bottone{margin-bottom:var(--spazio-4)}
 @media (max-width:480px){

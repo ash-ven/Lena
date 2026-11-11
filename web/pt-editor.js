@@ -7,7 +7,8 @@
      Aggiungere, togliere o spostare qualcosa ridisegna il modulo.
    - «costruisci()» trasforma lo stato nell'oggetto «dati» e raccoglie gli errori in italiano, con il punto preciso.
    - La bozza si ricorda su questo dispositivo (localStorage) finché la scheda non viene inviata.
-   - Il nome di un esercizio si completa dalla libreria del trainer (/api/pt/esercizi) e ricompila il video già usato. */
+   - Il nome di un esercizio si completa dalla libreria del trainer (/api/pt/esercizi) e ricompila il video già usato
+     (anche quello scritto poco prima nella stessa scheda). Gli esercizi entrano in libreria quando la scheda viene inviata. */
 (function () {
   const $ = (id) => document.getElementById(id);
   const { el, messaggio, normalizza } = LenaPt;
@@ -33,7 +34,10 @@
   const nuovoCircuito = () => ({ tipo: "circuito", formato: "EMOM", minuti: "10", rec: "", esercizi: [{ nome: "", rip: "", video: "" }] });
   const nuovoGiorno = () => ({ focus: "", stretching: true, stretchingDurata: "5-10'", blocchi: [] });
   const nuovoStato = () => ({ titolo: "", obiettivo: "", inizio: oggi(), settimane: "4", scarico: "1",
-    risc: { durata: "10'", istruzione: "", esercizi: [{ nome: "", video: "" }] }, giorni: [nuovoGiorno()] });
+    risc: { durata: "10'", istruzione: "", esercizi: [{ nome: "", video: "" }] }, riscPerGiorno: false, giorni: [nuovoGiorno()] });
+  // il riscaldamento di un giorno (solo se «uguale per tutti» è spento): nasce come copia di quello comune
+  const copiaRisc = (r) => JSON.parse(JSON.stringify(r));
+  const riscDelGiorno = (g) => g.risc || (g.risc = copiaRisc(stato.risc));
 
   // ---------- la bozza (solo su questo dispositivo) ----------
   const chiaveBozza = () => `lena:bozza:${idCliente}`;
@@ -53,17 +57,72 @@
   function cancellaBozza() { clearTimeout(timerBozza); try { localStorage.removeItem(chiaveBozza()); } catch (e) { /* pazienza */ } }
 
   // ---------- libreria esercizi ----------
-  const conosciuti = new Map();   // nome normalizzato → { nome, video }
+  const conosciuti = new Map();   // dalla libreria del trainer: nome normalizzato → { nome, video }
+  const locali = new Map();       // video scritti in questa scheda (anche prima dell'invio): nome normalizzato → video
   let timerRicerca = null;
-  function ricerca(testo) {
+  function ricerca(testo, quando) {
     clearTimeout(timerRicerca);
-    if (!testo.trim()) return;
+    if (!testo.trim()) { quando([]); return; }
     timerRicerca = setTimeout(async () => {
       const r = await Lena.chiama("GET", `/api/pt/esercizi?q=${encodeURIComponent(testo.trim())}`);
-      if (r.stato !== 200 || !Array.isArray(r.json)) return;   // senza libreria si scrive a mano: niente di grave
+      if (r.stato !== 200 || !Array.isArray(r.json)) return quando([]);   // senza libreria si scrive a mano: niente di grave
       for (const e of r.json) conosciuti.set(normalizza(e.nome), e);
-      $("suggerimenti").replaceChildren(...r.json.map((e) => el("option", { value: e.nome })));
+      quando(r.json);
     }, 200);
+  }
+  const videoNoto = (nome) => { const k = normalizza(nome); return locali.get(k) || (conosciuti.get(k) || {}).video || ""; };
+  // Se il nome è già noto e il video è vuoto, lo ricompila (si chiama a ogni lettera, a fine ricerca e quando si sceglie un suggerimento)
+  function proponiVideo(input, oggetto) {
+    const contenitore = input.closest("[data-voce]");
+    const video = contenitore && contenitore.querySelector('[data-campo="video"]');
+    const noto = videoNoto(input.value);
+    if (!noto || !video || video.value) return;
+    video.value = noto; oggetto.video = noto; salvaBozza();
+    const campoVideo = video.closest(".campo-pt");
+    if (campoVideo && !campoVideo.querySelector(".aiuto-pt")) campoVideo.append(el("span", { class: "aiuto-pt" }, "Video ricordato: puoi cambiarlo."));
+  }
+
+  // L'elenco dei suggerimenti: sempre sotto il campo e largo come il campo. Frecce e Invio da tastiera, Esc per chiudere.
+  function conSuggerimenti(input, oggetto) {
+    const idLista = nuovoId("lista");
+    const lista = el("ul", { class: "suggerimenti", id: idLista, role: "listbox", "aria-label": "Esercizi che hai già usato e dal catalogo", hidden: "" });
+    input.setAttribute("role", "combobox"); input.setAttribute("aria-autocomplete", "list"); input.setAttribute("aria-expanded", "false"); input.setAttribute("aria-controls", idLista);
+    let voci = [], attiva = -1;
+    const chiudi = () => { lista.hidden = true; attiva = -1; input.setAttribute("aria-expanded", "false"); input.removeAttribute("aria-activedescendant"); };
+    const evidenzia = (n) => {
+      attiva = n;
+      [...lista.children].forEach((li, k) => li.setAttribute("aria-selected", k === n ? "true" : "false"));
+      if (n >= 0) input.setAttribute("aria-activedescendant", lista.children[n].id); else input.removeAttribute("aria-activedescendant");
+    };
+    const scegli = (e) => {
+      input.value = e.nome; oggetto.nome = e.nome; chiudi(); salvaBozza(); proponiVideo(input, oggetto);
+    };
+    const mostra = (elenco) => {
+      voci = elenco.filter((e) => !(elenco.length === 1 && normalizza(e.nome) === normalizza(input.value)));
+      if (!voci.length) return chiudi();
+      lista.replaceChildren(...voci.map((e, k) => el("li", { role: "option", id: `${idLista}-${k}`, "aria-selected": "false",
+        onmousedown: (ev) => { ev.preventDefault(); scegli(e); } },
+        el("span", { class: "nome-sugg" }, e.nome), e.video ? el("span", { class: "con-video" }, "con video") : null)));
+      lista.hidden = false; input.setAttribute("aria-expanded", "true"); attiva = -1;
+    };
+    input.addEventListener("input", () => {
+      proponiVideo(input, oggetto);
+      if (!input.value.trim()) { clearTimeout(timerRicerca); return chiudi(); }
+      const scritto = input.value;
+      ricerca(scritto, (r) => {
+        if (document.activeElement === input && input.value === scritto) mostra(r);
+        proponiVideo(input, oggetto);   // la risposta può arrivare dopo l'ultima lettera: il video si ricompila lo stesso
+      });
+    });
+    input.addEventListener("keydown", (ev) => {
+      if (lista.hidden || !voci.length) return;
+      if (ev.key === "ArrowDown") { ev.preventDefault(); evidenzia((attiva + 1) % voci.length); }
+      else if (ev.key === "ArrowUp") { ev.preventDefault(); evidenzia((attiva - 1 + voci.length) % voci.length); }
+      else if (ev.key === "Enter" && attiva >= 0) { ev.preventDefault(); scegli(voci[attiva]); }
+      else if (ev.key === "Escape") { ev.preventDefault(); chiudi(); }
+    });
+    input.addEventListener("focusout", chiudi);
+    return el("div", { class: "combo" }, input, lista);
   }
 
   // ---------- pezzi di modulo ----------
@@ -73,9 +132,10 @@
   function campo(etichetta, oggetto, chiave, o = {}) {
     const id = nuovoId("c");
     const input = el("input", { id, type: o.tipo || "text", value: oggetto[chiave] ?? "", maxlength: o.max || 200, placeholder: o.segnaposto || null,
-      autocomplete: "off", inputmode: o.modo || null, list: o.lista || null, "data-campo": o.nomeCampo || null, min: o.min || null, max: o.tipo === "number" ? o.maxNum : null });
+      autocomplete: "off", inputmode: o.modo || null, "data-campo": o.nomeCampo || null, min: o.min || null, max: o.tipo === "number" ? o.maxNum : null });
     input.addEventListener("input", () => { oggetto[chiave] = input.value; salvaBozza(); if (o.alCambio) o.alCambio(input); });
-    return el("div", { class: `campo-pt ${o.classe || ""}` }, el("label", { for: id }, etichetta), input, o.aiuto ? el("span", { class: "aiuto-pt" }, o.aiuto) : null);
+    if (o.alFine) input.addEventListener("change", () => o.alFine(input));
+    return el("div", { class: `campo-pt ${o.classe || ""}` }, el("label", { for: id }, etichetta), o.suggerisci ? conSuggerimenti(input, oggetto) : input, o.aiuto ? el("span", { class: "aiuto-pt" }, o.aiuto) : null);
   }
   function campoLungo(etichetta, oggetto, chiave, o = {}) {
     const id = nuovoId("c");
@@ -86,19 +146,13 @@
   }
   // Il nome di un esercizio: si completa dalla libreria e, se il video è vuoto, lo ricompila
   function campoNome(oggetto, etichetta = "Nome dell'esercizio") {
-    return campo(etichetta, oggetto, "nome", { lista: "suggerimenti", max: 100, nomeCampo: "nome", alCambio: (input) => {
-      ricerca(input.value);
-      const noto = conosciuti.get(normalizza(input.value));
-      const contenitore = input.closest("[data-voce]");
-      const video = contenitore && contenitore.querySelector('[data-campo="video"]');
-      if (noto && noto.video && video && !video.value) {
-        video.value = noto.video; oggetto.video = noto.video; salvaBozza();
-        const a = video.parentElement.querySelector(".aiuto-pt");
-        if (a) a.textContent = "Video ricordato dalla libreria: puoi cambiarlo.";
-      }
-    } });
+    return campo(etichetta, oggetto, "nome", { suggerisci: true, max: 100, nomeCampo: "nome" });
   }
-  const campoVideo = (oggetto) => campo("Link al video (facoltativo)", oggetto, "video", { tipo: "url", max: 2000, segnaposto: "https://…", nomeCampo: "video", modo: "url" });
+  // Un video scritto qui vale subito per lo stesso esercizio nel resto della scheda; con l'invio entra nella libreria
+  function campoVideo(oggetto) {
+    return campo("Link al video (facoltativo)", oggetto, "video", { tipo: "url", max: 2000, segnaposto: "https://…", nomeCampo: "video", modo: "url",
+      alFine: (input) => { const v = input.value.trim(), nome = oggetto.nome && normalizza(oggetto.nome); if (nome && v) locali.set(nome, v); } });
+  }
 
   function pulsanteIcona(testo, classeIcona, azione, extra = "") {
     return el("button", { class: `bottone secondario piccolo icona-sola ${extra}`, type: "button", "aria-label": testo, title: testo, onclick: azione },
@@ -145,28 +199,57 @@
     }
   }
 
-  function sezioneRiscaldamento() {
-    const r = stato.risc;
-    return el("section", { class: "pannello", "aria-labelledby": "t-risc" },
-      el("h2", { class: "sezione-pt", id: "t-risc" }, "Riscaldamento"),
-      el("p", { class: "nota" }, "È uguale per tutti i giorni e il cliente lo vede all'inizio di ogni allenamento."),
+  // Durata, istruzione ed esercizi di UN riscaldamento. «sigla» distingue quelli dei giorni (A, B…) dal comune.
+  function bloccoRisc(r, sigla) {
+    const pref = sigla ? `riscaldamento-${sigla}` : "riscaldamento";
+    return el("div", {},
       el("div", { class: "griglia-campi" }, campo("Durata", r, "durata", { max: 20, segnaposto: "10'" }),
         campo("Come si fa", r, "istruzione", { max: 300, classe: "doppio", segnaposto: "Es. 2 giri senza pausa, ritmo leggero" })),
       el("ul", { class: "elenco-editor" }, r.esercizi.map((e, i) =>
-        el("li", { class: "voce", "data-voce": "", "data-id": `riscaldamento-${i}` },
-          el("div", { class: "testa-voce" }, el("strong", {}, `Esercizio ${i + 1}`), comandi(r.esercizi, i, `riscaldamento-${i}`)),
+        el("li", { class: "voce", "data-voce": "", "data-id": `${pref}-${i}` },
+          el("div", { class: "testa-voce" }, el("strong", {}, `Esercizio ${i + 1}`), comandi(r.esercizi, i, `${pref}-${i}`)),
           campoNome(e), campoVideo(e)))),
       el("div", { class: "azioni-pt" }, el("button", { class: "bottone secondario", type: "button", onclick: () => {
-        r.esercizi.push({ nome: "", video: "" }); daFocalizzare = `[data-id="riscaldamento-${r.esercizi.length - 1}"] input`; salvaBozza(); disegna(); } },
+        r.esercizi.push({ nome: "", video: "" }); daFocalizzare = `[data-id="${pref}-${r.esercizi.length - 1}"] input`; salvaBozza(); disegna(); } },
         el("span", { class: "icona i-piu", "aria-hidden": "true" }), "Aggiungi esercizio")));
+  }
+
+  function sezioneRiscaldamento() {
+    const uguale = el("input", { type: "checkbox" }); uguale.checked = !stato.riscPerGiorno;
+    uguale.addEventListener("change", () => {
+      stato.riscPerGiorno = !uguale.checked;
+      if (stato.riscPerGiorno) for (const g of stato.giorni) riscDelGiorno(g);   // ogni giorno parte da una copia di quello comune
+      daFocalizzare = null; salvaBozza(); disegna();
+    });
+    return el("section", { class: "pannello", "aria-labelledby": "t-risc" },
+      el("h2", { class: "sezione-pt", id: "t-risc" }, "Riscaldamento"),
+      el("label", { class: "spunta-pt" }, uguale, el("span", {}, "Uguale per tutti i giorni")),
+      el("p", { class: "nota" }, stato.riscPerGiorno ? "Ogni giorno ha il suo riscaldamento: il cliente lo vede all'inizio di quell'allenamento." : "Il cliente lo vede all'inizio di ogni allenamento."),
+      stato.riscPerGiorno
+        ? stato.giorni.map((g, n) => el("div", { class: "risc-giorno" }, el("h3", { class: "sotto-sezione" }, `Giorno ${LETTERE[n]}`), bloccoRisc(riscDelGiorno(g), LETTERE[n])))
+        : bloccoRisc(stato.risc, ""));
   }
 
   function bloccoEsercizio(g, b, i) {
     const w = settimaneLavoro();
     const schema = b.perSettimana ? el("div", { class: "schema" },
-      el("p", { class: "nota" }, "Scrivi per ogni settimana serie × ripetizioni, per esempio 4x10. Le settimane di scarico si compilano da sole."),
+      el("p", { class: "nota" }, "Scrivi per ogni settimana serie × ripetizioni: per esempio 6x6 la prima settimana, 6x7 la seconda. Le settimane di scarico si compilano da sole."),
       el("div", { class: "griglia-schema" }, Array.from({ length: w }, (_, n) =>
-        campo(`Settimana ${n + 1}`, b.schema, n, { max: 10, segnaposto: "es. 4x10" })))) : null;
+        campo(`Settimana ${n + 1}`, b.schema, n, { max: 10, segnaposto: "es. 6x6" })))) : null;
+    const cambia = (w > 1 || b.perSettimana) ? el("label", { class: "spunta-pt" }, (() => {
+      const c = el("input", { type: "checkbox" }); c.checked = b.perSettimana;
+      c.addEventListener("change", () => {
+        b.perSettimana = c.checked;
+        if (!c.checked) {   // tornando ai valori fissi si riparte da quelli della prima settimana, se i campi sono vuoti
+          const m = /^(\d+)x(\d+)$/i.exec(testo(b.schema[0]).replace(/\s/g, ""));
+          if (m && !testo(b.serie)) b.serie = m[1];
+          if (m && !testo(b.rip)) b.rip = m[2];
+        }
+        if (c.checked) { const prima = /^\d+$/.test(b.serie.trim()) && /^\d+$/.test(b.rip.trim()) ? `${b.serie.trim()}x${b.rip.trim()}` : ""; b.schema = Array.from({ length: w }, (_, n) => b.schema[n] || prima); }
+        daFocalizzare = null; salvaBozza(); disegna();
+      });
+      return c;
+    })(), el("span", {}, "Serie e ripetizioni cambiano ogni settimana")) : null;
     return el("li", { class: "blocco", "data-voce": "", "data-id": `blocco-${i}` },
       el("div", { class: "testa-voce" }, el("strong", {}, `${i + 1}. Esercizio`), comandi(g.blocchi, i, `blocco-${i}`)),
       campoNome(b),
@@ -175,25 +258,12 @@
         b.perSettimana ? null : campo("Serie", b, "serie", { max: 10, modo: "numeric", segnaposto: "es. 4" }),
         b.perSettimana ? null : campo("Ripetizioni", b, "rip", { max: 30, segnaposto: "es. 10" }),
         campo("Recupero", b, "rec", { max: 30, segnaposto: "es. 1'30\"" })),
+      cambia, schema,
       campoVideo(b),
-      el("details", { class: "altro", open: b.aperto || b.note || b.progressione || b.perSettimana ? "" : null, ontoggle: (ev) => { b.aperto = ev.target.open; } },
-        el("summary", {}, "Altro: note, progressione, schema per settimana"),
+      el("details", { class: "altro", open: b.aperto || b.note || b.progressione ? "" : null, ontoggle: (ev) => { b.aperto = ev.target.open; } },
+        el("summary", {}, "Altro: note e progressione"),
         campoLungo("Note (facoltative)", b, "note", { aiuto: "Es. schiena dritta, scendi sotto il parallelo" }),
-        campoLungo("Progressione (facoltativa)", b, "progressione", { aiuto: "Es. +2,5 kg a settimana se chiudi tutte le serie. Se la scrivi, il cliente può segnare le ripetizioni fatte." }),
-        el("label", { class: "spunta-pt" }, (() => {
-          const c = el("input", { type: "checkbox" }); c.checked = b.perSettimana;
-          c.addEventListener("change", () => {
-            b.perSettimana = c.checked; b.aperto = true;
-            if (!c.checked) {   // tornando ai valori fissi si riparte da quelli della prima settimana, se i campi sono vuoti
-              const m = /^(\d+)x(\d+)$/i.exec(testo(b.schema[0]).replace(/\s/g, ""));
-              if (m && !testo(b.serie)) b.serie = m[1];
-              if (m && !testo(b.rip)) b.rip = m[2];
-            }
-            if (c.checked) { const prima = /^\d+$/.test(b.serie.trim()) && /^\d+$/.test(b.rip.trim()) ? `${b.serie.trim()}x${b.rip.trim()}` : ""; b.schema = Array.from({ length: w }, (_, n) => b.schema[n] || prima); }
-            daFocalizzare = null; salvaBozza(); disegna();
-          });
-          return c;
-        })(), el("span", {}, "Cambia da una settimana all'altra")), schema));
+        campoLungo("Progressione (facoltativa)", b, "progressione", { aiuto: "Es. +2,5 kg a settimana se chiudi tutte le serie. Se la scrivi, il cliente può segnare le ripetizioni fatte." })));
   }
 
   function bloccoCircuito(g, b, i) {
@@ -277,15 +347,18 @@
     else if (!Number.isInteger(scarico) || scarico < 0 || scarico >= settimane) err("Le settimane di scarico devono essere meno delle settimane in tutto.");
     const w = Number.isInteger(settimane) && Number.isInteger(scarico) ? settimane - scarico : 1;
 
-    const r = s.risc;
-    if (!testo(r.durata)) err("Riscaldamento: scrivi la durata.");
-    const rEs = [];
-    r.esercizi.forEach((e, i) => {
-      if (!testo(e.nome)) { if (testo(e.video)) err(`Riscaldamento, esercizio ${i + 1}: c'è il video ma manca il nome.`); return; }
-      if (!indirizzoOk(e.video)) err(`Riscaldamento, «${testo(e.nome)}»: il link al video deve iniziare con http:// o https://.`);
-      rEs.push([testo(e.nome), oNull(conHttps(e.video))]);
-    });
-    if (!rEs.length) err("Riscaldamento: aggiungi almeno un esercizio (il cliente lo vede all'inizio di ogni allenamento).");
+    const costruisciRisc = (r, dove) => {
+      if (!testo(r.durata)) err(`${dove}: scrivi la durata.`);
+      const rEs = [];
+      r.esercizi.forEach((e, i) => {
+        if (!testo(e.nome)) { if (testo(e.video)) err(`${dove}, esercizio ${i + 1}: c'è il video ma manca il nome.`); return; }
+        if (!indirizzoOk(e.video)) err(`${dove}, «${testo(e.nome)}»: il link al video deve iniziare con http:// o https://.`);
+        rEs.push([testo(e.nome), oNull(conHttps(e.video))]);
+      });
+      if (!rEs.length) err(`${dove}: aggiungi almeno un esercizio (il cliente lo vede all'inizio dell'allenamento).`);
+      return { voce: "Riscaldamento", durata: testo(r.durata), istruzione: testo(r.istruzione), esercizi: rEs };
+    };
+    const riscComune = s.riscPerGiorno ? null : costruisciRisc(s.risc, "Riscaldamento");
 
     const giorni = s.giorni.map((g, n) => {
       const nome = `Giorno ${LETTERE[n]}`;
@@ -303,8 +376,8 @@
           if (b.perSettimana) {
             schema = [];
             for (let k = 0; k < w; k++) {
-              const v = testo(b.schema[k]).replace(/\s/g, "").toLowerCase();
-              if (!/^\d+x\d+$/.test(v)) { err(`${dove} («${nm}»): nella settimana ${k + 1} scrivi serie e ripetizioni come 4x10.`); break; }
+              const v = testo(b.schema[k]).replace(/\s/g, "").replace(/[×*]/g, "x").toLowerCase();
+              if (!/^\d+x\d+$/.test(v)) { err(`${dove} («${nm}»): nella settimana ${k + 1} scrivi serie e ripetizioni come 6x6.`); break; }
               schema.push(v);
             }
           }
@@ -326,16 +399,17 @@
         }
       });
       if (!blocchi.length) err(`${nome}: aggiungi almeno un esercizio o un circuito.`);
+      const riscaldamento = s.riscPerGiorno ? costruisciRisc(riscDelGiorno(g), `Riscaldamento, ${nome}`) : null;
       if (g.stretching && !testo(g.stretchingDurata)) err(`${nome}: scrivi la durata dello stretching o toglila.`);
       return { id: LETTERE[n], titolo: nome, focus: testo(g.focus) || "", stretching: g.stretching ? ["Stretching", testo(g.stretchingDurata)] : null,
-        ...PALETTE[n % PALETTE.length], blocchi };
+        ...PALETTE[n % PALETTE.length], ...(riscaldamento ? { riscaldamento } : {}), blocchi };
     });
 
     const dati = {
       inizio: s.inizio, settimane,
       info: { titolo: testo(s.titolo), nome: cliente.nome, cognome: cliente.cognome, obiettivo: testo(s.obiettivo), sedute: giorni.length,
         nota_durata: scarico ? `${w} settimane + ${scarico} di scarico` : `${w} settimane` },
-      riscaldamento: { voce: "Riscaldamento", durata: testo(r.durata), istruzione: testo(r.istruzione), esercizi: rEs },
+      riscaldamento: riscComune || giorni[0].riscaldamento,   // con un riscaldamento per giorno, quello «comune» è il primo (serve a chi legge schede vecchie)
       giorni,
     };
     if (!errori.length) { const e = LenaValidaScheda.erroreScheda(dati); if (e) err(`La scheda non è valida: ${e}.`); }

@@ -21,6 +21,7 @@ function eserciziDellaScheda(dati) {
   };
   for (const e of (dati.riscaldamento && dati.riscaldamento.esercizi) || []) if (Array.isArray(e)) aggiungi(e[0], e[1]);
   for (const g of dati.giorni || []) {
+    for (const e of (g.riscaldamento && g.riscaldamento.esercizi) || []) if (Array.isArray(e)) aggiungi(e[0], e[1]);
     for (const b of g.blocchi || []) {
       if (b.tipo === "circuito") for (const e of b.esercizi || []) aggiungi(e.nome, e.video);
       else aggiungi(b.nome, b.video);

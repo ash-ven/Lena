@@ -67,6 +67,7 @@
     for (const g of (dati && dati.giorni) || []) {
       const giorno = `Giorno ${g.id}`;
       aggiungi(giorno, g.focus);
+      if (g.riscaldamento) { aggiungi(`${giorno}, riscaldamento`, g.riscaldamento.istruzione); for (const e of g.riscaldamento.esercizi || []) aggiungi(`${giorno}, riscaldamento`, Array.isArray(e) ? e[0] : null); }
       if (Array.isArray(g.stretching)) aggiungi(`${giorno}, stretching`, g.stretching[0]);
       for (const b of g.blocchi || []) {
         if (b.tipo === "circuito") {
