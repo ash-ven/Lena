@@ -62,7 +62,7 @@ router.get("/:id/registrazioni", richiediRuolo("pt"), async (req, res) => {
 
 // ---------- salvataggio delle registrazioni ----------
 const MAX_VOCI = 200;
-const TIPI = ["kg", "rip", "serie", "fatto"];
+const TIPI = ["kg", "rip", "serie", "fatto", "sforzo"];
 // Chiave = "settimana|giorno|resto", come in modello-scheda.html. Il "resto" può essere:
 //   "1"    → blocco 1 del giorno            (esercizio o circuito intero)
 //   "1|0"  → esercizio 0 del circuito 1     (kg di un esercizio del circuito)
@@ -90,6 +90,12 @@ function controllaVoce(voce, scheda, idGiorni) {
 
   if (tipo === "serie" && !/^\d{1,2}$/.test(valore)) return { errore: "per «serie» il valore è un numero da 0 a 99" };
   if (tipo === "fatto" && valore !== "1") return { errore: "per «fatto» il valore è 1 (o vuoto per togliere la spunta)" };
+  // «sforzo»: com'è andato un esercizio. Solo tre risposte fisse (niente testo libero: non devono entrare dati di salute) e solo per
+  // un blocco intero, non per un esercizio dentro un circuito, né per riscaldamento e stretching.
+  if (tipo === "sforzo") {
+    if (!["1", "2", "3"].includes(valore)) return { errore: "per «sforzo» il valore è 1 (facile), 2 (giusto) o 3 (pesante)" };
+    if (!/^\d{1,2}\|\w{1,10}\|\d{1,3}$/.test(chiave)) return { errore: "«sforzo» vale per un esercizio, non per riscaldamento, stretching o un esercizio dentro un circuito" };
+  }
   if (valore.length > 40) return { errore: "valore troppo lungo (massimo 40 caratteri)" };
   return { tipo, chiave, valore };
 }

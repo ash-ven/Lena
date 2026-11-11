@@ -759,3 +759,22 @@ Nella pagina di un cliente, oltre alle «Note private» (che il cliente riceve s
 ## Note condivise (11 novembre)
 
 Le «Note private» si chiamano ora **«Note condivise»**: il cliente le legge **in qualsiasi momento** dal suo account, nella sezione «Note del tuo trainer» (`GET /api/me/note`, solo per i clienti, solo le note del proprio trainer; se non ce ne sono la sezione non compare). Restano anche nel file dei dati che il cliente può scaricare. Gli **«Appunti per me»** restano solo del trainer. Nelle due sezioni il grande avviso sui dati di salute è sostituito da un pulsante «i» (promemoria al passaggio del mouse o al tocco); non c'è più il riconoscimento delle parole di salute nelle note (resta nell'Excel e nell'editor). Informativa e condizioni citano le note condivise (versioni dei testi non cambiate: da far rileggere).
+
+## «Com'è andata» a ogni esercizio (11 novembre)
+
+Sotto ogni esercizio della scheda il cliente può toccare **Facile / Giusto / Pesante** (di nuovo la stessa per toglierla). Niente testo libero, così non entrano dati di salute. Si salva come registrazione di tipo `sforzo` (valore 1, 2 o 3; chiave dell'esercizio intero, non per circuiti, riscaldamento e stretching). Il trainer la vede nella scheda del cliente, in sola lettura. Rientra nei dati che il cliente scarica, come kg e spunte.
+
+**Database: migrazione 14 (da applicare PRIMA di mettere online il codice; sia in locale sia su Neon):** senza, il server rifiuterebbe le registrazioni e i progressi del cliente non si salverebbero.
+
+```powershell
+Get-Content db\initdb\14_sforzo.sql | docker exec -i lena-db psql -U lena -d lena
+```
+
+Per Neon (sul PC non c'è `psql`: si usa Docker, come negli script di backup). La stringa di connessione si incolla senza mostrarla:
+
+```powershell
+$s = Read-Host "Stringa di Neon (non si vede)" -AsSecureString
+$u = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($s))
+$u = ($u.Trim().Trim('"')) -replace "&channel_binding=require", ""
+Get-Content db\initdb\14_sforzo.sql | docker run --rm -i postgres:18 psql "$u"
+```

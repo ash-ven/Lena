@@ -14,11 +14,11 @@ CREATE TABLE scheda (
 
 CREATE INDEX scheda_cliente_idx ON scheda (cliente_id);
 
--- Quello che il cliente segna: kg, ripetizioni fatte, serie fatte, spunte.
+-- Quello che il cliente segna: kg, ripetizioni fatte, serie fatte, spunte, com'e' andato l'esercizio (sforzo: 1 facile, 2 giusto, 3 pesante).
 -- Una riga per ogni valore, con la stessa "chiave" che oggi usa il telefono (es. "2|A|1").
 CREATE TABLE registrazione (
   scheda_id      INTEGER NOT NULL REFERENCES scheda(id) ON DELETE CASCADE,
-  tipo           TEXT NOT NULL CHECK (tipo IN ('kg', 'rip', 'serie', 'fatto')),
+  tipo           TEXT NOT NULL CHECK (tipo IN ('kg', 'rip', 'serie', 'fatto', 'sforzo')),
   chiave         TEXT NOT NULL,
   valore         TEXT NOT NULL,
   aggiornata_il  TIMESTAMPTZ NOT NULL DEFAULT now(),

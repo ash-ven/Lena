@@ -63,15 +63,16 @@ test("registrazioni: andata e ritorno tra righe del database e oggetto della sch
   const righe = [
     { tipo: "kg", chiave: "1|A|1", valore: "42,5" }, { tipo: "rip", chiave: "1|A|1", valore: "10-10-9" },
     { tipo: "serie", chiave: "1|A|1", valore: "3" }, { tipo: "fatto", chiave: "1|A|S", valore: "1" },
+    { tipo: "sforzo", chiave: "1|A|1", valore: "3" },
   ];
   const mem = R.memDaMappa(R.mappaDaVoci(righe));
-  assert.deepEqual(mem, { kg: { "1|A|1": "42,5" }, rip: { "1|A|1": "10-10-9" }, fatti: { "1|A|S": 1 }, serie: { "1|A|1": 3 } });
+  assert.deepEqual(mem, { kg: { "1|A|1": "42,5" }, rip: { "1|A|1": "10-10-9" }, fatti: { "1|A|S": 1 }, serie: { "1|A|1": 3 }, sforzo: { "1|A|1": "3" } });
   assert.equal(typeof mem.serie["1|A|1"], "number", "le serie devono tornare NUMERI (serie + 1 non deve dare «31»)");
   assert.equal(R.differenze(R.mappaDaMem(mem), R.mappaDaVoci(righe)).size, 0, "nessuna differenza dopo il giro completo");
 });
 
 test("registrazioni: le voci vuote o a zero non esistono; le cancellazioni diventano valore vuoto", () => {
-  const attuale = R.mappaDaMem({ kg: { "1|A|1": "  ", "2|A|1": " 50 " }, rip: {}, fatti: { "1|A|1": 0 }, serie: { "1|A|1": 0 } });
+  const attuale = R.mappaDaMem({ kg: { "1|A|1": "  ", "2|A|1": " 50 " }, rip: {}, fatti: { "1|A|1": 0 }, serie: { "1|A|1": 0 }, sforzo: {} });
   assert.deepEqual([...attuale], [["kg|2|A|1", "50"]]);
   const d = R.differenze(attuale, R.mappaDaVoci([{ tipo: "kg", chiave: "9|A|1", valore: "20" }]));
   assert.deepEqual([...d].sort(), [["kg|2|A|1", "50"], ["kg|9|A|1", ""]].sort());
@@ -225,7 +226,7 @@ test("sincronizza: dopo il nuovo login le modifiche rimaste in sospeso vengono i
   // «dopo»: la pagina si riapre, il server ha ancora i vecchi dati, ma la memoria del browser ha le modifiche
   const dopo = nuovo({ memoria, confermato: [{ tipo: "kg", chiave: "9|A|1", valore: "20" }] });
   const mem = dopo.s.caricaMem();
-  assert.deepEqual(mem, { kg: { "9|A|1": "20", "1|A|1": "40" }, rip: {}, fatti: { "1|A|1": 1 }, serie: { "1|A|1": 2 } },
+  assert.deepEqual(mem, { kg: { "9|A|1": "20", "1|A|1": "40" }, rip: {}, fatti: { "1|A|1": 1 }, serie: { "1|A|1": 2 }, sforzo: {} },
     "la scheda riparte con le modifiche non ancora inviate, non con i dati vecchi del server");
   await dopo.orologio.avanza(0);
   assert.equal(dopo.rete.richieste.length, 1);
@@ -246,7 +247,7 @@ test("sincronizza: dati rovinati nella memoria del browser vengono ignorati", as
   const memoria = memoriaFinta({ "kg|1|A|1": 5, "boh|x": "1", "senzaseparatore": "1", "fatto|1|A|1": "1" });
   const t = nuovo({ memoria });
   const mem = t.s.caricaMem();
-  assert.deepEqual(mem, { kg: {}, rip: {}, fatti: { "1|A|1": 1 }, serie: {} });
+  assert.deepEqual(mem, { kg: {}, rip: {}, fatti: { "1|A|1": 1 }, serie: {}, sforzo: {} });
 });
 
 test("sincronizza: il server rifiuta una voce (400) → le altre passano, quella sbagliata si scarta e non si riprova", async () => {

@@ -87,7 +87,7 @@ function bloccaModifiche(){
   for (const b of document.querySelectorAll("#contenuto button, #f-corpo button")) b.disabled = true;
 }
 const CHIAVE = `scheda-${DATI.info.nome}-${DATI.info.cognome}-${DATI.inizio}`;
-let mem = { kg:{}, rip:{}, fatti:{}, serie:{}, dal:null, ultimo:null };
+let mem = { kg:{}, rip:{}, fatti:{}, serie:{}, sforzo:{}, dal:null, ultimo:null };
 let salvaOk = true;
 if (ARCHIVIO) {
   mem = Object.assign(mem, ARCHIVIO.carica());
@@ -226,6 +226,19 @@ function campo(tipo, k, etichetta, segnaposto, serie){
   return wrap;
 }
 
+// ---------- com'è andata ----------
+// Tre risposte fisse sotto ogni esercizio (niente testo libero). Si può togliere premendo di nuovo la stessa. Il trainer, nella
+// vista di sola lettura, vede solo la risposta data.
+const SFORZI = [["1","Facile"],["2","Giusto"],["3","Pesante"]];
+function rigaSforzo(k){
+  const c = chiave(stato.settimana, k), scelto = mem.sforzo && mem.sforzo[c];
+  if (LETTURA){ const s = SFORZI.find(x => x[0] === scelto); return s ? el("p",{class:"sforzo"}, el("small",{}, "Com'è andata"), el("b",{}, s[1])) : null; }
+  const riga = el("div",{class:"sforzo", role:"group", "aria-label":"Com'è andata?"}, el("small",{}, "Com'è andata?"));
+  SFORZI.forEach(([v, testo]) => riga.append(el("button",{type:"button", class:"btn piccolo", "aria-pressed": String(scelto === v),
+    onclick:()=>{ if (!mem.sforzo) mem.sforzo = {}; if (mem.sforzo[c] === v) delete mem.sforzo[c]; else mem.sforzo[c] = v; salva(); disegna(); }}, testo)));
+  return riga;
+}
+
 // ---------- serie fatte + recupero ----------
 // Serie e ripetizioni DELLA SETTIMANA che si sta guardando. Se l'esercizio ha lo schema («4x10» per ogni settimana di lavoro) valgono
 // quelle dello schema; altrimenti (nessuno schema, schema non leggibile, settimana di scarico) i valori base dell'esercizio.
@@ -299,6 +312,7 @@ function cardEsercizio(g, i, e){
   const campi = el("div",{class:"campi"}, campo("kg", k, `Kg · sett. ${n}`, "—"));
   if (e.progressione) campi.append(campo("rip", k, "Rip. fatte", "es. 10-10-9-8", parseInt(v.serie,10)));
   card.append(campi);
+  const sf = rigaSforzo(k); if (sf) card.append(sf);
   // Settimana di scarico: le serie base non valgono, quindi niente pallini; si chiude l'esercizio con la spunta in alto
   const rs = scar ? null : rigaSerie(k, e, v.serie); if (rs) card.append(rs);
   if (e.note) card.append(el("p",{class:"nota"}, e.note));
