@@ -122,8 +122,11 @@ test("un cliente SENZA scheda entra comunque: la scheda non c'è (404) ma il pro
   assert.match(js, /profilo-icona[\s\S]*\/account\.html/);
   assert.match(leggi("benvenuto.js"), /\/api\/me\/trainer/);
   // la scheda non si apre da sola: dopo l'accesso si va sempre alla pagina di casa
-  for (const f of ["login.js", "registrati.js", "index.js"]) assert.doesNotMatch(leggi(f), /"\/scheda\.html"/, `${f} non deve mandare dritto alla scheda`);
-  assert.doesNotMatch(leggi("benvenuto.js"), /location\.replace\("\/scheda\.html"\)/);
+  // (unica eccezione: SENZA rete, e solo se il cliente ha attivato la copia sul telefono, si apre la scheda; quelle righe parlano di LenaCopia)
+  const senzaCopia = (f) => leggi(f).split(/\r?\n/).filter((r) => !r.includes("LenaCopia")).join("\n");
+  for (const f of ["login.js", "registrati.js", "index.js"]) assert.doesNotMatch(senzaCopia(f), /"\/scheda\.html"/, `${f} non deve mandare dritto alla scheda`);
+  assert.doesNotMatch(senzaCopia("benvenuto.js"), /location\.replace\("\/scheda\.html"\)/);
+  assert.match(leggi("index.js"), /\(r\.stato === 0 \|\| r\.stato >= 500\) && window\.LenaCopia && LenaCopia\.leggi\(\)/, "senza rete e con la copia: la scheda");
   assert.match(leggi("benvenuto.html"), /href="\/scheda\.html"[^>]*>Apri la scheda/);
 });
 
