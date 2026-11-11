@@ -14,7 +14,6 @@
     contaBio();
     LenaProfilo.disegnaAvatar($("avatar"), profilo, FOTO);
     $("rimuovi-foto").hidden = !profilo.haFoto;
-    LenaProfilo.disegnaScheda($("anteprima"), profilo, FOTO);
   }
   function contaBio() { $("conta-bio").textContent = `${[...$("p-bio").value].length} su 500`; }
   $("p-bio").addEventListener("input", contaBio);
@@ -35,6 +34,13 @@
     $("salva-profilo").disabled = false;
     if (r.stato === 200) { profilo = r.json; disegna(); esito.append(messaggio("ok", "Profilo salvato.")); }
     else esito.append(messaggio("errore", testoErrore(r, "salvare il profilo")));
+  });
+
+  // Il «?» accanto a «Email per la privacy» mostra o nasconde la spiegazione
+  $("t-email-info").addEventListener("click", () => {
+    const aperto = $("t-email-aiuto").hidden;
+    $("t-email-aiuto").hidden = !aperto;
+    $("t-email-info").setAttribute("aria-expanded", String(aperto));
   });
 
   // ---------- dati del titolare (per l'informativa dei clienti) ----------

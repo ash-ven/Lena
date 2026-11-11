@@ -40,6 +40,16 @@ test("la pagina usa l'ordinamento e ricorda la scelta", () => {
   assert.match(w("pt.js"), /LenaOrdinaClienti\.ordina\(clienti, ordine\)/);
 });
 
+test("l'elenco tiene i clienti con il rapporto concluso in una tendina chiusa, e la ricerca la apre", () => {
+  const w = (f) => fs.readFileSync(path.join(__dirname, "..", "..", "web", f), "utf8");
+  assert.match(w("pt.html"), /<details class="altro conclusi" id="conclusi" hidden>/);
+  assert.match(w("pt.html"), /id="elenco-conclusi"/);
+  const js = w("pt.js");
+  assert.match(js, /filter\(\(c\) => !c\.rapporto_finito_il\)/);
+  assert.match(js, /Rapporto concluso \(\$\{conclusi\.length\}\)/);
+  assert.match(js, /if \(q && conclusi\.length\) tendina\.open = true/);
+});
+
 test("la bozza in corso si vede nell'elenco e nella pagina del cliente", () => {
   const w = (f) => fs.readFileSync(path.join(__dirname, "..", "..", "web", f), "utf8");
   assert.match(w("pt-comune.js"), /lena:bozza:\$\{idCliente\}/);

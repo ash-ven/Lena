@@ -53,6 +53,9 @@ body.pt a.bottone{color:var(--su-brace)}
 .campo-pt input[type="file"]{padding:var(--spazio-2) var(--spazio-3)}
 .campo-pt textarea{width:100%;min-height:112px;padding:var(--spazio-3);font:inherit;font-size:16px;line-height:24px;color:var(--testo);resize:vertical;
   background:var(--superficie);border:1px solid var(--bordo-campo);border-radius:var(--raggio-controllo)}
+.etichetta-riga{display:flex;align-items:center;gap:var(--spazio-2)}
+.aiuto-bottone{flex:none;width:22px;height:22px;padding:0;border-radius:50%;border:1px solid var(--bordo-campo);background:transparent;color:var(--testo-secondario);font:inherit;font-size:13px;font-weight:700;line-height:1;cursor:pointer}
+.aiuto-bottone:hover,.aiuto-bottone[aria-expanded="true"]{color:var(--testo);border-color:var(--testo-secondario)}
 .campo-pt .aiuto-pt{display:block;font-size:12px;line-height:16px;color:var(--testo-secondario);margin-top:var(--spazio-2)}
 .riga-campi{display:grid;gap:0 var(--spazio-3);grid-template-columns:1fr}
 .spunta-pt{display:flex;align-items:flex-start;gap:var(--spazio-3);margin:var(--spazio-3) 0;min-height:44px;font-size:14px;line-height:20px;padding:var(--spazio-2) 0}
@@ -135,6 +138,9 @@ body.pt .elenco-clienti a{color:var(--testo)}
 /* ricerca con la lente dentro il campo */
 .ordine-elenco{display:flex;align-items:center;gap:var(--spazio-3);margin:0 0 var(--spazio-3)}
 .ordine-elenco label{color:var(--testo-secondario);font-size:.875rem}
+.ordine-elenco select.scelta{min-height:40px;padding:var(--spazio-1) var(--spazio-3);width:auto;flex:0 0 auto}
+details.conclusi{margin:var(--spazio-4) 0 0}
+details.conclusi > .elenco-clienti{margin-top:var(--spazio-1)}
 .ricerca{position:relative;margin:0 0 var(--spazio-3)}
 .ricerca .icona{position:absolute;left:var(--spazio-4);top:50%;transform:translateY(-50%);color:var(--testo-secondario);pointer-events:none}
 .ricerca input[type="search"]{width:100%;min-height:48px;padding:var(--spazio-3) var(--spazio-4) var(--spazio-3) 48px;font:inherit;font-size:16px;line-height:24px;color:var(--testo);

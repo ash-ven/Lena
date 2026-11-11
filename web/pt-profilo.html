@@ -28,7 +28,7 @@
 <main class="contenitore" id="contenuto">
   <a class="indietro" href="/pt.html"><span class="icona i-indietro" aria-hidden="true"></span>Tutti i clienti</a>
   <h1 class="titolo">Il tuo profilo</h1>
-  <p class="sotto-titolo">Lo vedono solo i tuoi clienti, nella loro area.</p>
+  <p class="sotto-titolo">Visibile ai tuoi clienti.</p>
 
   <div id="stato-pagina" aria-live="polite"></div>
 
@@ -41,7 +41,7 @@
           <div class="campo-pt">
             <label for="p-foto">Scegli una foto</label>
             <input id="p-foto" type="file" accept="image/jpeg,image/png,image/webp">
-            <span class="aiuto-pt">JPEG, PNG o WebP. La ritaglio quadrata e la riduco io.</span>
+            <span class="aiuto-pt">JPEG, PNG o WebP.</span>
           </div>
           <div class="azioni-pt"><button class="bottone secondario piccolo" type="button" id="rimuovi-foto" hidden>Rimuovi la foto</button></div>
         </div>
@@ -63,7 +63,6 @@
       <div class="campo-pt">
         <label for="p-contatto">Come contattarti</label>
         <input id="p-contatto" type="text" maxlength="100" placeholder="Email o telefono">
-        <span class="aiuto-pt">Lo vedono i tuoi clienti. Se lo lasci vuoto non compare.</span>
       </div>
       <div id="esito-profilo" role="alert"></div>
       <div class="azioni-pt"><button class="bottone" type="submit" id="salva-profilo">Salva</button></div>
@@ -71,7 +70,7 @@
 
     <form class="pannello" id="modulo-titolare" novalidate aria-labelledby="t-titolare">
       <h2 class="sezione-pt" id="t-titolare">Dati per l'informativa privacy</h2>
-      <p class="nota">Sei tu il titolare dei dati dei tuoi clienti. Questi dati compaiono nell'informativa che leggono i tuoi clienti, quando si registrano e dopo. Sono obbligatori: finché non li inserisci non puoi invitare nessuno.</p>
+      <p class="nota">Sei il titolare dei dati dei tuoi clienti: questi dati compaiono nella loro informativa privacy. Servono per poter invitare qualcuno.</p>
       <div class="campo-pt">
         <label for="t-nome">Il tuo nome, o quello della palestra</label>
         <input id="t-nome" type="text" maxlength="150" autocomplete="organization" required>
@@ -82,9 +81,12 @@
         <span class="aiuto-pt">Via, numero, CAP e città.</span>
       </div>
       <div class="campo-pt">
-        <label for="t-email">Email per la privacy</label>
+        <div class="etichetta-riga">
+          <label for="t-email">Email per la privacy</label>
+          <button class="aiuto-bottone" type="button" id="t-email-info" aria-label="Perché serve questa email?" aria-expanded="false" aria-controls="t-email-aiuto">?</button>
+        </div>
         <input id="t-email" type="email" maxlength="100" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" required>
-        <span class="aiuto-pt">A questo indirizzo i clienti possono scriverti per chiedere di vedere, correggere o cancellare i loro dati.</span>
+        <span class="aiuto-pt" id="t-email-aiuto" hidden>A questo indirizzo i clienti possono scriverti per chiedere di vedere, correggere o cancellare i loro dati.</span>
       </div>
       <div id="esito-titolare" role="alert"></div>
       <div class="azioni-pt"><button class="bottone" type="submit" id="salva-titolare">Salva</button></div>
@@ -100,9 +102,10 @@
       <div class="azioni-pt"><button class="bottone" type="button" id="installa-bottone" hidden>Installa Lena</button></div>
     </section>
 
-    <section aria-labelledby="t-anteprima">
-      <h2 class="sezione-pt" id="t-anteprima">Come ti vede un cliente</h2>
-      <div class="pannello scheda-trainer" id="anteprima"></div>
+    <section class="pannello" aria-labelledby="t-assistenza">
+      <h2 class="sezione-pt" id="t-assistenza">Assistenza e idee</h2>
+      <p>Hai un'idea, vuoi cambiare qualcosa o qualcosa non funziona? Scrivici un feedback diretto.</p>
+      <div class="azioni-pt"><a class="bottone secondario" href="mailto:lenapersonaltrainerapp@gmail.com?subject=Feedback%20su%20Lena">Scrivici</a></div>
     </section>
   </div>
 </main>

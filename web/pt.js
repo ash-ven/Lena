@@ -25,29 +25,46 @@
     disegnaElenco();
   });
 
+  // Una riga dell'elenco (la stessa per i clienti attivi e per quelli con il rapporto concluso)
+  function riga(c) {
+    const r = LenaPt.riepilogoRiga(c);
+    return el("li", {}, el("a", { href: `/pt-cliente.html?id=${c.id}` },
+      avatar(c),
+      el("span", { class: "corpo-cliente" },
+        el("span", { class: "nome-cliente" }, `${c.nome} ${c.cognome}`),
+        el("span", { class: "dettaglio" },
+          r.stato.tipo === "neutro" ? null : el("span", { class: `stato ${r.stato.tipo}` }, r.stato.breve),
+          LenaPt.haBozza(c.id) ? el("span", { class: "stato bozza" }, "Bozza in corso") : null, r.testo),
+        r.scad ? el("span", { class: "dettaglio scadenza-riga" + (r.scad.urgente ? " urgente" : "") }, r.scad.testo) : null),
+      el("span", { class: "icona i-avanti vai", "aria-hidden": "true" })));
+  }
+
+  // I clienti con il rapporto concluso non stanno nell'elenco: sono in una tendina chiusa sotto («Rapporto concluso (N)»).
+  // Se si cerca qualcuno e c'è tra loro, la tendina si apre da sola.
   function disegnaElenco() {
     const q = normalizza($("cerca").value);
-    const visibili = LenaOrdinaClienti.ordina(clienti, ordine).filter((c) => normalizza(`${c.nome} ${c.cognome} ${c.cognome} ${c.nome}`).includes(q));
-    const ul = $("elenco");
-    ul.replaceChildren(...visibili.map((c) => {
-      const r = LenaPt.riepilogoRiga(c);
-      return el("li", {}, el("a", { href: `/pt-cliente.html?id=${c.id}` },
-        avatar(c),
-        el("span", { class: "corpo-cliente" },
-          el("span", { class: "nome-cliente" }, `${c.nome} ${c.cognome}`),
-          el("span", { class: "dettaglio" },
-            r.stato.tipo === "neutro" ? null : el("span", { class: `stato ${r.stato.tipo}` }, r.stato.breve),
-            LenaPt.haBozza(c.id) ? el("span", { class: "stato bozza" }, "Bozza in corso") : null, r.testo),
-          r.scad ? el("span", { class: "dettaglio scadenza-riga" + (r.scad.urgente ? " urgente" : "") }, r.scad.testo) : null),
-        el("span", { class: "icona i-avanti vai", "aria-hidden": "true" })));
-    }));
+    const trovati = LenaOrdinaClienti.ordina(clienti, ordine).filter((c) => normalizza(`${c.nome} ${c.cognome} ${c.cognome} ${c.nome}`).includes(q));
+    const visibili = trovati.filter((c) => !c.rapporto_finito_il);
+    const conclusi = trovati.filter((c) => c.rapporto_finito_il);
+    const attiviTotali = clienti.filter((c) => !c.rapporto_finito_il).length;
+    $("elenco").replaceChildren(...visibili.map(riga));
+
+    const tendina = $("conclusi");
+    const eraVisibile = !tendina.hidden;
+    tendina.hidden = !conclusi.length;
+    $("conclusi-titolo").textContent = `Rapporto concluso (${conclusi.length})`;
+    $("elenco-conclusi").replaceChildren(...conclusi.map(riga));
+    if (q && conclusi.length) tendina.open = true;
+    else if (!q && !eraVisibile) tendina.open = false;
+
     $("conteggio").textContent = !clienti.length ? "" : q
-      ? `${visibili.length} su ${clienti.length}`
-      : `${clienti.length} ${clienti.length === 1 ? "cliente" : "clienti"}`;
+      ? `${trovati.length} su ${clienti.length}`
+      : `${attiviTotali} ${attiviTotali === 1 ? "cliente" : "clienti"}`;
     const vuoto = $("stato-elenco");
     vuoto.replaceChildren();
     if (!clienti.length) vuoto.append(el("p", { class: "attesa-pt" }, "Non hai ancora clienti. Crea il primo con «Nuovo cliente»."));
-    else if (!visibili.length) vuoto.append(el("p", { class: "attesa-pt" }, "Nessun cliente corrisponde alla ricerca."));
+    else if (!trovati.length) vuoto.append(el("p", { class: "attesa-pt" }, "Nessun cliente corrisponde alla ricerca."));
+    else if (!visibili.length && !q) vuoto.append(el("p", { class: "attesa-pt" }, "Nessun cliente attivo. Quelli con il rapporto concluso sono nella tendina qui sotto."));
   }
   $("cerca").addEventListener("input", disegnaElenco);
 
