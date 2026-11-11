@@ -130,15 +130,14 @@
 [data-mood="oldschool"] .titolo-giorno + .avanzamento + div,
 [data-mood="oldschool"] #contenuto > div:nth-child(3) { text-align: center; }
 
-/* avanzamento: bilanciere che si carica, un disco per blocco (alternati a sinistra e a destra) */
+/* avanzamento: bilanciere che si carica, un disco per blocco PER LATO (sempre simmetrico, anche con blocchi dispari); il primo disco è vicino al centro */
 [data-mood="oldschool"] .avanzamento { position: relative; height: 54px; background: none; margin: 4px 0 10px; overflow: visible; }
 [data-mood="oldschool"] .avanzamento > i { display: none; }
-[data-mood="oldschool"] .avanzamento .tappe { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 4px; }
+[data-mood="oldschool"] .avanzamento .tappe { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; column-gap: 28%; padding: 0 6%; }
 [data-mood="oldschool"] .avanzamento .tappe::before { content: ""; position: absolute; left: 6%; right: 6%; top: 50%; height: 6px; margin-top: -3px; background: var(--testo); }
-[data-mood="oldschool"] .avanzamento .tappe::after { content: ""; order: 1; flex: 0 0 38%; }
-[data-mood="oldschool"] .avanzamento .tappe b { position: relative; flex: 0 0 auto; width: 11px; height: 44px; border-radius: 2px; border: 1px dashed var(--testo-secondario); background: var(--sfondo); }
-[data-mood="oldschool"] .avanzamento .tappe b:nth-child(odd) { order: 0; }
-[data-mood="oldschool"] .avanzamento .tappe b:nth-child(even) { order: 2; }
+[data-mood="oldschool"] .avanzamento .lato { position: relative; display: flex; align-items: center; gap: 3px; flex: 0 1 auto; min-width: 0; }
+[data-mood="oldschool"] .avanzamento .lato.sx { flex-direction: row-reverse; }
+[data-mood="oldschool"] .avanzamento .tappe b { position: relative; flex: 0 1 11px; min-width: 3px; width: 11px; height: 44px; border-radius: 2px; border: 1px dashed var(--testo-secondario); background: var(--sfondo); }
 [data-mood="oldschool"] .avanzamento .tappe b.on { background: var(--g); border: 2px solid var(--testo); }
 [data-mood="oldschool"] .avanzamento .tappe b.nuovo { animation: oldschool-carica 260ms cubic-bezier(.2, .9, .3, 1.3); }
 @keyframes oldschool-carica { from { transform: scaleY(.2) translateY(-8px); opacity: 0; } to { transform: none; opacity: 1; } }

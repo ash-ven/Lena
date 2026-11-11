@@ -1,16 +1,16 @@
 /* ===========================================================================
    MOOD «TATAMI» DELLA SCHEDA DEL CLIENTE (chiaro; categoria interna: senza genere)
    Palestra di arti marziali: fondo paglia con la trama del tatami e i bordi neri in alto e in basso,
-   titoli a pennello in Kaushan Script, la cintura nel colore del giorno, riquadri con contorno e ombra piena d'inchiostro.
+   titoli a pennello in Kaushan Script, la striscia di avanzamento a riquadri pastello, riquadri con contorno e ombra piena d'inchiostro.
    Si attiva con data-mood="tatami" su <html>. Stessa struttura di tutti i mood (scheda.js).
 
    ECCEZIONE VOLUTA (scelta di Asiha): i 7 colori dei giorni sono PASTELLI veri. Sulla paglia non si leggono come
    testo, quindi in questo mood il colore del giorno non è mai testo né segno senza contorno:
    - il nome del giorno è in inchiostro, con una pennellata pastello sotto;
-   - cintura, linguette, pulsanti, spunte e pallini sono pastello CON contorno d'inchiostro e scritta d'inchiostro (≥ 10,6:1).
+   - striscia di avanzamento, linguette, pulsanti, spunte e pallini sono pastello CON contorno d'inchiostro e scritta d'inchiostro (≥ 10,6:1).
    Colori dei giorni: pesca, azzurro, burro, lilla, verde, rosa, acqua.
-   Animazioni: spunta che si disegna come una pennellata; cintura che entra e si annoda al cambio di giorno; un
-   nastrino sulla punta della cintura per ogni blocco fatto; gong a fine recupero; cerchio zen a fine allenamento.
+   Animazioni: spunta che si disegna come una pennellata; striscia che si stende al cambio di giorno; un
+   riquadro che si dipinge per ogni blocco fatto; gong a fine recupero; cerchio zen a fine allenamento.
    =========================================================================== */
 @font-face { font-family: "Kaushan Script"; src: url("/fonts/kaushan-script-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
 
@@ -126,22 +126,17 @@
   background: linear-gradient(transparent 62%, var(--g) 62% 90%, transparent 90%); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 [data-mood="tatami"] .titolo-giorno small { display: block; color: var(--testo); font-size: 15px; font-weight: 600; margin-top: 6px; }
 
-/* avanzamento = la cintura: fascia nel colore del giorno con il nodo, e un nastrino d'inchiostro sulla punta per ogni blocco fatto */
-[data-mood="tatami"] .avanzamento { position: relative; height: 56px; margin: 0 -16px 10px; background: none; overflow: visible; }
+/* avanzamento: una striscia con un riquadro per blocco; ogni blocco fatto si riempie di pastello, come una pennellata */
+[data-mood="tatami"] .avanzamento { position: relative; height: 22px; margin: 0 0 14px; background: var(--superficie); border: 1.5px solid var(--testo); border-radius: 3px; box-shadow: var(--ombra); overflow: hidden; }
 [data-mood="tatami"] .avanzamento > i { display: none; }
-[data-mood="tatami"] .avanzamento::before { content: ""; position: absolute; left: 0; right: 0; top: 18px; height: 20px; background: var(--g);
-  border-top: 1.5px solid var(--testo); border-bottom: 1.5px solid var(--testo); transform: rotate(-3deg); transform-origin: left; }
-[data-mood="tatami"] .avanzamento::after { content: ""; position: absolute; left: 58%; top: 8px; width: 28px; height: 40px; background: var(--g);
-  border: 1.5px solid var(--testo); border-radius: 3px; transform: rotate(-3deg); }
-[data-mood="tatami"] .avanzamento .tappe { position: absolute; right: 22px; top: 12px; display: flex; gap: 4px; transform: rotate(-3deg); z-index: 1; }
-[data-mood="tatami"] .avanzamento .tappe b { width: 7px; height: 30px; border-radius: 1px; background: var(--testo); opacity: .12; }
-[data-mood="tatami"] .avanzamento .tappe b.on { opacity: 1; }
-[data-mood="tatami"] .avanzamento .tappe b.nuovo { animation: tatami-nastrino 260ms cubic-bezier(.2, .9, .3, 1.3); }
-@keyframes tatami-nastrino { from { transform: scaleY(0); } to { transform: none; } }
-:root[data-mood="tatami"].cambia .avanzamento::before { animation: tatami-entra 420ms cubic-bezier(.2, .9, .3, 1); }
-:root[data-mood="tatami"].cambia .avanzamento::after { animation: tatami-stringe 300ms 300ms cubic-bezier(.3, 1.5, .5, 1) both; }
-@keyframes tatami-entra { from { transform: rotate(-3deg) scaleX(0); } to { transform: rotate(-3deg) scaleX(1); } }
-@keyframes tatami-stringe { from { transform: rotate(-3deg) scale(1.6); opacity: 0; } to { transform: rotate(-3deg) scale(1); opacity: 1; } }
+[data-mood="tatami"] .avanzamento .tappe { position: absolute; inset: 0; display: flex; }
+[data-mood="tatami"] .avanzamento .tappe b { flex: 1 1 0; min-width: 0; border-right: 1.5px solid var(--testo); background: transparent; transform-origin: left; }
+[data-mood="tatami"] .avanzamento .tappe b:last-child { border-right: 0; }
+[data-mood="tatami"] .avanzamento .tappe b.on { background: var(--g); }
+[data-mood="tatami"] .avanzamento .tappe b.nuovo { animation: tatami-pennellata 320ms ease-out; }
+@keyframes tatami-pennellata { from { transform: scaleX(0); } to { transform: none; } }
+:root[data-mood="tatami"].cambia .avanzamento { animation: tatami-entra 380ms cubic-bezier(.2, .9, .3, 1); transform-origin: left; }
+@keyframes tatami-entra { from { transform: scaleX(0); } to { transform: none; } }
 
 /* ---------- riquadri: bianchi, contorno e ombra piena d'inchiostro ---------- */
 [data-mood="tatami"] .card { border-radius: var(--raggio); border: 1.5px solid var(--testo); background: var(--superficie); box-shadow: var(--ombra); margin-bottom: 16px; }

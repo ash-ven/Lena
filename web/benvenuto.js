@@ -8,7 +8,7 @@
   const data = (d) => d.toLocaleDateString("it-IT", { day: "numeric", month: "long" });
   const giorno = (iso) => { const [a, m, g] = String(iso).split("-").map(Number); return new Date(a, m - 1, g); };
   const SOTTO_ATTESA = "Il tuo trainer sta preparando la tua scheda. Appena è pronta, la trovi qui: questa pagina si aggiorna da sola.";
-  const SOTTO_PRONTA = "Quando vuoi, apri la tua scheda. Il tuo trainer è qui sotto.";
+  const SOTTO_PRONTA = "La tua scheda è pronta.";
 
   // dove si è, a oggi, nella scheda: in parole
   function statoScheda(dati) {

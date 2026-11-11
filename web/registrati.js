@@ -61,7 +61,7 @@
     $("invia").textContent = "Un attimo…";
     if (!versioneInformativa && !(await leggiVersione())) {
       $("invia").disabled = false;
-      $("invia").textContent = "Crea il mio accesso";
+      $("invia").textContent = "Crea accesso";
       mostra("errore", "Non riesco a contattare il server. Controlla la connessione e riprova.");
       return;
     }
@@ -72,7 +72,7 @@
       return;
     }
     $("invia").disabled = false;
-    $("invia").textContent = "Crea il mio accesso";
+    $("invia").textContent = "Crea accesso";
 
     const errore = r.json && r.json.errore;
     if (r.stato === 400 && errore === "Invito non valido o scaduto") {

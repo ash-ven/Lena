@@ -78,13 +78,20 @@
 [data-mood="velluto"] .giorno-btn[data-giorno="7"] { --gb: var(--giorno-7); }
 
 /* ---------- fondo: nero caldo con ventagli d'oro appena percepibili ---------- */
-[data-mood="velluto"] body {
+[data-mood="velluto"] body,
+[data-mood="velluto"] .barra {
   background-color: var(--sfondo); color: var(--testo);
-  background-image: radial-gradient(circle at 50% 100%, transparent 14px, rgba(201, 163, 90, .08) 15px, transparent 16px,
-    transparent 22px, rgba(201, 163, 90, .06) 23px, transparent 24px);
-  background-size: 48px 24px;
+  /* dall'alto: ventagli d'oro; riflesso morbido della luce sul tessuto; ombra in basso; pelo del velluto a trama fittissima incrociata.
+     Tutto «fisso» rispetto allo schermo, così la barra in alto e il fondo sono lo stesso tessuto, senza stacchi. */
+  background-image:
+    radial-gradient(circle at 50% 100%, transparent 14px, rgba(201, 163, 90, .08) 15px, transparent 16px, transparent 22px, rgba(201, 163, 90, .06) 23px, transparent 24px),
+    radial-gradient(ellipse 110% 60% at 30% 0%, rgba(255, 214, 190, .13), transparent 72%),
+    radial-gradient(ellipse 90% 55% at 80% 100%, rgba(0, 0, 0, .4), transparent 72%),
+    repeating-linear-gradient(45deg, rgba(255, 225, 205, .03) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(135deg, rgba(0, 0, 0, .16) 0 1px, transparent 1px 3px);
+  background-size: 48px 24px, 100% 100vh, 100% 100vh, auto, auto;
+  background-attachment: fixed;
 }
-[data-mood="velluto"] .barra { background: var(--sfondo); }
 
 /* ---------- titoli: Playfair Display corsivo; testo e numeri: Inter ---------- */
 [data-mood="velluto"] h1,

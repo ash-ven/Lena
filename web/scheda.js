@@ -365,10 +365,15 @@ function disegna(){
       "aria-valuemin":"0", "aria-valuemax":String(tot), "aria-valuenow":String(fatti), "aria-valuetext":`${fatti} su ${tot}`},
       el("i",{style:`width:${tot ? Math.round(100*fatti/tot) : 0}%`}),
       // le tappe: una per blocco, «on» se fatto (il mood sceglie se mostrare la barra continua o le tappe, es. le perle di Velluto)
-      el("span",{class:"tappe"}, g.blocchi.map((b,i) => {
-        const k = `${g.id}|${i+1}`;   // «nuovo» = la tappa appena spuntata (per l'animazione del mood)
-        return el("b",{class: fatto(k) ? "on" + (appenaSpuntato === chiave(stato.settimana, k) ? " nuovo" : "") : null});
-      }))));
+      el("span",{class:"tappe"}, (() => {
+        const tappa = (b,i) => {
+          const k = `${g.id}|${i+1}`;   // «nuovo» = la tappa appena spuntata (per l'animazione del mood)
+          return el("b",{class: fatto(k) ? "on" + (appenaSpuntato === chiave(stato.settimana, k) ? " nuovo" : "") : null});
+        };
+        // Old School: il bilanciere è simmetrico, ogni blocco carica un disco PER LATO (anche con blocchi dispari); il primo sta vicino al centro
+        if (MOOD === "oldschool") return [el("span",{class:"lato sx"}, g.blocchi.map(tappa)), el("span",{class:"lato dx"}, g.blocchi.map(tappa))];
+        return g.blocchi.map(tappa);
+      })())));
   }
   m.append(el("div",{style:"font-size:13px;color:var(--colore-testo-tenue)"},
     n < DATI.settimane ? `Stai guardando la settimana ${n} · dal ${fmt(giornoSett(n))}` : `Stai guardando la settimana di scarico · dal ${fmt(giornoSett(n))}`));
@@ -431,6 +436,14 @@ async function tieniAcceso(){
 function apriAllenamento(){
   stato.passo = 0; document.body.classList.add("in-allenamento"); disegnaFocus(); tieniAcceso();
 }
+// Alla fine di «Inizia allenamento» si torna alla scheda: se il giorno è completo, si porta in vista il banner e se ne riparte l'animazione
+// (altrimenti si sarebbe già consumata dietro la schermata dell'allenamento)
+function festeggia(){
+  if (!MOOD || !completo(DATI.giorni[stato.giorno])) return;
+  const b = document.querySelector("#contenuto .completato"); if (!b) return;
+  b.classList.remove("appena"); void b.offsetWidth; b.classList.add("appena");
+  try { b.scrollIntoView({ block: "center", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); } catch(e) { b.scrollIntoView(); }
+}
 function chiudiAllenamento(){
   document.body.classList.remove("in-allenamento");
   try { wake && wake.release(); } catch(e){} wake = null;
@@ -453,7 +466,7 @@ function disegnaFocus(){
 }
 function muovi(d){
   const p = passi(DATI.giorni[stato.giorno]);
-  if (d > 0 && stato.passo === p.length - 1){ chiudiAllenamento(); return; }
+  if (d > 0 && stato.passo === p.length - 1){ chiudiAllenamento(); festeggia(); return; }
   stato.passo += d; disegnaFocus();
 }
 document.getElementById("f-avanti").onclick = () => muovi(1);
