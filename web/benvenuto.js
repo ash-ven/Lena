@@ -46,6 +46,8 @@
   async function avvia() {
     const me = await Lena.chiama("GET", "/api/auth/me");
     if (me.stato === 401) return location.replace("/login.html");
+    // Senza rete, con la copia della scheda sul telefono (l'ha attivata il cliente): si apre direttamente la scheda
+    if ((me.stato === 0 || me.stato >= 500) && window.LenaCopia && LenaCopia.leggi()) return location.replace("/scheda.html");
     if (me.stato === 200 && me.json.ruolo === "pt") return location.replace("/pt.html");
     if (!(await aggiornaScheda())) return;
 

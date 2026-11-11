@@ -704,7 +704,7 @@ Lena si può mettere sul telefono come un'app: icona, schermo intero, apertura p
 
 - `web/manifest.webmanifest` e le icone in `web/icone-app/` (192, 512, maschera per Android, 180 per iPhone), disegnate con le stesse forme di `web/favicon.svg`.
 - `web/sw.js` è il service worker. **Non salva mai dati delle persone**: lascia passare l'API (`/api/`), gli indirizzi con parametri (codici di invito e di recupero) e tutto ciò che non è GET; tiene solo una copia dei file del sito. Prima va in rete, così dopo un aggiornamento si vede subito la versione nuova. Se cambia la logica di cosa si copia, cambia `VERSIONE` in `sw.js`.
-- Senza rete si vede `web/offline.html`. La scheda **non** si apre offline: i dati restano solo sul server finché la pagina non è caricata (i valori segnati senza rete, a pagina già aperta, partono appena torna la rete, come prima).
+- Senza rete si vede `web/offline.html`. La scheda si apre offline **solo se il cliente attiva «Scheda anche senza rete»** (vedi sotto); altrimenti i dati restano solo sul server. I valori segnati senza rete partono appena torna la rete.
 - `web/pwa.js` registra il service worker e mostra il riquadro «Metti Lena sul telefono» (in «Il mio account» e nel profilo del trainer), con il pulsante «Installa» su Android e le istruzioni a parole per iPhone.
 - Il test è `api/test/pwa.test.js`.
 
@@ -778,3 +778,16 @@ $u = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices
 $u = ($u.Trim().Trim('"')) -replace "&channel_binding=require", ""
 Get-Content db\initdb\14_sforzo.sql | docker run --rm -i postgres:18 psql "$u"
 ```
+
+## Scheda anche senza rete (11 novembre)
+
+Nel riquadro in fondo alla scheda il cliente trova **«Scheda anche senza rete»**, spento di default (`web/copia-offline.js`, `web/scheda-server.js`).
+
+- **Se lo attiva:** il telefono tiene (in `localStorage`, chiave `lena:copia`) gli esercizi, i progressi, l'aspetto scelto e il numero dell'account. **Non** ci sono email, foto, nome del profilo o note del trainer. La scelta è la chiave `lena:offline`.
+- **Quanto dura:** 14 giorni dall'ultima volta che la scheda si è aperta con la rete (ogni apertura con la rete la rinnova). Poi si cancella da sola.
+- **Quando si usa:** solo se manca la rete (o il server non risponde, 5xx). Con la sessione scaduta (401) si va al login come sempre. Si apre **senza accedere**, scelta dichiarata nell'informativa. Alla home e a `/` senza rete, con la copia, si apre direttamente la scheda.
+- **Cosa si può fare offline:** segnare kg, serie, spunte e «Com'è andata»; partono da soli quando torna la rete (la coda in sospeso era già conservata). Profilo, home e cambio aspetto no (le icone non ci sono).
+- **Quando si cancella:** «Esci» (copia e scelta), «Disattiva», scadenza dei 14 giorni, oppure se un altro account apre la scheda con la rete.
+- **Tenuta aggiornata:** a ogni salvataggio riuscito la copia riceve i progressi che il server ha (`confermate()` del sincronizzatore).
+- **Limite:** la prima volta la scheda va aperta con la rete (il service worker deve aver visto le pagine). Non è nella scheda scaricabile.
+- Test: `api/test/copia-offline.test.js`.

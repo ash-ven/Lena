@@ -170,6 +170,9 @@
         try { op.memoria.scrivi(null); } catch (e) { /* memoria bloccata */ }
       },
 
+      // Le voci che il server ha di sicuro (per tenere aggiornata la copia sul telefono)
+      confermate: () => [...confermato].map(([k, valore]) => { const i = k.indexOf("|"); return { tipo: k.slice(0, i), chiave: k.slice(i + 1), valore }; }),
+
       inSospeso: () => daInviare().size,
     };
   }

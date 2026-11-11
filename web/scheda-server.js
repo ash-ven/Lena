@@ -83,13 +83,18 @@
   }
 
   // ---------- l'archivio: dove scheda.js legge e salva kg, ripetizioni, serie e spunte ----------
-  function creaArchivio(utente, scheda, registrazioni) {
+  // «ctx»: { offline: la pagina è aperta dalla copia sul telefono, salvata: quando era stata fatta, mood: l'aspetto (per la copia) }
+  function creaArchivio(utente, scheda, registrazioni, ctx) {
     const sync = window.LenaSincronizza.creaSincronizzatore({
       schedaId: scheda.id,
       confermato: registrazioni,
       chiama: Lena.chiama,
       memoria: memoriaBrowser(`lena:coda:${utente.id}:${scheda.id}`),
-      segnala: segnalaStato,
+      segnala: (s) => {
+        segnalaStato(s);
+        // ogni volta che i progressi sono al sicuro sul server, anche la copia sul telefono (se c'è) li ha
+        if (s === "salvato" && window.LenaCopia && LenaCopia.vuole()) LenaCopia.aggiornaRegistrazioni(scheda.id, sync.confermate());
+      },
       inLinea: () => navigator.onLine !== false,
       sessioneScaduta: () => location.replace(Lena.loginScaduto()),   // le modifiche restano sul dispositivo e partono dopo il login
       suRifiutata: (voce) => console.warn("Il server non ha accettato questa voce:", voce),
@@ -119,7 +124,7 @@
       }
       // La copia locale si cancella solo quando il server ha davvero chiuso la sessione: se non c'è rete e l'uscita non
       // riesce, la persona resta dentro e non ha perso niente.
-      await Lena.esci(() => { sync.dimentica(); cancellaCopieLocali(); });
+      await Lena.esci(() => { sync.dimentica(); cancellaCopieLocali(); LenaCopia.imposta(false); });
     }
 
     return {
@@ -131,10 +136,36 @@
         if (await sync.sincronizzaOra()) location.assign("/benvenuto.html");
       },
       riquadro(el) {
+        const chiaro = (d) => d.toLocaleDateString("it-IT", { day: "numeric", month: "long" });
+        if (ctx.offline) {
+          return el("div", { class: "salvataggio" },
+            el("div", {}, el("b", {}, "Sei senza rete"), ` Stai guardando la copia salvata sul telefono il ${chiaro(new Date(ctx.salvata))}. Quello che segni parte da solo appena torna la rete.`),
+            el("div", { class: "azioni" }, el("button", { type: "button", class: "btn piccolo", onclick: () => location.reload() }, "Riprova con la rete")));
+        }
+        // «Scheda anche senza rete»: lo sceglie il cliente, su questo telefono
+        const offline = el("div", { style: "margin-top:12px" });
+        const disegnaOffline = () => {
+          const attiva = LenaCopia.vuole();
+          const c = attiva ? LenaCopia.leggi() : null;
+          const testo = attiva
+            ? `La scheda è salvata su questo telefono${c ? ` fino al ${chiaro(LenaCopia.scadenza(c))} (si rinnova ogni volta che la apri con la rete)` : ""}: la apri anche senza rete e senza accedere. Si cancella quando premi «Esci».`
+            : `Vuoi aprire la scheda anche dove non c'è campo? Una copia (esercizi e quello che segni, senza email, foto o note) resta su questo telefono per ${LenaCopia.GIORNI} giorni. Chi usa questo telefono potrebbe vederla: si cancella con «Esci».`;
+          const b = el("button", { type: "button", class: "btn piccolo", "aria-pressed": String(attiva), onclick: () => {
+            if (LenaCopia.vuole()) LenaCopia.imposta(false);
+            else {
+              LenaCopia.imposta(true);
+              LenaCopia.salva({ utenteId: utente.id, scheda: { id: scheda.id, dati: scheda.dati }, registrazioni: sync.confermate(), mood: ctx.mood });
+            }
+            disegnaOffline();
+          } }, attiva ? "Disattiva" : "Attiva");
+          offline.replaceChildren(el("div", {}, el("b", {}, "Scheda anche senza rete: "), attiva ? "attiva" : "non attiva"), el("div", { style: "margin-top:4px" }, testo), el("div", { class: "azioni" }, b));
+        };
+        disegnaOffline();
         return el("div", { class: "salvataggio" },
           el("div", {}, el("b", {}, "Quello che segni si salva da solo"), " nel tuo spazio su Lena."),
           el("div", { style: "margin-top:4px" }, `Sei dentro come ${utente.email}.`),
-          el("div", { class: "azioni" }, vaiAlMioAccount(el), el("button", { type: "button", class: "btn piccolo", onclick: uscire }, "Esci")));
+          el("div", { class: "azioni" }, vaiAlMioAccount(el), el("button", { type: "button", class: "btn piccolo", onclick: uscire }, "Esci")),
+          offline);
       },
     };
   }
@@ -184,7 +215,16 @@
   // ---------- avvio ----------
   async function avvia() {
     mostraStato("Un attimo…", "Sto caricando la tua scheda.", []);
-    const [me, sch, md] = await Promise.all([Lena.chiama("GET", "/api/auth/me"), Lena.chiama("GET", "/api/me/scheda"), Lena.chiama("GET", "/api/me/mood")]);
+    let [me, sch, md] = await Promise.all([Lena.chiama("GET", "/api/auth/me"), Lena.chiama("GET", "/api/me/scheda"), Lena.chiama("GET", "/api/me/mood")]);
+
+    // Senza rete (o con il server che non risponde): se il cliente ha attivato la copia sul telefono, si apre la scheda da lì
+    let copia = null;
+    const senzaRete = (r) => r.stato === 0 || r.stato >= 500;
+    if (me.stato !== 401 && sch.stato !== 401 && (senzaRete(me) || senzaRete(sch)) && (copia = LenaCopia.leggi())) {
+      me = { stato: 200, json: { id: copia.utenteId, ruolo: "cliente" } };
+      sch = { stato: 200, json: { scheda: copia.scheda, registrazioni: copia.registrazioni } };
+      md = copia.mood ? { stato: 200, json: copia.mood } : { stato: 0, json: null };
+    }
 
     if (me.stato === 401 || sch.stato === 401) return vaiAlLogin();
     if (me.stato === 200 && me.json.ruolo === "pt") return location.replace("/pt.html");
@@ -198,7 +238,13 @@
     const { scheda, registrazioni } = sch.json;
     window.DATI = scheda.dati;
     window.IN_ANTEPRIMA = false;   // l'anteprima esiste solo nel convertitore
-    window.LENA_ARCHIVIO = creaArchivio(me.json, scheda, registrazioni);
+    if (!copia) {
+      // Con la rete: la copia di un altro account non resta; se il cliente la vuole, si rinnova
+      const vecchia = LenaCopia.leggi();
+      if (vecchia && vecchia.utenteId !== me.json.id) LenaCopia.cancella();
+      if (LenaCopia.vuole()) LenaCopia.salva({ utenteId: me.json.id, scheda: { id: scheda.id, dati: scheda.dati }, registrazioni, mood: md.stato === 200 ? md.json : null });
+    }
+    window.LENA_ARCHIVIO = creaArchivio(me.json, scheda, registrazioni, { offline: !!copia, salvata: copia && copia.salvata, mood: md.stato === 200 ? md.json : null });
     document.title = `${scheda.dati.info.titolo || "La tua scheda"} · Lena`;
 
     // Il mood della scheda (la sua estetica): quello scelto dal cliente, altrimenti «lena». Se il server non lo dice, «lena».
@@ -220,7 +266,7 @@
     document.body.classList.remove("semplice");
     // l'icona del profilo, sempre a portata di mano nella testata della scheda
     const sopra = document.querySelector("header .sopra");
-    if (sopra) {
+    if (sopra && !copia) {   // senza rete il profilo e la home non si aprono: niente icone
       const a = document.createElement("a");
       a.className = "profilo-icona"; a.href = "/account.html";
       a.setAttribute("aria-label", "Il mio profilo");
