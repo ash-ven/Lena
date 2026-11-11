@@ -135,6 +135,17 @@ test("le risposte dell'API non vanno mai tenute in memoria dal browser (dati di 
   }
 });
 
+test("/api/sveglio risponde subito, senza cookie e senza toccare il database (serve al monitor che tiene sveglio il server)", async () => {
+  const r = await fetch(BASE + "/api/sveglio");
+  assert.equal(r.status, 200);
+  assert.deepEqual(await r.json(), { ok: true });
+  assert.equal(r.headers.get("cache-control"), "no-store");
+  assert.equal(r.headers.get("set-cookie"), null);
+  const app = fs.readFileSync(path.join(RADICE, "api", "app.js"), "utf8");
+  const riga = app.split("\n").find((l) => l.includes('"/api/sveglio"'));
+  assert.ok(riga && !/db\./.test(riga), "l'indirizzo per il monitor non deve interrogare il database");
+});
+
 // ---------- controlli sul codice delle pagine (GDPR: niente richieste a terzi) ----------
 
 test("nessuna pagina ha script scritti dentro l'HTML né gestori di eventi inline né javascript:", () => {

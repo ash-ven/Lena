@@ -80,6 +80,10 @@ function creaApp(opzioni = {}) {
   app.use("/api/me", creaRotteMe({ limiteRiconferma, finestraMinuti }));
   app.use("/api/privacy", rottaPrivacy);
 
+  // Per il monitor che tiene sveglio il server (UptimeRobot, ogni 5 minuti): risponde subito e NON tocca il database,
+  // altrimenti Neon non si addormenterebbe mai e finirebbe le ore gratuite. Per controllare anche il database c'è /api/salute, da aprire a mano.
+  app.get("/api/sveglio", (req, res) => res.json({ ok: true }));
+
   // controllo: il server è acceso e vede il database?
   app.get("/api/salute", async (req, res) => {
     try {
