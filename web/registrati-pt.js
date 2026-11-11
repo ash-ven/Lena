@@ -7,11 +7,18 @@
     messaggio.textContent = testo;
     messaggio.hidden = false;
   }
-  function pronto() { $("invia").disabled = false; $("invia").textContent = "Crea il mio account"; }
+  function pronto() { $("invia").disabled = false; $("invia").textContent = "Crea accesso"; }
 
   $("mostra").addEventListener("change", (ev) => {
     $("password").type = ev.target.checked ? "text" : "password";
   });
+
+  // La versione delle condizioni che si sta accettando arriva dal server (un solo punto dove si decide: api/config.js)
+  let versioneCondizioni = null;
+  (async () => {
+    const r = await Lena.chiama("GET", "/api/privacy/versioni");
+    if (r.stato === 200) { versioneCondizioni = r.json.condizioni_pt; $("versione-condizioni").textContent = versioneCondizioni; }
+  })();
 
   $("modulo").addEventListener("submit", async (ev) => {
     ev.preventDefault();
@@ -31,11 +38,20 @@
       return;
     }
 
+    if (!$("accetta").checked) {
+      mostra("Per iscriverti devi spuntare la casella delle condizioni d'uso.");
+      $("accetta").focus();
+      return;
+    }
+
     $("invia").disabled = true;
     $("invia").textContent = "Un attimo…";
     const r = await Lena.chiama("POST", "/api/auth/registra-pt", { nome, email, password });
 
     if (r.stato === 201) {
+      // L'iscrizione ha già aperto la sessione: si registra subito l'accettazione delle condizioni appena spuntate.
+      // Se questa chiamata non va a buon fine nessun danno: all'ingresso nell'area la schermata delle condizioni compare comunque.
+      if (versioneCondizioni) await Lena.chiama("POST", "/api/privacy/condizioni-pt", { versione: versioneCondizioni });
       location.replace(Lena.paginaDopoLogin("pt"));   // l'iscrizione ha già fatto il login
       return;
     }

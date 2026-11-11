@@ -18,7 +18,7 @@
       // Stessa risposta per tutti: non diciamo se l'email ha un account
       $("modulo").hidden = true;
       $("introduzione").hidden = true;
-      mostra("ok", "Se questa email ha un account su Lena, ti abbiamo mandato un link per scegliere una nuova password. Vale 1 ora. Se non lo vedi, guarda anche nella cartella dello spam.");
+      mostra("ok", "Se questa email ha un account, ti abbiamo mandato un link (vale 1 ora). Controlla anche lo spam.");
       return;
     }
     $("invia").disabled = false;

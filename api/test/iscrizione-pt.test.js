@@ -49,3 +49,14 @@ test("con REGISTRAZIONE_PT=chiusa l'iscrizione risponde 403 e non crea nulla", a
     assert.equal((await db.query("SELECT count(*)::int AS n FROM utente WHERE email = $1", [email("iscr-chiusa")])).rows[0].n, 0);
   } finally { delete process.env.REGISTRAZIONE_PT; }
 });
+
+test("iscrizione del trainer: si accettano le condizioni d'uso già qui e il pulsante dice come quello del cliente", () => {
+  const h = w("registrati-pt.html"), j = w("registrati-pt.js");
+  assert.match(h, /id="accetta"/);
+  assert.match(h, /href="\/condizioni-pt\.html"/);
+  assert.match(h, /id="invia">Crea accesso</);
+  assert.match(w("registrati.html"), /id="invia">Crea accesso</);
+  assert.match(j, /spuntare la casella delle condizioni/);
+  assert.match(j, /POST", "\/api\/privacy\/condizioni-pt", \{ versione: versioneCondizioni \}/);
+  assert.match(j, /\/api\/privacy\/versioni/);
+});
