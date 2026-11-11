@@ -5,7 +5,7 @@ const { ESERCIZI } = require("../catalogo-esercizi");
 const { chiaveNome, CATALOGO } = require("../libreria");
 
 test("catalogo: nomi puliti, unici e non troppo lunghi", () => {
-  assert.ok(ESERCIZI.length >= 400, `ne servono almeno 400, ce ne sono ${ESERCIZI.length}`);
+  assert.ok(ESERCIZI.length >= 1200, `ne servono almeno 1200, ce ne sono ${ESERCIZI.length}`);
   for (const n of ESERCIZI) {
     assert.equal(typeof n, "string");
     assert.equal(n, n.trim().replace(/\s+/g, " "), `spazi in «${n}»`);
