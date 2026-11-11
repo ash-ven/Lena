@@ -1,4 +1,4 @@
-// L'omino a fine scheda: conteggi, livelli e completezza dei disegni. Non servono dati nel database.
+// Il riepilogo allenamento (l'omino): conteggi, livelli e completezza dei disegni. Non servono dati nel database.
 const fs = require("node:fs");
 const path = require("node:path");
 const { test } = require("node:test");
@@ -67,11 +67,44 @@ test("tutta la scheda: i livelli sono relativi al muscolo più allenato, da 1 a 
   for (const v of Object.values(l)) assert.ok(v >= 1 && v <= Omino.LIVELLI);
 });
 
-test("l'omino è collegato alla scheda del sito, non a quella scaricabile", () => {
-  assert.match(leggi("scheda.html"), /href="\/omino\.css"/);
-  const srv = leggi("scheda-server.js");
-  for (const f of ["/muscoli.js", "/omino-dati.js", "/omino.js"]) assert.ok(srv.includes(f), `scheda-server.js non carica ${f}`);
+test("il riepilogo allenamento è nella home, tra «La tua scheda» e «Il tuo trainer», e non nella scheda", () => {
+  const home = leggi("benvenuto.html");
+  const a = home.indexOf('id="sezione-scheda"'), b = home.indexOf('id="sezione-riepilogo"'), c = home.indexOf('id="sezione-trainer"');
+  assert.ok(a > 0 && b > a && c > b, "ordine delle sezioni");
+  assert.match(home, /href="\/omino\.css"/);
+  for (const f of ["/muscoli.js", "/omino-dati.js", "/omino.js"]) assert.ok(home.includes(`src="${f}"`), `benvenuto.html non carica ${f}`);
+  assert.ok(home.indexOf('src="/omino.js"') < home.indexOf('src="/benvenuto.js"'));
+  assert.match(leggi("benvenuto.js"), /riepilogo\.aggiorna\(c, r\.json\.registrazioni\)/);
+  assert.doesNotMatch(leggi("scheda.html"), /omino/i);
+  assert.doesNotMatch(leggi("scheda-server.js"), /omino/i);
   assert.doesNotMatch(leggi("scheda.js"), /omino/i, "scheda.js (usata anche dalla scheda scaricabile) non deve conoscere l'omino");
+});
+
+test("allenamenti: un giorno di una settimana con almeno un esercizio fatto, dal più recente", () => {
+  const DATI = { giorni: [
+    { id: "A", titolo: "Giorno A", blocchi: [es("Panca piana"), es("Squat"), { tipo: "circuito", esercizi: [{ nome: "Plank" }] }] },
+    { id: "B", titolo: "Giorno B", blocchi: [es("Lat machine")] },
+  ] };
+  const r = (tipo, chiave, valore, quando) => ({ tipo, chiave, valore, aggiornata_il: quando });
+  const reg = [
+    r("fatto", "1|A|1", "1", "2026-11-10T10:00:00Z"),
+    r("serie", "1|A|2", "2", "2026-11-10T10:05:00Z"),
+    r("kg", "1|A|1", "50", "2026-11-10T10:30:00Z"),            // solo i kg non contano come esercizio fatto
+    r("fatto", "1|A|R|0", "1", "2026-11-10T09:00:00Z"),        // riscaldamento: no
+    r("fatto", "1|A|S", "1", "2026-11-10T11:00:00Z"),          // stretching: no
+    r("fatto", "2|B|1", "1", "2026-11-12T10:00:00Z"),
+    r("fatto", "1|B|1", "", "2026-11-13T10:00:00Z"),           // spunta tolta: no
+    r("fatto", "1|Z|1", "1", "2026-11-14T10:00:00Z"),          // giorno che non esiste più: no
+    r("serie", "3|A|1", "0", "2026-11-15T10:00:00Z"),          // zero serie: no
+  ];
+  const lista = Omino.allenamenti(DATI, reg);
+  assert.deepEqual(lista.map((x) => `${x.sett}${x.giorno.id}`), ["2B", "1A"]);
+  assert.equal(lista[1].esercizi, 2);
+  assert.equal(lista[1].n.petto, 1);
+  assert.equal(lista[1].n.quadricipiti, 1);
+  assert.equal(lista[0].n.dorsali >= 1 || lista[0].n.schiena >= 1 || Object.keys(lista[0].n).length > 0, true);
+  assert.deepEqual(Omino.allenamenti(DATI, []), []);
+  assert.deepEqual(Omino.allenamenti(null, undefined), []);
 });
 
 test("omino.js e omino.css: niente colori scritti a mano, niente innerHTML", () => {

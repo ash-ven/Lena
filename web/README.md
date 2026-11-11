@@ -24,9 +24,11 @@ Prima nel design system (`../design-sistema/tokens.json`), poi in `sistema.css`.
 - Il nome di un esercizio si completa dalla libreria (`GET /api/pt/esercizi?q=`) e ricompila il video già usato.
 - Per ora si crea solo da zero: modificare una scheda esistente e copiare da modelli sono passi successivi.
 
-## L'omino a fine scheda («Muscoli allenati»)
-- `muscoli.js` dice, per ogni esercizio, i muscoli principali (19 gruppi; si legge il nome dell'esercizio, anche se è inventato dal trainer). `omino.js` conta quanti esercizi della scheda lavorano ogni muscolo e li accende sulla figura: più esercizi = più luminoso (5 livelli). Si vede solo sulla scheda del sito, non nella scheda scaricabile (`scheda-server.js` carica i file dopo `scheda.js`).
-- Il cliente sceglie la figura (uomo o donna: nessun dato nuovo, resta solo nel suo browser, chiave `lena:omino`) e se vedere tutta la scheda o un giorno.
+## Il riepilogo allenamento («omino», nella home del cliente)
+- `muscoli.js` dice, per ogni esercizio, i muscoli principali (19 gruppi; si legge il nome dell'esercizio, anche se è inventato dal trainer). `omino.js` conta quanti esercizi di un allenamento lavorano ogni muscolo e li accende sulla figura: più esercizi = più luminoso (5 livelli).
+- Sta in `benvenuto.html`, tra «La tua scheda» e «Il tuo trainer», e non nella scheda (né in quella scaricabile). `benvenuto.js` gli passa la scheda e le registrazioni a ogni aggiornamento della pagina.
+- Un «allenamento» è un giorno della scheda in una settimana con almeno un esercizio fatto (spunta o almeno una serie); riscaldamento e stretching non contano. In primo piano c'è l'ultimo (per data di salvataggio), una tendina fa vedere i precedenti. Se non c'è ancora nessun allenamento, la sezione resta nascosta.
+- Il cliente sceglie la figura (uomo o donna: nessun dato nuovo, resta solo nel suo browser, chiave `lena:omino`).
 - `omino/`: per ogni figura la base grigia (`.webp`) e la sagoma (`-sagoma.png`, per tenere il bagliore dentro il corpo). `omino-dati.js`: la forma di ogni muscolo (tracciati SVG), ricavata da una mappa a colori della stessa figura. Le immagini sono state generate con un'IA a partire dalla stessa posa: se si cambiano, vanno rifatti anche i tracciati.
 - Il bagliore è fatto da tre strati (tinta, luce, alone) in `omino.css`, con il brace di Lena uguale in ogni mood.
 

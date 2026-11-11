@@ -22,6 +22,10 @@
   }
 
   // Controlla se la scheda c'è e aggiorna la pagina. Restituisce false se la sessione è scaduta.
+  // il riepilogo allenamento (l'omino) è un di più: se non si carica, il resto della pagina funziona lo stesso
+  let riepilogo = null;
+  try { riepilogo = window.LenaOmino.riepilogo($("riepilogo")); } catch (e) { /* niente omino */ }
+
   async function aggiornaScheda() {
     const r = await Lena.chiama("GET", "/api/me/scheda");
     if (r.stato === 401) { location.replace(Lena.loginScaduto()); return false; }
@@ -35,6 +39,7 @@
       $("scheda-periodo").textContent = s.periodo;
       $("scheda-stato").textContent = s.stato;
     }
+    $("sezione-riepilogo").hidden = !(c && riepilogo && riepilogo.aggiorna(c, r.json.registrazioni));
     return true;
   }
 
