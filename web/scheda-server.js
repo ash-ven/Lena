@@ -125,6 +125,11 @@
     return {
       carica: () => sync.caricaMem(),
       cambiato: (mem) => sync.cambiato(mem),
+      // «Fine allenamento» spuntato: invia tutto e torna alla home (dove c'è il riepilogo). Se l'invio non riesce resta qui:
+      // i progressi sono al sicuro sul dispositivo e l'indicatore in fondo dice che sta riprovando.
+      async fineAllenamento() {
+        if (await sync.sincronizzaOra()) location.assign("/benvenuto.html");
+      },
       riquadro(el) {
         return el("div", { class: "salvataggio" },
           el("div", {}, el("b", {}, "Quello che segni si salva da solo"), " nel tuo spazio su Lena."),

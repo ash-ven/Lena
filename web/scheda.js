@@ -173,7 +173,9 @@ function spunta(k, classe){
   const scatta = MOOD && appenaSpuntato === ck && fatto(k);
   return el("button",{type:"button", class: classe + (scatta ? " scatta" : ""), "aria-pressed": String(fatto(k)), "aria-label":"Segna come fatto",
     html:SVG.check, onclick:()=>{ const c = chiave(stato.settimana, k);
-      if (mem.fatti[c]) delete mem.fatti[c]; else { mem.fatti[c] = 1; appenaSpuntato = c; } salva(); disegna(); }});
+      if (mem.fatti[c]) delete mem.fatti[c]; else { mem.fatti[c] = 1; appenaSpuntato = c; } salva(); disegna();
+      // «Fine allenamento» appena spuntato: sul sito la pagina decide cosa fare (torna alla home); nella scheda scaricabile non c'è nulla
+      if (k.endsWith("|S") && mem.fatti[c] && ARCHIVIO && ARCHIVIO.fineAllenamento) ARCHIVIO.fineAllenamento(); }});
 }
 
 function secondi(t){ const m = t.match(/(\d+)'/), s = t.match(/(\d+)"/); return (m ? +m[1]*60 : 0) + (s ? +s[1] : 0); }

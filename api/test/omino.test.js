@@ -113,3 +113,8 @@ test("omino.js e omino.css: niente colori scritti a mano, niente innerHTML", () 
   assert.doesNotMatch(leggi("omino.js"), colore, "omino.js ha un colore scritto a mano");
   assert.doesNotMatch(leggi("omino.js"), /innerHTML|eval\(|new Function/);
 });
+
+test("«Fine allenamento» riporta alla home solo sul sito, dopo aver inviato i progressi", () => {
+  assert.match(leggi("scheda.js"), /k\.endsWith\("\|S"\) && mem\.fatti\[c\] && ARCHIVIO && ARCHIVIO\.fineAllenamento/);
+  assert.match(leggi("scheda-server.js"), /fineAllenamento\(\)[\s\S]{0,80}sincronizzaOra\(\)\)[\s\S]{0,40}\/benvenuto\.html/);
+});
