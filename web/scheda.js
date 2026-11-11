@@ -186,6 +186,18 @@ function ultimoValore(tipo, k){
   for (let n = stato.settimana - 1; n >= 1; n--){ const v = mem[tipo][chiave(n, k)]; if (v) return {n, v}; }
   return null;
 }
+// ---- record: inizio (il test in api/test/record.test.js legge questo pezzo) ----
+// Un «nuovo massimo» è un peso più alto di tutti quelli segnati per lo stesso esercizio nelle settimane precedenti.
+// Senza un peso precedente non c'è nessun record da battere. «60», «62,5» e «60 kg» si leggono; il resto vale zero.
+function pesoDa(v){ const x = parseFloat(String(v == null ? "" : v).replace(",", ".")); return isFinite(x) && x > 0 ? x : 0; }
+function nuovoMassimo(kg, settimana, k, testo){
+  let prima = 0;
+  for (let n = 1; n < settimana; n++) prima = Math.max(prima, pesoDa(kg[[n, k].join("|")]));
+  const ora = pesoDa(testo);
+  return prima > 0 && ora > prima ? { prima, ora } : null;
+}
+// ---- record: fine ----
+
 function rip10(v, serie){
   const t = String(v || "").toUpperCase().replace(/\s/g,"");
   if (t === `${serie}X10`) return true;
@@ -199,10 +211,18 @@ function campo(tipo, k, etichetta, segnaposto, serie){
     value: mem[tipo][c] || "", "aria-label": etichetta});
   const verde = () => wrap.classList.toggle("ok", tipo==="rip" && rip10(inp.value, serie));
   inp.addEventListener("input", () => { const v = inp.value.trim(); if (v) mem[tipo][c] = v; else delete mem[tipo][c]; verde(); salva(); });
-  verde();
+  const record = el("span",{class:"record", role:"status"});
+  const mostraRecord = () => {
+    const r = tipo === "kg" ? nuovoMassimo(mem.kg, stato.settimana, k, inp.value) : null;
+    wrap.classList.toggle("record-battuto", !!r);
+    record.textContent = r ? `Nuovo massimo! Prima: ${String(r.prima).replace(".", ",")} kg` : "";
+  };
+  inp.addEventListener("input", mostraRecord);
+  verde(); mostraRecord();
   const prima = ultimoValore(tipo, k);
   wrap.append(el("small",{}, etichetta), inp);
   if (prima) wrap.append(el("span",{class:"prima"}, `Sett. ${prima.n}: ${prima.v}`));
+  if (tipo === "kg") wrap.append(record);
   return wrap;
 }
 

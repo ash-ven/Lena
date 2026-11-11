@@ -130,6 +130,8 @@ footer{color:var(--colore-testo-tenue);font-size:12px;text-align:center;margin:2
 .campo input::placeholder{color:#C9C2B8}
 .campo.ok{background:var(--colore-ok-sfondo)}.campo.ok input{border-color:var(--colore-ok-bordo);color:var(--colore-ok-testo)}
 .campo .prima{font-size:11px;color:var(--colore-testo-tenue)}
+.campo.record-battuto{background:var(--colore-ok-sfondo)}.campo.record-battuto input{border-color:var(--colore-ok-bordo)}
+.campo .record{font-size:11px;font-weight:700;color:var(--colore-ok-testo)}.campo .record:empty{display:none}
 .circ .lista input{width:64px;border:0;border-bottom:1.5px solid var(--c);background:var(--colore-sfondo);border-radius:8px 8px 0 0;
   font-family:var(--scheda-font-titoli);font-size:16px;padding:5px 6px;text-align:center;outline:none}
 .serie-riga{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
