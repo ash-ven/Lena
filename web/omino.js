@@ -114,6 +114,27 @@
     return svg;
   }
 
+  // La settimana della scheda in cui si è oggi (1 = la prima), o null se la scheda non è iniziata o è finita.
+  function settimanaDiOggi(DATI, ora) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String((DATI && DATI.inizio) || ""));
+    if (!m || !DATI.settimane) return null;
+    const oggi = new Date(ora || Date.now()); oggi.setHours(0, 0, 0, 0);
+    const giorni = Math.round((oggi - new Date(+m[1], +m[2] - 1, +m[3])) / 86400000);
+    const n = Math.floor(giorni / 7) + 1;
+    return giorni >= 0 && n <= DATI.settimane ? n : null;
+  }
+
+  // Quante settimane di fila, fino a questa, con almeno un allenamento. La settimana in corso non è finita: se non c'è ancora
+  // un allenamento non interrompe la serie, che si ferma solo se è saltata una settimana intera. { n, questaFatta }
+  function serieSettimane(lista, corrente) {
+    const fatte = new Set((lista || []).map((x) => x.sett));
+    if (!corrente) return { n: 0, questaFatta: false };
+    const questaFatta = fatte.has(corrente);
+    let n = 0;
+    for (let s = questaFatta ? corrente : corrente - 1; s >= 1 && fatte.has(s); s--) n++;
+    return { n, questaFatta };
+  }
+
   // ---------- il riepilogo allenamento (nella pagina di benvenuto) ----------
   const GIORNI = ["domenica", "lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato"];
   const MESI = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"];
@@ -124,14 +145,14 @@
   // ancora nessun allenamento. Ricorda la scelta (uomo/donna, allenamento guardato) anche quando la pagina si aggiorna da sola.
   function riepilogo(host, doc) {
     const d = doc || document;
-    const stato = { sesso: "m", scelto: 0, firma: null, lista: [] };
+    const stato = { sesso: "m", scelto: 0, firma: null, lista: [], serie: { n: 0, questaFatta: false } };
     try { if (localStorage.getItem("lena:omino") === "f") stato.sesso = "f"; } catch (e) { /* memoria bloccata */ }
     let contatore = 0, DATI = null;
 
     const el = (tag, classe, testo) => { const e = d.createElement(tag); if (classe) e.className = classe; if (testo != null) e.textContent = testo; return e; };
     const testa = el("div", "omino-testa");
-    const titolo = el("p", "omino-titolo"), dettaglio = el("p", "nota omino-dettaglio");
-    testa.append(titolo, dettaglio);
+    const titolo = el("p", "omino-titolo"), dettaglio = el("p", "nota omino-dettaglio"), serie = el("p", "omino-serie");
+    testa.append(titolo, dettaglio, serie);
     const tendina = el("div", "omino-tendina");
     const etichetta = el("label", "", "Vedi un altro allenamento");
     etichetta.setAttribute("for", "omino-scelta-allenamento");
@@ -160,6 +181,9 @@
       const a = stato.lista[stato.scelto];
       titolo.textContent = `${a.giorno.titolo}${a.giorno.focus ? " · " + a.giorno.focus : ""}`;
       dettaglio.textContent = `${stato.scelto === 0 ? "Ultimo allenamento" : "Allenamento"} · settimana ${a.sett} · ${dataLunga(a.data)} · ${a.esercizi} ${a.esercizi === 1 ? "esercizio" : "esercizi"}`;
+      const s = stato.serie;
+      serie.hidden = s.n < 2;
+      serie.textContent = s.n < 2 ? "" : `${s.n} settimane di fila con almeno un allenamento${s.questaFatta ? "" : ": allenati questa settimana per continuare"}`;
       tendina.hidden = stato.lista.length < 2;
       select.replaceChildren(...stato.lista.map((x, i) => {
         const o = el("option", "", `${i === 0 ? "Ultimo: " : ""}${x.giorno.titolo} · sett. ${x.sett} · ${dataBreve(x.data)}`);
@@ -185,10 +209,12 @@
         DATI = dati;
         const lista = allenamenti(dati, registrazioni);
         // si ridisegna solo se qualcosa è cambiato: così la pagina che si aggiorna da sola non azzera la scelta
-        const firma = lista.map((x) => `${x.sett}${x.giorno.id}:${x.data}:${x.esercizi}`).join(",");
+        const corrente = settimanaDiOggi(dati);
+        const firma = corrente + ">" + lista.map((x) => `${x.sett}${x.giorno.id}:${x.data}:${x.esercizi}`).join(",");
         if (firma !== stato.firma) {
           const prima = stato.lista[stato.scelto];
           stato.lista = lista;
+          stato.serie = serieSettimane(lista, corrente);
           stato.firma = firma;
           const rimasto = prima ? lista.findIndex((x) => x.sett === prima.sett && x.giorno.id === prima.giorno.id) : -1;
           stato.scelto = rimasto >= 0 ? rimasto : 0;
@@ -199,5 +225,5 @@
     };
   }
 
-  return { LIVELLI, conteggi, allenamenti, livelli, muscoliVisibili, figura, riepilogo };
+  return { LIVELLI, conteggi, allenamenti, settimanaDiOggi, serieSettimane, livelli, muscoliVisibili, figura, riepilogo };
 });

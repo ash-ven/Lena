@@ -118,3 +118,21 @@ test("«Fine allenamento» riporta alla home solo sul sito, dopo aver inviato i 
   assert.match(leggi("scheda.js"), /k\.endsWith\("\|S"\) && mem\.fatti\[c\] && ARCHIVIO && ARCHIVIO\.fineAllenamento/);
   assert.match(leggi("scheda-server.js"), /fineAllenamento\(\)[\s\S]{0,80}sincronizzaOra\(\)\)[\s\S]{0,40}\/benvenuto\.html/);
 });
+
+test("settimane di fila: la settimana in corso non interrompe la serie, una saltata sì", () => {
+  const l = (...s) => s.map((sett) => ({ sett }));
+  const DATI = { inizio: "2026-10-26", settimane: 8 };
+  const giorno = (iso) => new Date(`${iso}T12:00:00`);
+  assert.equal(Omino.settimanaDiOggi(DATI, giorno("2026-10-26")), 1);
+  assert.equal(Omino.settimanaDiOggi(DATI, giorno("2026-11-11")), 3);
+  assert.equal(Omino.settimanaDiOggi(DATI, giorno("2026-10-20")), null, "prima dell'inizio");
+  assert.equal(Omino.settimanaDiOggi(DATI, giorno("2027-01-30")), null, "scheda finita");
+  assert.equal(Omino.settimanaDiOggi({}, giorno("2026-11-11")), null);
+  assert.deepEqual(Omino.serieSettimane(l(1, 2, 3), 3), { n: 3, questaFatta: true });
+  assert.deepEqual(Omino.serieSettimane(l(1, 2), 3), { n: 2, questaFatta: false }, "la settimana in corso è ancora aperta");
+  assert.deepEqual(Omino.serieSettimane(l(1, 3), 3), { n: 1, questaFatta: true }, "la 2 è saltata");
+  assert.deepEqual(Omino.serieSettimane(l(1), 3), { n: 0, questaFatta: false }, "la 2 è saltata e la 3 non c'è");
+  assert.deepEqual(Omino.serieSettimane(l(1, 1, 1), 1), { n: 1, questaFatta: true }, "più allenamenti nella stessa settimana valgono una settimana");
+  assert.deepEqual(Omino.serieSettimane([], 2), { n: 0, questaFatta: false });
+  assert.deepEqual(Omino.serieSettimane(l(1, 2), null), { n: 0, questaFatta: false });
+});

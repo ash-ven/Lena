@@ -2,6 +2,8 @@
    il bagliore usa il brace di Lena, il resto i colori della pagina. */
 .omino-titolo { margin: 0; font-weight: 600; font-size: 1.05rem; }
 .omino-dettaglio { margin: 2px 0 0; }
+.omino-serie { margin: 8px 0 0; font-size: 14px; font-weight: 600; color: var(--testo-brace); }
+.omino-serie[hidden] { display: none; }
 .omino-tendina { display: grid; gap: 4px; margin: 12px 0 0; }
 .omino-tendina label { font-size: 13px; color: var(--testo-secondario); }
 .omino-scelta { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
