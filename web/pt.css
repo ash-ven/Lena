@@ -53,6 +53,12 @@ body.pt a.bottone{color:var(--su-brace)}
 .campo-pt input[type="file"]{padding:var(--spazio-2) var(--spazio-3)}
 .campo-pt textarea{width:100%;min-height:112px;padding:var(--spazio-3);font:inherit;font-size:16px;line-height:24px;color:var(--testo);resize:vertical;
   background:var(--superficie);border:1px solid var(--bordo-campo);border-radius:var(--raggio-controllo)}
+.titolo-riga{display:flex;align-items:center;gap:var(--spazio-2);margin:0 0 var(--spazio-2)}
+.titolo-riga .sezione-pt{margin:0}
+.nome-riga{display:flex;align-items:center;gap:var(--spazio-2)}
+.nome-riga .titolo{margin:0}
+.spunta-accesso{flex:none;color:var(--conferma);font-weight:700;font-size:1.25rem;line-height:1}
+.testo-note{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
 .etichetta-riga{display:flex;align-items:center;gap:var(--spazio-2)}
 .aiuto-bottone{flex:none;width:22px;height:22px;padding:0;border-radius:50%;border:1px solid var(--bordo-campo);background:transparent;color:var(--testo-secondario);font:inherit;font-size:13px;font-weight:700;line-height:1;cursor:pointer}
 .aiuto-bottone:hover,.aiuto-bottone[aria-expanded="true"]{color:var(--testo);border-color:var(--testo-secondario)}

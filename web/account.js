@@ -110,6 +110,13 @@
     if (p.stato === 200) { profilo = p.json; disegnaProfilo(); }
     // Il profilo del mio trainer (se non si carica, la pagina funziona lo stesso)
     const t = await Lena.chiama("GET", "/api/me/trainer");
+    // Le note che il trainer ha scritto per me (si vedono solo se ce ne sono)
+    const n = await Lena.chiama("GET", "/api/me/note");
+    if (n.stato === 200 && n.json.testo) {
+      $("testo-note").textContent = n.json.testo;
+      $("data-note").textContent = n.json.aggiornateIl ? `Aggiornate il ${new Date(n.json.aggiornateIl).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" })}.` : "";
+      $("sezione-note").hidden = false;
+    }
     if (t.stato === 200) { $("sezione-trainer").hidden = false; LenaProfilo.disegnaScheda($("scheda-trainer"), t.json, "/api/me/trainer/foto"); }
   })();
 })();

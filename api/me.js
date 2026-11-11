@@ -28,6 +28,13 @@ function creaRotteMe({ limiteRiconferma = 5, finestraMinuti = 15 } = {}) {
     res.json({ scheda: r.rows[0], registrazioni: await leggiRegistrazioni(r.rows[0].id) });
   });
 
+  // GET /api/me/note: le note che il MIO trainer ha scritto per me («Note condivise»). Gli «Appunti per me» del trainer non si vedono mai.
+  router.get("/note", async (req, res) => {
+    const r = await db.query("SELECT note_trainer, note_trainer_aggiornate_il FROM cliente WHERE utente_id = $1", [req.utente.id]);
+    const c = r.rows[0];
+    res.json({ testo: (c && c.note_trainer) || "", aggiornateIl: (c && c.note_trainer_aggiornate_il) || null });
+  });
+
   // GET /api/me/titolare: chi è il titolare dei MIEI dati (il mio trainer), per l'informativa
   router.get("/titolare", async (req, res) => {
     const r = await db.query(

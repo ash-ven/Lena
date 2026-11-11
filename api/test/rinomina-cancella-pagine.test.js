@@ -25,3 +25,19 @@ test("pagine: la vista dei progressi mostra l'andamento dei kg", () => {
 test("scheda: nella settimana di scarico non si mostrano i pallini delle serie", () => {
   assert.match(w("scheda.js"), /const rs = scar \? null : rigaSerie\(/);
 });
+
+test("pagina del cliente: spunta accanto al nome se ha l'accesso, sezione invito nascosta, niente testo di spiegazione sui progressi", () => {
+  const h = w("pt-cliente.html"), j = w("pt-cliente.js");
+  assert.match(h, /id="spunta-accesso"/);
+  assert.match(h, /id="sezione-invito"/);
+  assert.match(h, /Il cliente vede solo l'ultima scheda che hai caricato/);
+  assert.doesNotMatch(h, /si può solo guardare/);
+  assert.match(j, /\$\("sezione-invito"\)\.hidden = !!cliente\.registrato/);
+  assert.doesNotMatch(h, /Non inserire dati di salute\.<\/strong>Infortuni, patologie, farmaci, allergie: in questa fase Lena non può contenerli\.<\/p>\s*<div class="campo-pt">\s*<label for="note-testo">/);
+});
+
+test("account del cliente: mostra le note del trainer solo se ci sono", () => {
+  assert.match(w("account.html"), /id="sezione-note" hidden/);
+  assert.match(w("account.js"), /\/api\/me\/note/);
+  assert.match(w("account.js"), /textContent = n\.json\.testo/);
+});

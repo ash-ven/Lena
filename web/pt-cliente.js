@@ -24,8 +24,9 @@
     document.title = `${cliente.nome} ${cliente.cognome} · Lena`;
     $("nome-cliente").textContent = `${cliente.nome} ${cliente.cognome}`;
     LenaProfilo.disegnaAvatar($("avatar-cliente"), { nome: `${cliente.nome} ${cliente.cognome}`, haFoto: cliente.ha_foto, fotoAggiornataIl: cliente.foto_aggiornata_il }, `/api/clienti/${id}/foto`);
-    $("riga-stato").replaceChildren(el("span", { class: `stato ${s.tipo}` }, s.testo), " ",
-      cliente.registrato ? "Ha creato il suo accesso." : "Non ha ancora creato il suo accesso.");
+    // Ha già l'accesso: basta la spunta accanto al nome. Altrimenti lo si dice a parole.
+    $("spunta-accesso").hidden = !cliente.registrato;
+    $("riga-stato").replaceChildren(el("span", { class: `stato ${s.tipo}` }, s.testo), cliente.registrato ? null : " Non ha ancora creato il suo accesso.");
     $("nome-da-scrivere").textContent = `${cliente.nome} ${cliente.cognome}`;
   }
 
@@ -85,11 +86,9 @@
 
   function disegnaInvito() {
     const stato = $("invito-stato"), bottone = $("crea-invito");
-    if (cliente.registrato) {
-      stato.textContent = "Il cliente ha già creato il suo accesso: non serve un invito.";
-      bottone.hidden = true;
-      return;
-    }
+    // Con l'accesso già creato non serve un invito: la sezione sparisce
+    $("sezione-invito").hidden = !!cliente.registrato;
+    if (cliente.registrato) return;
     bottone.hidden = false;
     if (cliente.invito_attivo) {
       stato.textContent = `C'è un invito attivo, valido fino al ${LenaPt.dataBreve(cliente.invito_scade_il)}. Se non hai più il link, creane uno nuovo: quello vecchio smette di funzionare.`;

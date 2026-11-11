@@ -37,7 +37,10 @@
       <div class="intestazione-cliente">
         <div class="avatar avatar-grande" id="avatar-cliente" role="img" aria-label="Foto del cliente"></div>
         <div>
-          <h1 class="titolo" id="nome-cliente"></h1>
+          <div class="nome-riga">
+            <h1 class="titolo" id="nome-cliente"></h1>
+            <span class="spunta-accesso" id="spunta-accesso" role="img" aria-label="Ha creato il suo accesso" title="Ha creato il suo accesso" hidden>✓</span>
+          </div>
           <p class="riga-cliente" id="riga-stato"></p>
           <button class="azione-testo" type="button" id="apri-nome" aria-expanded="false" aria-controls="modulo-nome">Modifica nome</button>
         </div>
@@ -67,7 +70,7 @@
     <!-- ===== Schede e caricamento dell'Excel ===== -->
     <section class="pannello" aria-labelledby="t-schede">
       <h2 class="sezione-pt" id="t-schede">Schede</h2>
-      <p class="nota">Il cliente vede sempre la scheda caricata per ultima.</p>
+      <p class="nota">Il cliente vede solo l'ultima scheda che hai caricato.</p>
       <p class="nota" id="bozza-nota" hidden>Hai una bozza di scheda a metà per questo cliente, salvata su questo dispositivo. <a href="/pt-editor.html" id="bozza-link">Riprendila</a>.</p>
       <ul class="schede-lista" id="schede-lista"></ul>
       <p class="attesa-pt" id="schede-vuoto" hidden>Nessuna scheda caricata per ora.</p>
@@ -79,7 +82,7 @@
         <ol class="passi"><li>Scegli il file.</li><li>Controlla gli avvisi e l'anteprima.</li><li>Invia la scheda al cliente.</li></ol>
         <p class="nota">Il file viene letto qui, nel tuo browser: al server arriva solo la scheda già convertita.</p>
         <p class="nota">Non hai ancora il file? <a href="/modello-scheda-lena.xlsx" download>Scarica il modello Excel</a>: ha un esempio già compilato e un foglio con le regole.</p>
-        <p class="avviso-pt avviso" role="note"><strong>Non inserire dati di salute.</strong>Infortuni, patologie, farmaci, allergie: in questa fase Lena non può contenerli, nemmeno nelle note dell'Excel. Se ne trovo, te lo segnalo.</p>
+        <p class="aiuto-pt" role="note">Non inserire dati di salute (infortuni, patologie, farmaci, allergie), nemmeno nelle note dell'Excel. Se ne trovo, te lo segnalo.</p>
         <div class="campo-pt">
           <label for="conv-file">Scegli il file Excel (.xlsx)</label>
           <input id="conv-file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
@@ -97,39 +100,43 @@
     </section>
 
     <!-- ===== Invito ===== -->
-    <section class="pannello" aria-labelledby="t-invito">
+    <section class="pannello" id="sezione-invito" aria-labelledby="t-invito">
       <h2 class="sezione-pt" id="t-invito">Invito</h2>
       <p id="invito-stato"></p>
       <div id="invito-nuovo" role="status" aria-live="polite"></div>
       <div class="azioni-pt"><button class="bottone secondario" type="button" id="crea-invito">Crea invito</button></div>
     </section>
 
-    <!-- ===== Note private ===== -->
+    <!-- ===== Note condivise (le legge anche il cliente) ===== -->
     <section class="pannello" aria-labelledby="t-note">
-      <h2 class="sezione-pt" id="t-note">Note private</h2>
-      <p class="nota">Appunti tuoi su questo cliente: obiettivi, preferenze, cose da ricordare. Le vedi solo tu. <strong>Se il cliente scarica i suoi dati, le riceve anche lui</strong>: scrivile di conseguenza.</p>
-      <p class="avviso-pt avviso" role="note"><strong>Non inserire dati di salute.</strong>Infortuni, patologie, farmaci, allergie: in questa fase Lena non può contenerli.</p>
+      <div class="titolo-riga">
+        <h2 class="sezione-pt" id="t-note">Note condivise</h2>
+        <button class="aiuto-bottone" type="button" data-info="note-info" aria-label="Cosa non scrivere" title="Non inserire dati di salute (infortuni, patologie, farmaci, allergie): in questa fase Lena non può contenerli." aria-expanded="false" aria-controls="note-info">i</button>
+      </div>
+      <p class="aiuto-pt" id="note-info" hidden>Non inserire dati di salute (infortuni, patologie, farmaci, allergie): in questa fase Lena non può contenerli.</p>
+      <p class="nota">Obiettivi, preferenze, cose da ricordare. <strong>Il cliente le può leggere in qualsiasi momento</strong> dal suo account.</p>
       <div class="campo-pt">
-        <label for="note-testo">Note su questo cliente</label>
+        <label for="note-testo">Note condivise con il cliente</label>
         <textarea id="note-testo" rows="6" maxlength="2000"></textarea>
         <span class="aiuto-pt" id="note-conta">0 su 2000</span>
       </div>
-      <div id="note-salute" role="status"></div>
       <div id="note-esito" role="status"></div>
       <div class="azioni-pt"><button class="bottone" type="button" id="note-salva">Salva le note</button></div>
     </section>
 
     <!-- ===== Appunti per me ===== -->
     <section class="pannello" aria-labelledby="t-appunti">
-      <h2 class="sezione-pt" id="t-appunti">Appunti per me</h2>
-      <p class="nota">Un blocco note solo tuo su questo cliente. <strong>Non entra nel file che il cliente può scaricare</strong> e non lo vede nessun altro. Se il cliente cancella il suo account o lo cancelli tu, spariscono con lui.</p>
-      <p class="avviso-pt avviso" role="note"><strong>Non inserire dati di salute.</strong>Infortuni, patologie, farmaci, allergie: in questa fase Lena non può contenerli.</p>
+      <div class="titolo-riga">
+        <h2 class="sezione-pt" id="t-appunti">Appunti per me</h2>
+        <button class="aiuto-bottone" type="button" data-info="appunti-info" aria-label="Cosa non scrivere" title="Non inserire dati di salute (infortuni, patologie, farmaci, allergie): in questa fase Lena non può contenerli." aria-expanded="false" aria-controls="appunti-info">i</button>
+      </div>
+      <p class="aiuto-pt" id="appunti-info" hidden>Non inserire dati di salute (infortuni, patologie, farmaci, allergie): in questa fase Lena non può contenerli.</p>
+      <p class="nota">Un blocco note solo tuo. <strong>Non entra nel file che il cliente può scaricare</strong> e non lo vede nessun altro. Se il cliente cancella il suo account o lo cancelli tu, spariscono con lui.</p>
       <div class="campo-pt">
         <label for="appunti-testo">Appunti per me su questo cliente</label>
         <textarea id="appunti-testo" rows="8" maxlength="4000"></textarea>
         <span class="aiuto-pt" id="appunti-conta">0 su 4000</span>
       </div>
-      <div id="appunti-salute" role="status"></div>
       <div id="appunti-esito" role="status"></div>
       <div class="azioni-pt"><button class="bottone" type="button" id="appunti-salva">Salva gli appunti</button></div>
     </section>
@@ -148,7 +155,6 @@
           <div>
             <p class="totale-progressi" id="progressi-totale"></p>
             <ul class="settimane" id="progressi-settimane"></ul>
-            <p class="nota">Un allenamento conta come completato quando ogni esercizio ha la sua spunta. Nella scheda del cliente, qui accanto (o sotto, da telefono), puoi scegliere settimana e giorno per vedere i kg e le ripetizioni segnati: si può solo guardare.</p>
             <h3 class="sotto-sezione-pt" id="t-kg">Andamento dei kg</h3>
             <p class="nota" id="progressi-kg-vuoto" hidden>Il cliente non ha ancora segnato dei kg su questa scheda.</p>
             <ul class="andamento-kg" id="progressi-kg" aria-labelledby="t-kg"></ul>
