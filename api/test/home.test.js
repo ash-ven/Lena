@@ -26,6 +26,16 @@ test("la home ha i due ingressi (trainer e cliente), un solo h1, e non nasconde 
   assert.match(html, /<noscript>[\s\S]*ruolo=pt[\s\S]*ruolo=cliente[\s\S]*<\/noscript>/);
 });
 
+test("la frase della home: quattro frasi, scelte a caso all'apertura; la prima è anche nell'HTML", () => {
+  const js = leggi("index.js"), html = leggi("index.html");
+  const frasi = [...js.match(/const FRASI = \[([\s\S]*?)\];/)[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+  assert.equal(frasi.length, 4);
+  assert.equal(new Set(frasi).size, 4);
+  assert.match(js, /Math\.random\(\)/);
+  assert.ok(html.includes(`<p class="home-frase">${frasi[0]}</p>`), "il testo senza JavaScript deve essere la prima frase");
+  assert.ok(!html.includes("in ordine."));
+});
+
 test("la home e il login rispondono 200", async () => {
   for (const url of ["/", "/login.html?ruolo=pt", "/login.html?ruolo=cliente"]) assert.equal((await fetch(BASE + url)).status, 200, url);
 });

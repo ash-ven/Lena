@@ -24,8 +24,8 @@
     const link = document.createElement("a");
     link.href = "/registrati-pt.html";
     link.textContent = "Crea il tuo account";
-    sotto.textContent = "Sei un trainer e non hai ancora un account? ";
-    sotto.append(link);
+    sotto.textContent = "Sei un trainer e non hai ancora un account?";
+    sotto.append(document.createElement("br"), link);   // il link va sotto la domanda, su due righe, anche da computer
   } else if (ruolo === "cliente") {
     document.title = "Accesso cliente · Lena";
   }

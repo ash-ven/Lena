@@ -16,6 +16,7 @@ body.semplice a{color:var(--testo-brace)}
 /* il logo (immagini: vedi sistema.css) */
 .logo{margin:0 0 var(--spazio-10);line-height:0}
 .logo .logo-img{height:32px;width:auto}
+.logo a{display:inline-block;border-radius:var(--raggio-controllo)}
 .riquadro h1{font-family:var(--font-titoli);font-weight:700;font-size:28px;line-height:34px;margin:0 0 var(--spazio-2)}
 .testo-tenue{color:var(--testo-secondario);margin:0 0 var(--spazio-6)}
 
