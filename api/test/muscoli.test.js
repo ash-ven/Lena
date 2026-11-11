@@ -30,7 +30,10 @@ test("controlli a campione", () => {
     "Hip thrust": ["glutei"],
     "Plank": ["addome"],
     "Leg curl": ["femorali"],
-    "Alzate laterali": ["spalle"],
+    "Alzate laterali": ["spalle_laterali"],
+    "Alzate frontali con manubri": ["spalle_anteriori"],
+    "Face pull": ["spalle_posteriori", "schiena_alta"],
+    "Military press": ["spalle_anteriori", "spalle_laterali", "tricipiti"],
     "Calf raise in piedi": ["polpacci"],
     "Cyclette": [],
     "Stretching dei quadricipiti": [],
@@ -41,5 +44,5 @@ test("controlli a campione", () => {
 test("anche i nomi inventati dal trainer funzionano (maiuscole e accenti)", () => {
   assert.deepEqual(muscoliDi("  SQUAT  "), ["quadricipiti", "glutei"]);
   assert.deepEqual(muscoliDi("Nome mai visto xyz"), []);
-  assert.ok(MUSCOLI.length >= 15);
+  assert.equal(MUSCOLI.length, 19);
 });

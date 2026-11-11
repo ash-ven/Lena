@@ -211,6 +211,11 @@
       return mostraStato("Non riesco a mostrare la scheda",
         "I dati della scheda non sono nel formato atteso. Avvisa il tuo PT.", [AZIONE_RIPROVA, AZIONE_ESCI]);
     }
+    // «Muscoli allenati» in fondo alla scheda: se non si carica, la scheda funziona lo stesso
+    try {
+      for (const f of ["/muscoli.js", "/omino-dati.js", "/omino.js"]) await caricaScript(f);
+      window.LenaOmino.avvia();
+    } catch (e) { console.warn("Omino non caricato:", e); }
     $("stato-pagina").hidden = true;
     document.body.classList.remove("semplice");
     // l'icona del profilo, sempre a portata di mano nella testata della scheda

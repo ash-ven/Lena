@@ -1,0 +1,25 @@
+/* L'omino a fine scheda (web/omino.js). Colori solo da variabili: il bagliore usa il brace di Lena (sistema.css),
+   uguale in ogni mood; il resto prende i colori del mood della scheda. */
+.omino { margin-top: 24px; }
+.omino .sezione span { display: block; }
+.omino-scelta { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
+.omino-scelta .btn[aria-pressed="true"] { background: var(--colore-accento-scuro); color: var(--colore-su-accento); border-color: var(--colore-accento-scuro); }
+.omino-quadro { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 16px 0 8px; padding: 12px 4px; background: var(--su-brace); border-radius: 14px; }
+.omino-fig { display: block; width: 100%; height: auto; overflow: visible; }
+.omino-fig path { fill: var(--brace); }
+.omino-base { mix-blend-mode: lighten; }
+.omino-alone { mix-blend-mode: screen; }
+.omino-tinta { mix-blend-mode: multiply; }
+.omino-luce { mix-blend-mode: screen; }
+.omino-luce path { fill: color-mix(in srgb, var(--brace) 65%, yellow); }
+/* il livello di ogni muscolo decide quanto si accende: tinta sul corpo, luce, bagliore attorno */
+.omino-tinta .i1 { opacity: .4; } .omino-tinta .i2 { opacity: .55; } .omino-tinta .i3 { opacity: .72; } .omino-tinta .i4 { opacity: .88; } .omino-tinta .i5 { opacity: 1; }
+.omino-luce .i1 { opacity: 0; } .omino-luce .i2 { opacity: .08; } .omino-luce .i3 { opacity: .18; } .omino-luce .i4 { opacity: .32; } .omino-luce .i5 { opacity: .5; }
+.omino-alone .i1 { opacity: .05; } .omino-alone .i2 { opacity: .12; } .omino-alone .i3 { opacity: .22; } .omino-alone .i4 { opacity: .36; } .omino-alone .i5 { opacity: .55; }
+.omino-legenda { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--colore-testo-tenue); }
+.omino-legenda i { flex: 1; max-width: 160px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, color-mix(in srgb, var(--brace) 25%, var(--su-brace)), var(--brace)); }
+.omino-elenco { margin-top: 12px; }
+.omino-elenco summary { cursor: pointer; padding: 8px 0; }
+.omino-elenco ul { margin: 4px 0 0; padding-left: 20px; }
+.omino-nota { margin: 4px 0 0; color: var(--colore-testo-tenue); }
+@media (prefers-reduced-motion: reduce) { .omino-fig * { transition: none; } }

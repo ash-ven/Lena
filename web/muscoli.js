@@ -10,7 +10,9 @@
   // id, nome da mostrare, dove si vede sulla figura
   const MUSCOLI = [
     { id: "petto", nome: "Petto", lati: ["davanti"] },
-    { id: "spalle", nome: "Spalle", lati: ["davanti", "dietro"] },
+    { id: "spalle_anteriori", nome: "Spalle (davanti)", lati: ["davanti"] },
+    { id: "spalle_laterali", nome: "Spalle (lato)", lati: ["davanti", "dietro"] },
+    { id: "spalle_posteriori", nome: "Spalle (dietro)", lati: ["dietro"] },
     { id: "trapezio", nome: "Trapezio", lati: ["dietro"] },
     { id: "schiena_alta", nome: "Schiena alta", lati: ["dietro"] },
     { id: "dorsali", nome: "Dorsali", lati: ["dietro"] },
@@ -61,15 +63,16 @@
     R("(sled|slitta|prowler|spinta della|trascinamento)", ["quadricipiti", "glutei"]),
     R("(estensioni dietro la nuca)", ["tricipiti"]),
     R("(carry|yoke|frame carry|husafell|atlas stone|sasso atlas|keg|sandbag su spalla|sandbag over|bear hug)", ["trapezio", "avambracci"]),
-    R("(rotatori|rotazione esterna spalla|camminata sulle mani)", ["spalle"]),
+    R("(rotatori|rotazione esterna spalla)", ["spalle_posteriori"]),
+    R("(camminata sulle mani)", ["spalle_anteriori"]),
     R("(hammer strength (incline )?press|incline press)", ["petto", "tricipiti"]),
-    R("(kettlebell press|bent press|log press|tronco press|log lift|ground[- ]to[- ]overhead|shoulder[- ]to[- ]overhead|^pike)", ["spalle", "tricipiti"]),
+    R("(kettlebell press|bent press|log press|tronco press|log lift|ground[- ]to[- ]overhead|shoulder[- ]to[- ]overhead|^pike)", ["spalle_anteriori", "tricipiti"]),
     R("(prone cobra|prone swimmer|^swimmer|nuotatore a terra)", ["lombari", "glutei"]),
     R("(tirata (all'indietro|orizzontale) con elastico)", ["dorsali", "schiena_alta"]),
-    R("(apertura (posteriore|delle braccia))", ["schiena_alta", "spalle"]),
+    R("(apertura (posteriore|delle braccia))", ["schiena_alta", "spalle_posteriori"]),
     R("(apertura in avanti)", ["petto"]),
     R("(step-over|glute-ham developer)", ["quadricipiti", "glutei"]),
-    R("(kettlebell long cycle)", ["glutei", "spalle"]),
+    R("(kettlebell long cycle)", ["glutei", "spalle_anteriori"]),
     // ---- avambracci e presa ----
     R("(wrist|polsi|polso|avambrac|farmer|passeggiata del contadino|suitcase|waiter|rack carry|plate pinch|pinch grip|dead hang|sospensione alla sbarra|grip crusher|wrist roller|roll up del polso|trasporto)", ["avambracci"]),
     // ---- braccia ----
@@ -77,12 +80,13 @@
     R("(curl inverso|hammer curl|curl a martello|reverse curl|zottman)", ["bicipiti", "avambracci"]),
     R("(curl|bicip|biceps|preacher|scott|spider|drag curl)", ["bicipiti"]),
     // ---- spalle ----
-    R("(face pull|band pull|pull-apart|pull apart|alzate posteriori|reverse pec|reverse fly|rear delt|rotazioni (esterne|interne)|y raise|t raise|w raise|alzate a (y|t|w)|croci inverse|prone (y|t|w)|\\b(y|t|w) con elastico)", ["spalle", "schiena_alta"]),
-    R("(alzate (laterali|frontali|a 90)|lateral raise|alzate con|front raise|macchina per le alzate)", ["spalle"]),
-    R("(tirate al mento|upright row|tirata al petto con elastico)", ["spalle", "trapezio"]),
+    R("(face pull|band pull|pull-apart|pull apart|alzate posteriori|reverse pec|reverse fly|rear delt|rotazioni (esterne|interne)|y raise|t raise|w raise|alzate a (y|t|w)|croci inverse|prone (y|t|w)|\\b(y|t|w) con elastico)", ["spalle_posteriori", "schiena_alta"]),
+    R("(alzate frontali|front raise)", ["spalle_anteriori"]),
+    R("(alzate (laterali|frontali|a 90)|lateral raise|alzate con|front raise|macchina per le alzate)", ["spalle_laterali"]),
+    R("(tirate al mento|upright row|tirata al petto con elastico)", ["spalle_laterali", "trapezio"]),
     R("(shrug|trapez|neck|collo|chin tuck|cervical)", ["trapezio"]),
-    R("(handstand push|pike push|verticale|handstand|wall walk|planche|bradford|behind the neck)", ["spalle", "tricipiti"]),
-    R("(military|shoulder press|arnold|lento (avanti|dietro)|push press|landmine press|overhead press|press sopra la testa|z press|cuban|spalle|macchina per le spalle|bottoms-up|turkish|get-up|press con disco sopra|half-kneeling landmine)", ["spalle", "tricipiti"]),
+    R("(handstand push|pike push|verticale|handstand|wall walk|planche|bradford|behind the neck)", ["spalle_anteriori", "tricipiti"]),
+    R("(military|shoulder press|arnold|lento (avanti|dietro)|push press|landmine press|overhead press|press sopra la testa|z press|cuban|spalle|macchina per le spalle|bottoms-up|turkish|get-up|press con disco sopra|half-kneeling landmine)", ["spalle_anteriori", "spalle_laterali", "tricipiti"]),
     // ---- schiena ----
     R("(scapular|scapolar|serratus|dentato|wall slide|retrazion|protrazion|elevazion)", ["schiena_alta"]),
     R("(muscle-up|muscle up)", ["dorsali", "tricipiti"]),
@@ -99,10 +103,10 @@
     // ---- olimpico, kettlebell e funzionale ----
     R("(kettlebell swing|swing con kettlebell|swing americano|swing russo|swing a)", ["glutei", "femorali"]),
     R("(clean|snatch|jerk|strappo|slancio|muscle clean|high pull|sumo deadlift high pull|hang)", ["glutei", "quadricipiti", "trapezio"]),
-    R("(medicine ball|palla medica|slam|ball slam|lancio)", ["addome", "spalle"]),
-    R("(battle rope|corde pesanti)", ["spalle"]),
+    R("(medicine ball|palla medica|slam|ball slam|lancio)", ["addome", "spalle_anteriori"]),
+    R("(battle rope|corde pesanti)", ["spalle_anteriori"]),
     R("(devil press|man maker|burpee|sprawl|squat thrust)", []),
-    R("(windmill|halo)", ["spalle", "obliqui"]),
+    R("(windmill|halo)", ["spalle_laterali", "obliqui"]),
     R("(good morning|hip hinge)", ["femorali", "lombari"]),
   ];
 
