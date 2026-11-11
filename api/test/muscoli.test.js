@@ -35,7 +35,14 @@ test("controlli a campione", () => {
     "Face pull": ["spalle_posteriori", "schiena_alta"],
     "Military press": ["spalle_anteriori", "spalle_laterali", "tricipiti"],
     "Calf raise in piedi": ["polpacci"],
-    "Cyclette": [],
+    "Cyclette": ["quadricipiti", "glutei", "polpacci"],
+    "Corsa": ["quadricipiti", "glutei", "polpacci"],
+    "Corsa sul tapis roulant": ["quadricipiti", "glutei", "polpacci"],
+    "Vogatore": ["quadricipiti", "dorsali", "glutei"],
+    "Ellittica": ["quadricipiti", "glutei", "polpacci"],
+    "Salto con la corda": ["polpacci", "quadricipiti"],
+    "Burpees": [],
+    "Defaticamento": [],
     "Stretching dei quadricipiti": [],
   };
   for (const [nome, atteso] of Object.entries(prova)) assert.deepEqual(muscoliDi(nome), atteso, nome);

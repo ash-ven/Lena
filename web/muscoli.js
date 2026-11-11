@@ -2,7 +2,7 @@
 // Solo i muscoli PRINCIPALI (da 1 a 3 per esercizio), niente secondari. Un solo file, usato dal browser e dai test.
 // Funziona sul NOME dell'esercizio (anche per quelli inventati dal trainer): si normalizza il nome e si cercano parole chiave,
 // dalla più specifica alla più generale; vince la prima regola che corrisponde. [] = non allena un muscolo in particolare
-// (cardio, mobilità, stretching, allenamenti a tempo): non colora nulla.
+// (mobilità, stretching, allenamenti a tempo, WOD): non colora nulla. Il cardio colora i muscoli che lavorano di più.
 (function (radice, fabbrica) {
   if (typeof module === "object" && module.exports) module.exports = fabbrica();
   else radice.LenaMuscoli = fabbrica();
@@ -40,6 +40,17 @@
     R("^(wod|amrap|emom|e2mom|metcon|chipper|circuito|finisher|hiit|tabata|defaticamento|riscaldamento|workout)\\b", []),
     R("^stretching|^figura del quattro|^pigeon|^posizione (del|della)|^child|^downward|^cane a testa|^cobra|^upward dog|^foam roller|^rilascio|^respirazione diaframmatica|^gambe al muro|^world's greatest|^hip opener|^90/90|^cat[ -]|^wall angel|^angelo al muro|^thread the needle|^open book|^doorway|^allungamento|^torsione (da|in)|^supine twist|^piegamento in avanti|^farfalla|^affondo del corridore", []),
     R("^(mobilita|rotazioni? (delle|del|dei) (spall|brac|coll|caviglie|polsi|anche|bacino|ginocchi)|cerchi con le braccia|slanci della gamba|arm swing|leg swing|marcia sul posto|corsa sul posto|talloni ai glutei|ginocchia alte|skip|jumping jack|walking lunge con rotazione|equilibrio|single leg stance|y balance|star excursion|tavoletta|tandem|camminata (sulla|in tandem|sul bordo|sui talloni|sulle punte)|short foot|piede corto|presa del pavimento|arrotolamento|towel curl|marble|passive hang|active hang|sospensione (passiva|attiva))", []),
+    // ---- cardio e simili: lavorano il corpo in modo diffuso, ma si mostrano i muscoli che fanno più lavoro (un solo esercizio: luce bassa) ----
+    R("(vogatore|rowing machine|concept2|canottaggio)", ["quadricipiti", "dorsali", "glutei"]),
+    R("(skierg|ski erg)", ["dorsali", "tricipiti", "addome"]),
+    R("(arm bike|ube$)", ["spalle_anteriori", "bicipiti", "tricipiti"]),
+    R("^nuoto", ["dorsali", "spalle_anteriori", "petto"]),
+    R("(^boxe|sacco|shadow|pugilato|kickboxing|muay)", ["spalle_anteriori", "tricipiti", "obliqui"]),
+    R("(^corda$|salto con (la )?corda|double under|single under|triple under)", ["polpacci", "quadricipiti"]),
+    R("(corde navali|battle rope onde)", ["spalle_anteriori", "spalle_laterali", "avambracci"]),
+    R("(passi laterali veloci|shuffle|carioca|passo incrociato|cone drill|cono drill|slalom|zig-zag|pro agility|illinois|t-drill|t test|cambi di direzione)", ["glutei", "abduttori", "quadricipiti"]),
+    R("(cyclette|air bike|assault bike|echo bike|spin bike|bike indoor)", ["quadricipiti", "glutei", "polpacci"]),
+    R("(tapis|^corsa|^sprint|ripetute|fartlek|camminata (veloce|in salita|inclinata|a ritmo|nordica|con pesi)|ellittica|cross trainer|stepper|stair|scala infinita|stairmaster|scale$|versaclimber|arc trainer|jacob|navetta|shuttle run|ladder$|agility ladder|scaletta|a-skip|b-skip|c-skip|run \\d|^run |^running)", ["quadricipiti", "glutei", "polpacci"]),
     R("(cyclette|air bike|assault bike|echo bike|spin bike|bike indoor|tapis|^corsa|^sprint|ripetute|fartlek|ellittica|cross trainer|stepper|stair|scala infinita|stairmaster|scale$|vogatore|rowing machine|concept2|skierg|ski erg|arm bike|ergometro|ube$|versaclimber|arc trainer|jacob|^nuoto|acquagym|^boxe|sacco|shadow|pugilato|kickboxing|muay|camminata veloce|camminata in salita|camminata inclinata|camminata a ritmo|camminata nordica|camminata con pesi|camminata di defaticamento|^corda$|salto con (la )?corda|double under|single under|triple under|^corde navali|battle rope onde|aqua|canottaggio|navetta|shuttle run|ladder$|agility ladder|scaletta|cono drill|cone drill|slalom|zig-zag|pro agility|illinois|t-drill|t test|cambi di direzione|passi laterali veloci|shuffle|carioca|passo incrociato|a-skip|b-skip|c-skip|corsa (calciata|balzata|laterale|all'indietro|con)|run \\d|^run |echo bike|assault)", []),
     // ---- core ----
     R("(russian twist|woodchop|taglialegna|side bend|piegamenti laterali|plank laterale|side plank|rotazion[ei] ai cavi|rotazione del busto|rotazioni del busto|windshield|tergicristallo|heel touch|tocco dei talloni|bicycle|bicicletta|side crunch|crunch laterale|landmine rotation|rotazione con landmine|rotary torso|torso rotation|core rotation|crunch con rotazione|copenhagen plank|anti-rotation|anti-rotazione|pallof|trasporto anti-rotazione|rotazione del busto|torsione del busto|inclinazioni laterali)", ["obliqui", "addome"]),
